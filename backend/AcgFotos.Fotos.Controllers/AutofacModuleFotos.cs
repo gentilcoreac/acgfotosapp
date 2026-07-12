@@ -1,9 +1,15 @@
 using Autofac;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using AcgFotos.Core.AutoFac;
 using AcgFotos.Fotos.Application.Imaging;
+using AcgFotos.Fotos.Application.Procesamiento;
+using AcgFotos.Fotos.Application.Storage;
+using AcgFotos.Fotos.Controllers.Background;
 using AcgFotos.Fotos.Domain.Repositories;
 using AcgFotos.Fotos.Infrastructure.Imaging;
 using AcgFotos.Fotos.Infrastructure.Persistence.Ef.Repositories;
+using AcgFotos.Fotos.Infrastructure.Storage;
 
 namespace AcgFotos.Fotos.Controllers
 {
@@ -36,6 +42,34 @@ namespace AcgFotos.Fotos.Controllers
             builder.RegisterType<CursoRepository>()
                 .As<ICursoRepository>()
                 .InstancePerLifetimeScope();
+
+            builder.RegisterType<FotoRepository>()
+                .As<IFotoRepository>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<FotoStorage>()
+                .As<IFotoStorage>()
+                .InstancePerLifetimeScope(); // envuelve al IStorageProvider registrado por la base
+
+            // Pipeline de procesamiento en background (ADR-04): cola singleton + worker hosted.
+            // El host resuelve IEnumerable<IHostedService> del container, así el vertical suma
+            // su worker sin tocar el Startup de la plataforma.
+            builder.RegisterType<FotoProcesamientoQueue>()
+                .AsSelf()
+                .SingleInstance();
+
+            builder.RegisterType<FotoProcesamientoWorker>()
+                .As<IHostedService>()
+                .SingleInstance();
+
+            builder.Register(c =>
+                {
+                    var configuration = c.Resolve<IConfiguration>();
+                    var opciones = new OpcionesFotos();
+                    configuration.GetSection("Fotos").Bind(opciones);
+                    return opciones;
+                })
+                .SingleInstance();
 
             base.Load(builder);
         }
