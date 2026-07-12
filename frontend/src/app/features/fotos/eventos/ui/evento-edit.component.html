@@ -1,0 +1,97 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar evento' : 'Nuevo evento' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <div class="edit__form">
+      <tbi-text-field [formField]="form.nombre" label="Nombre" />
+      <tbi-text-field [formField]="form.colegio" label="Colegio" />
+      <div class="edit__row">
+        <tbi-date-picker [formField]="form.fecha" label="Fecha del evento" />
+        <tbi-date-picker [formField]="form.fechaExpiracion" label="Disponible hasta" />
+        <tbi-select [formField]="form.estado" label="Estado" [options]="estadoOptions" />
+      </div>
+    </div>
+
+    <section class="edit__tamanos">
+      <header class="edit__tamanos-header">
+        <h3>Catálogo de tamaños</h3>
+        <button matButton type="button" (click)="agregarTamano()">
+          <mat-icon>add</mat-icon>
+          Agregar tamaño
+        </button>
+      </header>
+
+      @if (model().tamanos.length > 0) {
+        <div class="edit__tamanos-grid">
+          <span class="edit__tamanos-cabecera">Tamaño</span>
+          <span class="edit__tamanos-cabecera">Precio</span>
+          <span class="edit__tamanos-cabecera edit__tamanos-cabecera--centro">Activo</span>
+          <span class="edit__tamanos-cabecera"></span>
+
+          @for (tamanoField of form.tamanos; track $index; let i = $index) {
+            <tbi-cell-input [formField]="tamanoField.nombre" ariaLabel="Nombre del tamaño" />
+            <tbi-cell-input
+              [formField]="tamanoField.precio"
+              inputMode="decimal"
+              ariaLabel="Precio unitario"
+            />
+            <span class="edit__tamanos-activo">
+              <mat-checkbox [formField]="tamanoField.activo" aria-label="Activo" />
+            </span>
+            <span class="edit__tamanos-acciones">
+              <button
+                matIconButton
+                type="button"
+                matTooltip="Subir"
+                aria-label="Subir"
+                [disabled]="i === 0"
+                (click)="moverTamano(i, -1)"
+              >
+                <mat-icon>arrow_upward</mat-icon>
+              </button>
+              <button
+                matIconButton
+                type="button"
+                matTooltip="Bajar"
+                aria-label="Bajar"
+                [disabled]="i === model().tamanos.length - 1"
+                (click)="moverTamano(i, 1)"
+              >
+                <mat-icon>arrow_downward</mat-icon>
+              </button>
+              <button
+                matIconButton
+                type="button"
+                matTooltip="Quitar"
+                aria-label="Quitar"
+                (click)="quitarTamano(i)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </span>
+          }
+        </div>
+      } @else {
+        <p class="edit__empty">
+          Sin tamaños todavía. Agregá los tamaños de impresión que se van a vender (ej. 10x15,
+          13x18) con su precio.
+        </p>
+      }
+    </section>
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

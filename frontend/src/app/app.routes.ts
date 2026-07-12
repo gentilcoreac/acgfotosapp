@@ -34,6 +34,14 @@ export const routes: Routes = [
       import('./layout/main-layout/main-layout.component').then((m) => m.MainLayoutComponent),
     children: [
       {
+        // Vertical Fotos (admin): el fotógrafo arma sus eventos.
+        path: 'fotos/eventos',
+        loadComponent: () =>
+          import('./features/fotos/eventos/ui/eventos-list.component').then(
+            (m) => m.EventosListComponent,
+          ),
+      },
+      {
         path: 'tipos-licencias',
         loadComponent: () =>
           import('./features/tipos-licencias/ui/tipos-licencias-list.component').then(
