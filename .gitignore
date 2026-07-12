@@ -1,0 +1,23 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+
+# Entornos y secretos
+.env
+.env.*
+appsettings.*.local.json
+*.local.json
+
+# Datos locales de docker (volúmenes mapeados)
+.data/
+
+# SO / editores
+Thumbs.db
+.DS_Store
