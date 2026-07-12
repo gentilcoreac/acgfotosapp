@@ -42,6 +42,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'fotos/cursos',
+        loadComponent: () =>
+          import('./features/fotos/cursos/ui/cursos-list.component').then(
+            (m) => m.CursosListComponent,
+          ),
+      },
+      {
         path: 'tipos-licencias',
         loadComponent: () =>
           import('./features/tipos-licencias/ui/tipos-licencias-list.component').then(

@@ -1,0 +1,67 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar curso' : 'Nuevo curso' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <div class="edit__form">
+      <tbi-select [formField]="form.eventoId" label="Evento" [options]="eventoOptions()" />
+      <tbi-text-field [formField]="form.nombre" label="Nombre del curso" />
+    </div>
+
+    <section class="edit__albumes">
+      <header class="edit__albumes-header">
+        <h3>Álbumes (alumnos)</h3>
+        <button matButton type="button" (click)="agregarAlbum()">
+          <mat-icon>add</mat-icon>
+          Agregar álbum
+        </button>
+      </header>
+
+      @if (model().albumes.length > 0) {
+        <div class="edit__albumes-grid">
+          <span class="edit__albumes-cabecera">Alumno</span>
+          <span class="edit__albumes-cabecera">Código de acceso</span>
+          <span class="edit__albumes-cabecera"></span>
+
+          @for (albumField of form.albumes; track $index; let i = $index) {
+            <tbi-cell-input [formField]="albumField.nombreAlumno" ariaLabel="Nombre del alumno" />
+            <span class="edit__albumes-codigo">
+              {{ model().albumes[i].codigoAcceso ?? 'Se genera al guardar' }}
+            </span>
+            <span class="edit__albumes-acciones">
+              <button
+                matIconButton
+                type="button"
+                matTooltip="Quitar"
+                aria-label="Quitar"
+                (click)="quitarAlbum(i)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </span>
+          }
+        </div>
+        <p class="edit__hint">
+          Cada álbum recibe su código de acceso al guardarse; con ese código la familia entra a ver
+          las fotos del alumno. Un álbum con fotos no se puede quitar.
+        </p>
+      } @else {
+        <p class="edit__empty">Sin álbumes todavía. Agregá un álbum por alumno del curso.</p>
+      }
+    </section>
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

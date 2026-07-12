@@ -1,0 +1,9 @@
+// Usa el scaffold global `.list` (styles/_page.scss); solo agrega la fila de filtros.
+.list__filters {
+  display: flex;
+  margin-bottom: 0.75rem;
+}
+
+.list__filter-evento {
+  min-width: 260px;
+}

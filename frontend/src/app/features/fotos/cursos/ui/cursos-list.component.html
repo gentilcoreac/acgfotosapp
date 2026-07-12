@@ -1,0 +1,29 @@
+<section class="list">
+  <header class="list__header">
+    <h1>Cursos</h1>
+    <div class="list__actions">
+      <button matButton="filled" (click)="add()">
+        <mat-icon>add</mat-icon>
+        Nuevo
+      </button>
+    </div>
+  </header>
+
+  <div class="list__filters">
+    <tbi-select
+      class="list__filter-evento"
+      label="Evento"
+      [options]="eventoFiltroOptions()"
+      [(value)]="eventoFiltro"
+    />
+  </div>
+
+  <tbi-table
+    [columns]="columns()"
+    [fetch]="fetch"
+    [rowActions]="rowActions"
+    [filters]="filtros()"
+    [searchable]="true"
+    searchPlaceholder="Buscar curso…"
+  />
+</section>
