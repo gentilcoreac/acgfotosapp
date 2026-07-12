@@ -16,4 +16,11 @@ public interface IFotoStorage
 
     /// <summary>Guarda preview y thumb (ambos JPEG con watermark) del resultado del pipeline.</summary>
     Task GuardarDerivadosAsync(Foto foto, DerivadosFoto derivados);
+
+    Task<byte[]> LeerThumbAsync(Foto foto);
+
+    Task<byte[]> LeerPreviewAsync(Foto foto);
+
+    /// <summary>Borra original + derivados (los que existan) — el borrado de una foto limpia todo.</summary>
+    Task EliminarAsync(Foto foto);
 }

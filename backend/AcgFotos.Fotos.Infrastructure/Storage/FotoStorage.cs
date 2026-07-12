@@ -32,6 +32,21 @@ public class FotoStorage : IFotoStorage
     public Task<byte[]> LeerOriginalAsync(Foto foto) =>
         _storageProvider.ReadAsync(PrefijoPrivado + FotoStorageKeys.Original(foto));
 
+    public Task<byte[]> LeerThumbAsync(Foto foto) =>
+        _storageProvider.ReadAsync(PrefijoPrivado + FotoStorageKeys.Thumb(foto));
+
+    public Task<byte[]> LeerPreviewAsync(Foto foto) =>
+        _storageProvider.ReadAsync(PrefijoPrivado + FotoStorageKeys.Preview(foto));
+
+    public async Task EliminarAsync(Foto foto)
+    {
+        // DeleteAsync del provider no falla si la key no existe (una foto Pendiente/Error
+        // puede no tener derivados todavía).
+        await _storageProvider.DeleteAsync(PrefijoPrivado + FotoStorageKeys.Original(foto));
+        await _storageProvider.DeleteAsync(PrefijoPrivado + FotoStorageKeys.Thumb(foto));
+        await _storageProvider.DeleteAsync(PrefijoPrivado + FotoStorageKeys.Preview(foto));
+    }
+
     public async Task GuardarDerivadosAsync(Foto foto, DerivadosFoto derivados)
     {
         await _storageProvider.SaveAsync(

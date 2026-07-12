@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using AcgFotos.Core.Data;
 using AcgFotos.Core.Exceptions;
 using AcgFotos.Core.Session;
@@ -26,6 +27,7 @@ public class FotoAppService : IFotoAppService
     private readonly FotoProcesamientoQueue _queue;
     private readonly IAppContext _appContext;
     private readonly FotoMapper _fotoMapper;
+    private readonly ILogger<FotoAppService> _logger;
 
     public FotoAppService(
         IUnitOfWork unitOfWork,
@@ -33,7 +35,8 @@ public class FotoAppService : IFotoAppService
         IFotoStorage fotoStorage,
         FotoProcesamientoQueue queue,
         IAppContext appContext,
-        FotoMapper fotoMapper)
+        FotoMapper fotoMapper,
+        ILogger<FotoAppService> logger)
     {
         _unitOfWork = unitOfWork;
         _fotoRepository = fotoRepository;
@@ -41,6 +44,7 @@ public class FotoAppService : IFotoAppService
         _queue = queue;
         _appContext = appContext;
         _fotoMapper = fotoMapper;
+        _logger = logger;
     }
 
     public async Task<List<FotoDto>> SubirAsync(SubirFotosInput input)
@@ -105,6 +109,59 @@ public class FotoAppService : IFotoAppService
     {
         var fotos = await _fotoRepository.ListarAsync(cursoId, albumId);
         return fotos.Select(_fotoMapper.ToDto).ToList();
+    }
+
+    public async Task<byte[]?> ObtenerThumbAsync(long fotoId)
+    {
+        var foto = await _fotoRepository.GetByIdAsync(fotoId);
+        return foto?.EstadoProcesamiento == EstadoProcesamientoFoto.Lista
+            ? await _fotoStorage.LeerThumbAsync(foto)
+            : null;
+    }
+
+    public async Task<byte[]?> ObtenerPreviewAsync(long fotoId)
+    {
+        var foto = await _fotoRepository.GetByIdAsync(fotoId);
+        return foto?.EstadoProcesamiento == EstadoProcesamientoFoto.Lista
+            ? await _fotoStorage.LeerPreviewAsync(foto)
+            : null;
+    }
+
+    public async Task<DescargaOriginal?> ObtenerOriginalAsync(long fotoId)
+    {
+        var foto = await _fotoRepository.GetByIdAsync(fotoId);
+        if (foto == null)
+        {
+            return null;
+        }
+
+        var contenido = await _fotoStorage.LeerOriginalAsync(foto);
+        return new DescargaOriginal(contenido, foto.NombreArchivoOriginal);
+    }
+
+    public async Task<bool> EliminarAsync(long fotoId)
+    {
+        var foto = await _fotoRepository.GetByIdTrackedAsync(fotoId);
+        if (foto == null)
+        {
+            return false;
+        }
+
+        // La fila primero (fuente de verdad de la galería); el storage después como best-effort:
+        // un archivo huérfano no es visible ni peligroso, una fila sin archivos sí rompería.
+        _fotoRepository.Delete(foto);
+        await _unitOfWork.CommitAsync();
+
+        try
+        {
+            await _fotoStorage.EliminarAsync(foto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "No se pudieron borrar los archivos de la foto {FotoId}; quedan huérfanos.", fotoId);
+        }
+
+        return true;
     }
 
     /// <summary>Solo el nombre (sin path del cliente), acotado al largo de la columna.</summary>
