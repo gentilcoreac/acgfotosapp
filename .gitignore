@@ -18,6 +18,9 @@ appsettings.*.local.json
 # Datos locales de docker (volúmenes mapeados)
 .data/
 
+# Toolchain local (Node portátil para el front; ver frontend/README.md)
+.tools/
+
 # SO / editores
 Thumbs.db
 .DS_Store

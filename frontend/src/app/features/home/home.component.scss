@@ -1,0 +1,29 @@
+.home {
+  display: block;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.home__header {
+  margin-bottom: 1.75rem;
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font: var(--mat-sys-headline-medium);
+    color: var(--mat-sys-on-surface);
+  }
+
+  p {
+    margin: 0;
+    font: var(--mat-sys-body-medium);
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+// Grid de widgets del dashboard. Las KPI cards (widgets con display:contents) caen como ítems del
+// grid; los widgets anchos (ej. el gráfico) ocupan toda la fila con grid-column: 1 / -1.
+.home__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}

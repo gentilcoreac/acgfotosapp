@@ -1,0 +1,52 @@
+// Estilo compartido por las páginas de error (404 / acceso denegado). Tarjeta centrada a pantalla
+// completa, paleta M3 por CSS-vars (igual que la pantalla de reconexión).
+.error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 60vh;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.error-page__icon {
+  width: 72px;
+  height: 72px;
+  font-size: 72px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.error-page__code {
+  margin: 0;
+  font: var(--mat-sys-display-medium);
+  font-weight: 700;
+  color: var(--mat-sys-primary);
+}
+
+.error-page__title {
+  margin: 0;
+  font: var(--mat-sys-headline-small);
+  color: var(--mat-sys-on-surface);
+}
+
+.error-page__text {
+  margin: 0;
+  max-width: 420px;
+  font: var(--mat-sys-body-medium);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// Botón único (404) o grupo de acciones (403): separación del bloque de texto.
+.error-page > a,
+.error-page__actions {
+  margin-top: 0.75rem;
+}
+
+.error-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}

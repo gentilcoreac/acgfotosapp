@@ -1,0 +1,24 @@
+<section class="list">
+  <header class="list__header">
+    <h1>Usuarios</h1>
+    <div class="list__actions">
+      <button matButton="filled" (click)="add()">
+        <mat-icon>add</mat-icon>
+        Nuevo
+      </button>
+    </div>
+  </header>
+
+  @if (!isRoot()) {
+    <tbi-licencias-kpis [licencias]="resumen()" />
+    <tbi-licencias-warning-banner [licencias]="resumen()" />
+  }
+
+  <tbi-table
+    [columns]="columns()"
+    [fetch]="fetch"
+    [rowActions]="rowActions"
+    [searchable]="true"
+    searchPlaceholder="Buscar usuario…"
+  />
+</section>

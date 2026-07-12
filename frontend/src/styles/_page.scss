@@ -1,0 +1,30 @@
+// Scaffold de las páginas de listado (encabezado con título + acciones, seguido de la tabla).
+// Es GLOBAL y compartido porque los 9 listados repetían este mismo bloque `.list` casi idéntico.
+// Cada listado sólo conserva en su SCSS lo que se desvía (ancho máximo, filtros).
+// El padding exterior lo aporta el área de contenido del layout (`.layout__content`), NO la página:
+// no hay padding apilado. Acá `.list` sólo centra el contenido con un ancho máximo.
+.list {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.list__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  // Título de página unificado al token tipográfico M3 (antes era el default del navegador).
+  h1 {
+    margin: 0;
+    font: var(--mat-sys-headline-small);
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+.list__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}

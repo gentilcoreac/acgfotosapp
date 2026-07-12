@@ -1,0 +1,45 @@
+<div
+  class="login"
+  [class.login--split]="isSplit()"
+  [class.login--image-right]="layout() === 2"
+  [style.background-image]="centeredBg()"
+>
+  @if (isSplit() && backgroundUrl()) {
+    <div class="login__image">
+      <img [src]="backgroundUrl()" alt="" />
+    </div>
+  }
+
+  <div class="login__pane">
+    <form class="login__card" [formGroup]="form" (ngSubmit)="submit()">
+      @if (loginLogoUrl(); as logo) {
+        <img class="login__logo" data-testid="login-logo" [src]="logo" [alt]="appTitle" />
+      } @else {
+        <p class="login__brand">{{ appTitle }}</p>
+      }
+      <h1 class="login__title">Iniciar sesión</h1>
+
+      <tbi-text-field formControlName="userName" label="Usuario" autocomplete="username" errorMessage="Requerido" />
+
+      <tbi-text-field
+        formControlName="password"
+        label="Contraseña"
+        type="password"
+        autocomplete="current-password"
+        errorMessage="Requerido"
+      />
+
+      @if (errors().length > 0) {
+        <ul class="login__errors" data-testid="login-errors">
+          @for (msg of errors(); track msg) {
+            <li>{{ msg }}</li>
+          }
+        </ul>
+      }
+
+      <tbi-button type="submit" label="Ingresar" loadingText="Ingresando…" [loading]="loading()" />
+
+      <footer class="login__footer">{{ appTitle }} v{{ version }} · {{ year }}</footer>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+// Reset y estilos base de la app, todos sobre variables de sistema `--mat-sys-*` (duales
+// light/dark). El modo efectivo lo gobierna `ThemeStore`, que setea `color-scheme` en <html>
+// al arrancar; acá dejamos `light` como fallback para el instante previo a que corra el JS.
+:root {
+  color-scheme: light;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+}
+
+html {
+  height: 100%;
+}
+
+// El contenedor scrollable interno del drawer del sidenav permite scroll vertical (muchos menús)
+// pero nunca horizontal. Material lo declara con `overflow: auto` (shorthand) como estilo de
+// componente `ViewEncapsulation.None` (selector plano), que se inyecta en runtime y le gana a una
+// regla global de igual especificidad. Por eso anteponemos `.layout__sidenav` (2 clases > 1) para
+// ganar la cascada. Va en estilos globales (no encapsulados) en lugar de `::ng-deep`.
+.layout__sidenav .mat-drawer-inner-container {
+  overflow-x: hidden;
+}

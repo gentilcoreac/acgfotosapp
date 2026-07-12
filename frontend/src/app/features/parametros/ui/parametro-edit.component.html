@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar parámetro' : 'Nuevo parámetro' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    <tbi-text-field [formField]="form.nombre" label="Nombre" />
+    <tbi-text-field [formField]="form.valor" label="Valor por defecto" />
+    <tbi-text-field [formField]="form.descripcion" label="Descripción" />
+    <tbi-select [formField]="form.tipoDato" label="Tipo de dato" [options]="tipoDatoOptions" />
+    <tbi-select
+      [formField]="form.aplicacionId"
+      label="Aplicación"
+      [options]="aplicacionOptions()"
+    />
+    <tbi-select [formField]="form.permisoId" label="Permiso" [options]="permisoOptions()" />
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

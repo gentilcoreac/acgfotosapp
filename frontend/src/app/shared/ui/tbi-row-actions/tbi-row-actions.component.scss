@@ -1,0 +1,35 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 40px;
+}
+
+// Mobile-first: por defecto se muestra el menú de 3 puntos (touch, sin hover). En desktop con
+// puntero fino se cambia a íconos inline. El switch es por capacidad del dispositivo, no por ancho.
+.tbi-row-actions__inline {
+  display: none;
+  align-items: center;
+  gap: 2px;
+}
+
+.tbi-row-actions__menu {
+  display: inline-flex;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tbi-row-actions__inline {
+    display: inline-flex;
+  }
+
+  .tbi-row-actions__menu {
+    display: none;
+  }
+}
+
+// Acción destructiva (Eliminar): ícono en color error tanto en el botón inline como en el menú.
+.tbi-row-actions__danger {
+  --mat-icon-color: var(--mat-sys-error);
+
+  color: var(--mat-sys-error);
+}

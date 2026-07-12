@@ -1,0 +1,43 @@
+<!-- Plantilla recursiva: cada nodo se renderiza con el mismo template vía NgTemplateOutlet. -->
+<ng-template #nodeTpl let-node>
+  <div class="tree-node">
+    @if (hasChildren(node)) {
+      <button
+        matIconButton
+        type="button"
+        class="tree-node__toggle"
+        [attr.aria-label]="isExpanded(node) ? 'Contraer' : 'Expandir'"
+        (click)="toggleExpand(node)"
+      >
+        <mat-icon>{{ isExpanded(node) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+      </button>
+    } @else {
+      <span class="tree-node__toggle tree-node__toggle--leaf"></span>
+    }
+
+    <mat-checkbox
+      [checked]="isChecked(node)"
+      [disabled]="disabled()"
+      (change)="select(node, $event.checked)"
+    >
+      {{ node.name }}
+    </mat-checkbox>
+  </div>
+
+  @if (hasChildren(node) && isExpanded(node)) {
+    <div class="tree-node__children" role="group">
+      @for (child of node.children; track child.id) {
+        <ng-container
+          [ngTemplateOutlet]="nodeTpl"
+          [ngTemplateOutletContext]="{ $implicit: child }"
+        />
+      }
+    </div>
+  }
+</ng-template>
+
+<div class="tree" role="tree">
+  @for (root of nodes(); track root.id) {
+    <ng-container [ngTemplateOutlet]="nodeTpl" [ngTemplateOutletContext]="{ $implicit: root }" />
+  }
+</div>

@@ -1,0 +1,125 @@
+<div class="profile" data-testid="profile-page">
+  <header class="profile__page-header">
+    <h1>Mi perfil</h1>
+    <p>Gestioná tus datos personales y tu contraseña.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="profile__loading">
+      <mat-progress-spinner mode="indeterminate" diameter="40" />
+    </div>
+  } @else if (perfil(); as p) {
+    <mat-card class="profile__hero" appearance="outlined">
+      <div class="profile__avatar" aria-hidden="true">{{ inicial() }}</div>
+      <div class="profile__id">
+        <h2 class="profile__name">{{ nombreCompleto() }}</h2>
+        <span class="profile__username" data-testid="profile-user-name">{{
+          '@' + p.userName
+        }}</span>
+        <span class="profile__email">
+          <mat-icon class="profile__email-icon">mail</mat-icon>
+          <span data-testid="profile-email">{{ p.email }}</span>
+        </span>
+        <div class="profile__badges">
+          @if (p.administrador) {
+            <tbi-status-chip
+              label="Administrador"
+              tone="warning"
+              icon="shield_person"
+              data-testid="profile-admin-chip"
+            />
+          }
+          @if (p.emailConfirmed) {
+            <tbi-status-chip
+              label="Email verificado"
+              tone="success"
+              icon="verified"
+              data-testid="profile-email-verified"
+            />
+          } @else {
+            <tbi-status-chip label="Email sin verificar" tone="error" icon="error_outline" />
+          }
+          <tbi-status-chip
+            [label]="p.claveVigente ? 'Contraseña vigente' : 'Contraseña por renovar'"
+            [tone]="p.claveVigente ? 'success' : 'warning'"
+            [icon]="p.claveVigente ? 'lock' : 'lock_clock'"
+          />
+        </div>
+      </div>
+    </mat-card>
+
+    <div class="profile__grid">
+      <mat-card class="profile__section" appearance="outlined">
+        <div class="profile__section-head">
+          <span class="profile__section-icon" aria-hidden="true"><mat-icon>person</mat-icon></span>
+          <div class="profile__section-heading">
+            <h2 class="profile__section-title">Datos personales</h2>
+            <p class="profile__section-desc">Actualizá tu nombre, apellido y teléfono.</p>
+          </div>
+        </div>
+        <form class="profile__form" [formGroup]="datosForm" (ngSubmit)="save()">
+          <tbi-text-field formControlName="nombre" label="Nombre" errorMessage="Requerido" />
+          <tbi-text-field formControlName="apellido" label="Apellido" errorMessage="Requerido" />
+          <tbi-text-field formControlName="telefono" label="Teléfono" type="number" />
+          <div class="profile__actions">
+            <tbi-button
+              type="submit"
+              label="Guardar"
+              loadingText="Guardando…"
+              [loading]="saving()"
+              data-testid="profile-save"
+            />
+          </div>
+        </form>
+      </mat-card>
+
+      <mat-card class="profile__section" appearance="outlined">
+        <div class="profile__section-head">
+          <span class="profile__section-icon" aria-hidden="true"
+            ><mat-icon>lock_reset</mat-icon></span
+          >
+          <div class="profile__section-heading">
+            <h2 class="profile__section-title">Cambiar contraseña</h2>
+            <p class="profile__section-desc">Usá una contraseña de al menos 6 caracteres.</p>
+          </div>
+        </div>
+        <form class="profile__form" [formGroup]="passwordForm" (ngSubmit)="changeMyPassword()">
+          <tbi-text-field
+            formControlName="currentPassword"
+            label="Contraseña actual"
+            type="password"
+            errorMessage="Requerido"
+          />
+          <tbi-text-field
+            formControlName="newPassword"
+            label="Nueva contraseña"
+            type="password"
+            errorMessage="Mínimo 6 caracteres"
+          />
+          <tbi-text-field
+            formControlName="newConfirmPassword"
+            label="Repetir nueva contraseña"
+            type="password"
+            errorMessage="Requerido"
+          />
+          @if (
+            passwordForm.hasError('mismatch') && passwordForm.get('newConfirmPassword')?.touched
+          ) {
+            <p class="profile__error" role="alert" data-testid="profile-password-mismatch">
+              Las contraseñas no coinciden.
+            </p>
+          }
+          <div class="profile__actions">
+            <tbi-button
+              type="submit"
+              label="Cambiar contraseña"
+              loadingText="Cambiando…"
+              [loading]="changingPassword()"
+              data-testid="profile-change-password"
+            />
+          </div>
+        </form>
+      </mat-card>
+    </div>
+  }
+</div>

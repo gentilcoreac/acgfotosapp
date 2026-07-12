@@ -1,0 +1,8 @@
+// Entry de estilos globales. Orquesta los partials; la configuración del tema (M3) vive en
+// `styles/_theme.scss` y el reset/base en `styles/_base.scss`. Ver `core/theme/` para el dark mode.
+@use 'styles/theme';
+@use 'styles/base';
+@use 'styles/page';
+@use 'styles/table';
+@use 'styles/snackbar';
+@use 'styles/utilities';

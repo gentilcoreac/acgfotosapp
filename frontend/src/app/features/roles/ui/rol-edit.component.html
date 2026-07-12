@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar rol' : 'Nuevo rol' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    <tbi-text-field [formField]="form.descripcion" label="Descripción" />
+
+    @if (isRoot()) {
+      <mat-checkbox [formField]="form.esDefaultParaNuevoTenant"
+        >Se asignará por defecto al crear un nuevo tenant</mat-checkbox
+      >
+    }
+
+    <fieldset class="edit__permisos">
+      <legend>Permisos</legend>
+      <tbi-tree-select [formField]="form.permisos" [nodes]="permisosTree()" />
+    </fieldset>
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

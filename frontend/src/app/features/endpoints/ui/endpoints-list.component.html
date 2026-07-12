@@ -1,0 +1,23 @@
+<section class="list">
+  <header class="list__header">
+    <h1>Endpoints</h1>
+    <div class="list__actions">
+      <button matButton (click)="add()">
+        <mat-icon>add</mat-icon>
+        Nuevo
+      </button>
+      <button matButton="filled" (click)="descubrir()" [disabled]="discovering()">
+        <mat-icon>travel_explore</mat-icon>
+        {{ discovering() ? 'Descubriendo…' : 'Descubrir' }}
+      </button>
+    </div>
+  </header>
+
+  <tbi-table
+    [columns]="columns"
+    [fetch]="fetch"
+    [rowActions]="rowActions"
+    [searchable]="true"
+    searchPlaceholder="Buscar endpoint…"
+  />
+</section>

@@ -1,0 +1,18 @@
+:host {
+  display: block;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-chip-set {
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.tbi-search-select__error {
+  margin: 0.25rem 1rem 0;
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-small);
+}

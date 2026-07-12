@@ -1,0 +1,213 @@
+:host {
+  display: flex;
+  flex-direction: column;
+
+  // Altura de viewport DEFINIDA (no `100%`): `mat-sidenav-container` necesita un host de altura
+  // acotada para que `mat-sidenav-content` scrollee internamente. Con `100%` dependíamos de que
+  // toda la cadena `html → body → tbi-root` tuviera altura; si algún eslabón quedaba en `auto`, el
+  // host colapsaba, el container crecía al alto del contenido y el fondo quedaba inalcanzable
+  // (scrollbar al final pero última fila cortada). `100dvh` lo fija directo y contempla la barra
+  // dinámica del navegador en mobile.
+  height: 100dvh;
+}
+
+// Toolbar sobre `surface` (no `primary`): el branding lo aporta el logo del tenant, no el color de
+// fondo. Separada del contenido por un borde inferior fino (M3).
+.layout__toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.layout__title {
+  font: var(--mat-sys-title-medium);
+}
+
+.layout__logo {
+  display: block;
+  height: 32px;
+  max-width: 180px;
+  object-fit: contain;
+}
+
+.layout__spacer {
+  flex: 1 1 auto;
+}
+
+.layout__impersonation-banner {
+  position: sticky;
+  top: 64px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 1rem;
+  background-color: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+  font: var(--mat-sys-body-medium);
+}
+
+.layout__impersonation-icon {
+  font-size: 1.125rem;
+  height: 1.125rem;
+  width: 1.125rem;
+}
+
+.layout__impersonation-text {
+  flex: 1 1 auto;
+}
+
+.layout__container {
+  flex: 1 1 auto;
+}
+
+// Sidenav expandido 288px / rail 84px. La transición de ancho la sincroniza el contenido vía
+// `[autosize]` del container.
+.layout__sidenav {
+  width: 288px;
+  border-right: 1px solid var(--mat-sys-outline-variant);
+  transition: width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  &--rail {
+    width: 84px;
+  }
+}
+
+// User card del tope del sidenav: tarjeta redondeada elevada (no una fila plana).
+.layout__user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 10px;
+  padding: 12px;
+  border-radius: 20px;
+  background-color: var(--mat-sys-surface-container-high);
+
+  // Es un link a /perfil: sin estilos de anchor por defecto, con feedback al hover.
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--mat-sys-surface-container-highest);
+  }
+}
+
+.layout__user-avatar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  font: var(--mat-sys-title-medium);
+}
+
+.layout__user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.layout__user-name {
+  overflow: hidden;
+  font: var(--mat-sys-title-small);
+  color: var(--mat-sys-on-surface);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layout__user-role {
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.layout__app-selector {
+  margin: 4px 10px 0;
+  padding: 0 12px;
+
+  mat-select {
+    width: 100%;
+    font: var(--mat-sys-body-medium);
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.layout__nav {
+  padding-top: 0;
+}
+
+// Encabezado de sección: label chico en mayúsculas (M3 Label Small).
+.layout__nav-section {
+  padding: 1rem 1.5rem 0.25rem;
+  font: var(--mat-sys-label-small);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--mat-sys-on-surface-variant);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+// Nav items como pills (M3 Expressive). Coloreamos vía los tokens de `mat-list` (custom props que
+// cascadean a los internos del MDC) para no pelear con `::ng-deep`.
+.layout__link {
+  margin: 4px 12px;
+  border-radius: 999px;
+  overflow: hidden;
+
+  --mat-list-list-item-label-text-color: var(--mat-sys-on-surface-variant);
+  --mat-list-list-item-leading-icon-color: var(--mat-sys-on-surface-variant);
+
+  &--active {
+    background-color: var(--mat-sys-secondary-container);
+
+    --mat-list-list-item-label-text-color: var(--mat-sys-on-secondary-container);
+    --mat-list-list-item-leading-icon-color: var(--mat-sys-on-secondary-container);
+
+    .layout__link-icon,
+    .layout__link-label {
+      color: var(--mat-sys-on-secondary-container);
+    }
+  }
+}
+
+// Rail (84px): ocultamos labels y encabezados de sección. Los labels van con `display: none` (no
+// `max-width: 0`): el wrapper de texto de MDC reservaba ancho y dejaba ver puntos suspensivos ("..")
+// + disparaba scroll-x; con `display: none` el item baja a sólo el ícono (< 84px).
+.layout__sidenav--rail {
+  .layout__nav-section {
+    height: 0;
+    padding-top: 0.5rem;
+    padding-bottom: 0;
+    overflow: hidden;
+    opacity: 0;
+  }
+
+  .layout__link-label,
+  .layout__user-info {
+    display: none;
+  }
+
+  // El avatar queda centrado dentro del rail.
+  .layout__user {
+    justify-content: center;
+    gap: 0;
+  }
+}
+
+// Único responsable del padding exterior de las páginas (las páginas ya no lo agregan → sin
+// padding apilado, ver styles/_page.scss). En mobile achicamos el padding para ganar ancho útil.
+.layout__content {
+  padding: 1.5rem;
+
+  @media (width < 768px) {
+    padding: 1rem;
+  }
+}

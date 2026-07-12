@@ -1,0 +1,148 @@
+<mat-toolbar class="layout__toolbar">
+  <button
+    matIconButton
+    type="button"
+    aria-label="Alternar menú"
+    data-testid="toggle-menu"
+    (click)="toggle()"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+  @if (tenantStyle.headerLogoUrl(); as logo) {
+    <img class="layout__logo" data-testid="shell-logo" [src]="logo" [alt]="appTitle" />
+  } @else {
+    <span class="layout__title" data-testid="shell-title">{{ appTitle }}</span>
+  }
+  <span class="layout__spacer"></span>
+  <button
+    matIconButton
+    type="button"
+    data-testid="theme-toggle"
+    [attr.aria-label]="theme.isDark() ? 'Activar modo claro' : 'Activar modo oscuro'"
+    [title]="theme.isDark() ? 'Modo claro' : 'Modo oscuro'"
+    (click)="theme.toggle()"
+  >
+    <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
+  @if (authStore.isRoot() && !authStore.isImpersonating()) {
+    <button
+      matIconButton
+      type="button"
+      aria-label="Impersonalizar"
+      title="Impersonalizar"
+      data-testid="impersonate"
+      (click)="openImpersonate()"
+    >
+      <mat-icon>switch_account</mat-icon>
+    </button>
+  }
+  <button
+    matIconButton
+    type="button"
+    aria-label="Cerrar sesión"
+    data-testid="logout"
+    (click)="logout()"
+  >
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
+
+@if (authStore.isImpersonating()) {
+  <div class="layout__impersonation-banner" role="status" data-testid="impersonation-banner">
+    <mat-icon class="layout__impersonation-icon">visibility</mat-icon>
+    <span class="layout__impersonation-text">
+      Estás operando como <strong>{{ authStore.currentUserName() }}</strong>
+    </span>
+    <button
+      matButton
+      type="button"
+      data-testid="stop-impersonation"
+      (click)="stopImpersonation()"
+      [disabled]="stopping()"
+    >
+      @if (stopping()) {
+        <mat-progress-spinner mode="indeterminate" diameter="18" />
+      } @else {
+        Salir
+      }
+    </button>
+  </div>
+}
+
+<mat-sidenav-container class="layout__container" [autosize]="true">
+  <mat-sidenav
+    class="layout__sidenav"
+    [class.layout__sidenav--rail]="!isMobile() && collapsed()"
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="isMobile() ? opened() : true"
+    (openedChange)="opened.set($event)"
+  >
+    @if (authStore.currentUserName(); as userName) {
+      <a
+        class="layout__user"
+        routerLink="/perfil"
+        [title]="collapsed() ? userName : 'Mi perfil'"
+        data-testid="shell-profile-link"
+        (click)="onNavigate()"
+      >
+        <div class="layout__user-avatar" aria-hidden="true">{{ userInitial() }}</div>
+        <div class="layout__user-info">
+          <span class="layout__user-name" data-testid="shell-user-name" [title]="userName">{{
+            userName
+          }}</span>
+          @if (authStore.isRoot()) {
+            <span class="layout__user-role" data-testid="shell-user-role"
+              >Administrador del sistema</span
+            >
+          } @else if (authStore.isImpersonating()) {
+            <span class="layout__user-role" data-testid="shell-user-role">Sesión impersonada</span>
+          }
+        </div>
+      </a>
+    }
+
+    @if (!authStore.isRoot() && aplicacionStore.isMultiApp() && !collapsed()) {
+      <div class="layout__app-selector">
+        <mat-select
+          [value]="aplicacionStore.selectedId()"
+          (selectionChange)="onSelectAplicacion($event.value)"
+          aria-label="Aplicación activa"
+          data-testid="app-selector"
+        >
+          @for (app of aplicacionStore.aplicaciones(); track app.aplicacionId) {
+            <mat-option [value]="app.aplicacionId">{{ app.aplicacionNombre }}</mat-option>
+          }
+        </mat-select>
+      </div>
+    }
+
+    <mat-nav-list class="layout__nav">
+      @for (section of menuSections(); track $index) {
+        @if (section.label) {
+          <div class="layout__nav-section" aria-hidden="true">{{ section.label }}</div>
+        }
+        @for (item of section.items; track item.route) {
+          <a
+            mat-list-item
+            class="layout__link"
+            [routerLink]="item.route"
+            routerLinkActive="layout__link--active"
+            [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+            [title]="item.label"
+            [attr.data-testid]="'nav-' + item.route"
+            (click)="onNavigate()"
+          >
+            <mat-icon matListItemIcon class="layout__link-icon">{{ item.icon }}</mat-icon>
+            <span matListItemTitle class="layout__link-label">{{ item.label }}</span>
+          </a>
+        }
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="layout__content">
+      <router-outlet />
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar endpoint' : 'Nuevo endpoint' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    <div class="edit__row">
+      <tbi-text-field [formField]="form.namespace" label="Namespace" />
+      <tbi-text-field [formField]="form.moduleName" label="Módulo" />
+    </div>
+    <div class="edit__row">
+      <tbi-text-field [formField]="form.controllerName" label="Controller" />
+      <tbi-text-field [formField]="form.actionName" label="Acción" />
+    </div>
+    <div class="edit__row edit__row--method-route">
+      <tbi-select [formField]="form.httpMethod" label="Método HTTP" [options]="httpMethodOptions" />
+      <tbi-text-field [formField]="form.route" label="Ruta" />
+    </div>
+    <mat-slide-toggle [formField]="form.activo">Activo</mat-slide-toggle>
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

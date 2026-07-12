@@ -1,0 +1,68 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar grupo' : 'Nuevo grupo' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    <tbi-text-field [formField]="form.nombre" label="Nombre" />
+
+    <fieldset class="edit__usuarios">
+      <legend>Miembros</legend>
+      <tbi-search-select
+        [formField]="form.usuarios"
+        label="Usuarios"
+        placeholder="Buscar por nombre, usuario o email…"
+        [search]="searchUsuarios"
+      />
+    </fieldset>
+
+    @if (mezclaLicencias()) {
+      <div class="edit__alerta" role="alert">
+        <mat-icon aria-hidden="true">warning</mat-icon>
+        <span>
+          Estás mezclando usuarios con distintas licencias. Cada miembro solo recibirá los roles del
+          grupo que su licencia incluye.
+        </span>
+      </div>
+    }
+
+    <fieldset class="edit__roles">
+      <legend>Roles del grupo</legend>
+      <p class="edit__hint">
+        Se otorgan a todos los miembros, pero cada usuario solo los recibe si su licencia los
+        incluye. Solo se listan los roles licenciados del tenant; el chip indica de qué licencia
+        proviene cada rol.
+      </p>
+      @for (rol of roles(); track rol.id) {
+        <div class="edit__rol">
+          <mat-checkbox
+            [checked]="selectedRolIds().has(rol.id)"
+            (change)="toggleRol(rol.id, $event.checked)"
+            >{{ rol.descripcion }}</mat-checkbox
+          >
+          @if (rol.licencias?.length) {
+            <mat-chip-set class="edit__rol-licencias" aria-label="Licencias del rol">
+              @for (lic of rol.licencias; track lic.id) {
+                <mat-chip>{{ lic.descripcion }}</mat-chip>
+              }
+            </mat-chip-set>
+          }
+        </div>
+      } @empty {
+        <span class="edit__hint">No hay roles definidos.</span>
+      }
+    </fieldset>
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

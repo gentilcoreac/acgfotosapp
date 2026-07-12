@@ -1,0 +1,63 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar permiso' : 'Nuevo permiso' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <mat-tab-group animationDuration="0ms">
+      <mat-tab label="General">
+        <div class="edit__general">
+          <div class="edit__form">
+            <tbi-select
+              [formField]="form.aplicacionId"
+              label="Aplicación"
+              [options]="aplicacionOptions()"
+            />
+            <tbi-text-field [formField]="form.nombre" label="Nombre" />
+            <tbi-text-field [formField]="form.codigoPermiso" label="Código" />
+            <tbi-text-field [formField]="form.descripcion" label="Descripción" />
+
+            <mat-slide-toggle [formField]="form.activo">Activo</mat-slide-toggle>
+
+            @if (isRoot()) {
+              <mat-slide-toggle [formField]="form.esRestringido">Restringido</mat-slide-toggle>
+            }
+          </div>
+
+          <fieldset class="edit__padre">
+            <legend>Permiso padre</legend>
+            <tbi-tree-radio [formField]="form.permisoPadreId" [nodes]="padreTree()" />
+          </fieldset>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Endpoints">
+        <div class="edit__endpoints">
+          <mat-slide-toggle
+            class="edit__endpoints-filter"
+            [checked]="showOnlySelected()"
+            (change)="showOnlySelected.set($event.checked)"
+          >
+            Mostrar solo módulos/controllers con items seleccionados
+          </mat-slide-toggle>
+          <div class="edit__endpoints-tree">
+            <tbi-tree-select [formField]="form.endpoints" [nodes]="endpointsTreeShown()" />
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>Detalle del log</h2>
+<mat-dialog-content data-testid="log-detail">
+  @if (loading()) {
+    <div class="detail__loading">
+      <mat-progress-spinner mode="indeterminate" diameter="36" />
+    </div>
+  } @else if (log(); as l) {
+    <dl class="detail">
+      <dt>Fecha y hora</dt>
+      <dd>{{ l.timeStamp | date: 'dd/MM/yyyy HH:mm:ss' }}</dd>
+
+      <dt>Nivel</dt>
+      <dd>{{ l.level }}</dd>
+
+      <dt>Tenant</dt>
+      <dd>{{ l.tenantId }}</dd>
+
+      <dt>Mensaje</dt>
+      <dd>{{ l.message }}</dd>
+
+      <dt>Template</dt>
+      <dd>{{ l.messageTemplate || '—' }}</dd>
+
+      <dt>Excepción</dt>
+      <dd>
+        @if (l.exception) {
+          <pre class="detail__pre">{{ l.exception }}</pre>
+        } @else {
+          —
+        }
+      </dd>
+
+      <dt>Propiedades</dt>
+      <dd>
+        @if (l.properties) {
+          <pre class="detail__pre">{{ l.properties }}</pre>
+        } @else {
+          —
+        }
+      </dd>
+    </dl>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>

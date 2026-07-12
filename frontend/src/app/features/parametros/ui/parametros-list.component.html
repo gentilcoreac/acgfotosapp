@@ -1,0 +1,26 @@
+<section class="list">
+  <header class="list__header">
+    <h1>Parámetros</h1>
+    <div class="list__actions">
+      <tbi-select
+        class="list__filter"
+        label="Aplicación"
+        [formControl]="aplicacionFilter"
+        [options]="aplicacionFilterOptions()"
+      />
+      <button matButton="filled" (click)="add()">
+        <mat-icon>add</mat-icon>
+        Nuevo
+      </button>
+    </div>
+  </header>
+
+  <tbi-table
+    [columns]="columns"
+    [fetch]="fetch"
+    [filters]="filters()"
+    [rowActions]="rowActions"
+    [searchable]="true"
+    searchPlaceholder="Buscar parámetro…"
+  />
+</section>

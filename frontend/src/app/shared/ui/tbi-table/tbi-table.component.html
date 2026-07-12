@@ -1,0 +1,143 @@
+<div class="tbi-table tbi-card-table">
+  @if (loading()) {
+    <mat-progress-bar class="tbi-table__bar" mode="indeterminate" />
+  }
+
+  @if (showToolbar()) {
+    <div class="tbi-table__toolbar">
+      @if (searchable()) {
+        <div class="tbi-table__search">
+          <mat-icon class="tbi-table__search-icon">search</mat-icon>
+          <input
+            type="text"
+            class="tbi-table__search-input"
+            data-testid="table-search"
+            [placeholder]="searchPlaceholder()"
+            [attr.aria-label]="searchPlaceholder()"
+            [value]="searchText()"
+            (input)="onSearch($any($event.target).value)"
+          />
+        </div>
+      }
+
+      <span class="tbi-table__toolbar-spacer"></span>
+
+      @if (optionalColumns().length) {
+        <button
+          matButton
+          type="button"
+          class="tbi-table__columns-btn"
+          data-testid="table-columns-btn"
+          [matMenuTriggerFor]="columnsMenu"
+        >
+          <mat-icon>view_column</mat-icon>
+          Columnas
+        </button>
+        <mat-menu #columnsMenu="matMenu" class="tbi-table__columns-menu">
+          <div class="tbi-table__columns-title">Columnas visibles</div>
+          @for (col of optionalColumns(); track col.key) {
+            <button mat-menu-item (click)="$event.stopPropagation(); toggleColumn(col.key)">
+              <mat-checkbox
+                [checked]="isColumnVisible(col.key)"
+                (click)="$event.preventDefault()"
+              />
+              <span>{{ col.header }}</span>
+            </button>
+          }
+        </mat-menu>
+      }
+    </div>
+  }
+
+  <div class="tbi-table__scroll">
+    <table
+      mat-table
+      [dataSource]="rows()"
+      [trackBy]="trackRow"
+      matSort
+      (matSortChange)="onSort($event)"
+    >
+      @for (col of columns(); track col.key) {
+        <ng-container [matColumnDef]="col.key">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header
+            [disabled]="!col.sortable"
+            [class.tbi-table__cell--center]="col.align === 'center'"
+            [class.tbi-table__cell--end]="col.align === 'end'"
+          >
+            {{ col.header }}
+          </th>
+          <td
+            mat-cell
+            *matCellDef="let row"
+            [class.tbi-table__cell--center]="col.align === 'center'"
+            [class.tbi-table__cell--end]="col.align === 'end'"
+          >
+            @if (col.chip) {
+              @if (col.chip(row); as chip) {
+                <tbi-status-chip
+                  [label]="chip.label"
+                  [tone]="chip.tone ?? 'neutral'"
+                  [icon]="chip.icon ?? null"
+                />
+              }
+            } @else {
+              {{ cellValue(col, row) }}
+            }
+          </td>
+        </ng-container>
+      }
+
+      @if (hasActions()) {
+        <ng-container matColumnDef="__actions">
+          <th mat-header-cell *matHeaderCellDef class="tbi-table__actions"></th>
+          <td mat-cell *matCellDef="let row" class="tbi-table__actions">
+            <tbi-row-actions [row]="row" [actions]="rowActions()" />
+          </td>
+        </ng-container>
+      }
+
+      <tr mat-header-row *matHeaderRowDef="columnKeys()"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: columnKeys()"
+        data-testid="table-row"
+        (dblclick)="onRowActivate(row)"
+      ></tr>
+
+      <tr class="tbi-table__empty" *matNoDataRow>
+        <td [attr.colspan]="columnKeys().length">
+          @if (error()) {
+            <div class="tbi-table__empty-content" data-testid="table-error">
+              <mat-icon class="tbi-table__empty-icon">error_outline</mat-icon>
+              <p class="tbi-table__empty-title">No se pudieron cargar los datos</p>
+              <button matButton type="button" (click)="refresh()">Reintentar</button>
+            </div>
+          } @else {
+            <div class="tbi-table__empty-content" data-testid="table-empty">
+              <mat-icon class="tbi-table__empty-icon">search_off</mat-icon>
+              <p class="tbi-table__empty-title">Sin resultados</p>
+              <p class="tbi-table__empty-hint">No hay datos para mostrar.</p>
+            </div>
+          }
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="tbi-table__footer">
+    <span class="tbi-table__footer-spacer"></span>
+    <button matIconButton type="button" matTooltip="Recargar" (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+    <mat-paginator
+      [length]="totalCount()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="currentPageSize()"
+      [pageSizeOptions]="pageSizeOptions()"
+      (page)="onPage($event)"
+    />
+  </div>
+</div>

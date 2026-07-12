@@ -1,0 +1,43 @@
+<section class="list">
+  <header class="list__header">
+    <h1>Logs</h1>
+  </header>
+
+  <form class="filtros" [formGroup]="filtros" (ngSubmit)="aplicar()">
+    <tbi-date-picker class="filtros__field" formControlName="fechaDesde" label="Desde" />
+    <tbi-date-picker class="filtros__field" formControlName="fechaHasta" label="Hasta" />
+    <tbi-select
+      class="filtros__field"
+      formControlName="level"
+      label="Nivel"
+      [options]="nivelOpciones"
+    />
+    <tbi-select
+      class="filtros__field"
+      formControlName="tenantId"
+      label="Tenant"
+      [options]="tenantOpciones()"
+    />
+    <div class="filtros__actions">
+      <tbi-button
+        type="submit"
+        label="Filtrar"
+        loadingText="Filtrando…"
+        [loading]="filtrando()"
+        data-testid="logs-filtrar"
+      />
+      <button matButton type="button" (click)="limpiar()" data-testid="logs-limpiar">
+        Limpiar
+      </button>
+    </div>
+  </form>
+
+  <tbi-table
+    [columns]="columns"
+    [fetch]="fetch"
+    [filters]="filters()"
+    [rowActions]="rowActions"
+    [searchable]="true"
+    searchPlaceholder="Buscar en el mensaje…"
+  />
+</section>

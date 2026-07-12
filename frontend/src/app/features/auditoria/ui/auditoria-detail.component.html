@@ -1,0 +1,60 @@
+<h2 mat-dialog-title>Detalle de auditoría</h2>
+<mat-dialog-content data-testid="auditoria-detail">
+  @if (loading()) {
+    <div class="detail__loading">
+      <mat-progress-spinner mode="indeterminate" diameter="36" />
+    </div>
+  } @else if (registro(); as r) {
+    <dl class="detail">
+      <dt>Fecha y hora</dt>
+      <dd>{{ r.fechaHora | date: 'dd/MM/yyyy HH:mm:ss' }}</dd>
+
+      <dt>Usuario</dt>
+      <dd>
+        {{ r.usuarioNombre || '—' }}
+        @if (r.impersonatedBy) {
+          <span class="detail__tag">impersonado por #{{ r.impersonatedBy }}</span>
+        }
+      </dd>
+
+      <dt>Servicio / Método</dt>
+      <dd>{{ r.servicio }}.{{ r.metodo }}</dd>
+
+      <dt>Request</dt>
+      <dd>{{ r.httpMethod }} {{ r.requestAbsolutePath }}</dd>
+
+      <dt>Resultado</dt>
+      <dd>{{ r.resultStatusCode }}</dd>
+
+      <dt>Duración</dt>
+      <dd>{{ r.duracion }} ms</dd>
+
+      <dt>IP cliente</dt>
+      <dd>{{ r.clientIP || '—' }}</dd>
+
+      <dt>User agent</dt>
+      <dd>{{ r.clientUserAgent || '—' }}</dd>
+
+      <dt>Parámetros</dt>
+      <dd>
+        @if (r.parametros) {
+          <pre class="detail__pre">{{ r.parametros }}</pre>
+        } @else {
+          —
+        }
+      </dd>
+
+      <dt>Respuesta</dt>
+      <dd>
+        @if (r.resultContent) {
+          <pre class="detail__pre">{{ r.resultContent }}</pre>
+        } @else {
+          —
+        }
+      </dd>
+    </dl>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>

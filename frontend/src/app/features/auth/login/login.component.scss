@@ -1,0 +1,94 @@
+.login {
+  display: flex;
+  min-height: 100vh;
+
+  // Fondo full-bleed (solo layout centrado; en split la imagen va en su pane).
+  background-position: center;
+  background-size: cover;
+
+  // Split (tipoLayoutLogin 1/2): imagen + form lado a lado, sin centrar el contenedor.
+  &--split {
+    align-items: stretch;
+  }
+
+  // tipoLayoutLogin 2: form a la izquierda, imagen a la derecha.
+  &--image-right {
+    flex-direction: row-reverse;
+  }
+
+  &__image {
+    flex: 1 1 50%;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  // Pane con la card: centra la card (en centrado ocupa todo el viewport; en split, su mitad).
+  &__pane {
+    display: flex;
+    flex: 1 1 50%;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 360px;
+    padding: 2rem;
+
+    // Tokens de sistema (duales light/dark): superficie elevada + sombra del propio tema.
+    border-radius: 12px;
+    background-color: var(--mat-sys-surface-container);
+    color: var(--mat-sys-on-surface);
+    box-shadow: var(--mat-sys-level3);
+  }
+
+  &__logo {
+    display: block;
+    max-width: 220px;
+    max-height: 56px;
+    margin-bottom: 0.25rem;
+    object-fit: contain;
+  }
+
+  &__brand {
+    margin: 0;
+    color: var(--mat-sys-primary);
+    font: var(--mat-sys-title-medium);
+    letter-spacing: 0.02em;
+  }
+
+  &__title {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+  }
+
+  &__footer {
+    margin-top: 0.5rem;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  &__errors {
+    margin: 0 0 0.5rem;
+    padding-left: 1.1rem;
+    color: var(--mat-sys-error);
+    font-size: 0.8125rem;
+  }
+
+  // En pantallas chicas el pane de imagen se oculta → cae a la card centrada.
+  @media (width <= 900px) {
+    &__image {
+      display: none;
+    }
+  }
+}

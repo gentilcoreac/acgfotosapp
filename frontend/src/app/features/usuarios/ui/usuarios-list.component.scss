@@ -1,0 +1,5 @@
+// Resto del layout en el scaffold global `.list` (styles/_page.scss). Acá sólo el ancho extra
+// (la grilla de usuarios tiene más columnas).
+.list {
+  max-width: 1180px;
+}

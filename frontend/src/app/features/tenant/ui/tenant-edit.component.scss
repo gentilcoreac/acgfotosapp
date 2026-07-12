@@ -1,0 +1,236 @@
+.edit {
+  min-width: 0;
+
+  // Una sola barra de scroll (la del diálogo): el cuerpo de las tabs de Material trae overflow
+  // propio y generaba una 2ª barra. ::ng-deep es la vía estándar para pisar estilos de Material.
+  // stylelint-disable-next-line selector-pseudo-element-no-unknown
+  ::ng-deep .mat-mdc-tab-body-content {
+    overflow: visible;
+  }
+}
+
+.edit__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+}
+
+.edit__checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 1rem;
+}
+
+.edit__styles {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.style-group {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-low);
+}
+
+.style-group__title {
+  margin: 0;
+  font: var(--mat-sys-title-small);
+  color: var(--mat-sys-primary);
+}
+
+.edit__licenses {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  align-items: flex-start;
+}
+
+.license-card {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.625rem 0.875rem 0;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-low);
+}
+
+.license-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 40px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  margin-bottom: 0.5rem;
+}
+
+.license-card__title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font: var(--mat-sys-title-small);
+}
+
+.license-card__icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  color: var(--mat-sys-primary);
+}
+
+.license-card__badge {
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  font: var(--mat-sys-label-small);
+}
+
+.license-card__fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 0.75rem;
+}
+
+.license-card__fields mat-form-field {
+  width: 100%;
+  min-width: 0;
+}
+
+// El Tipo (nombre largo) ocupa toda la fila; Cantidad + fechas van debajo en 3 columnas.
+.license-card__fields .edit__license-type {
+  grid-column: 1 / -1;
+}
+
+@media (width <= 560px) {
+  .license-card__fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+.edit__colors {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.edit__color {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font: var(--mat-sys-body-medium);
+
+  input[type='color'] {
+    width: 40px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 4px;
+    background: none;
+    cursor: pointer;
+  }
+
+  code {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.edit__uploads {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.edit__warn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-medium);
+}
+
+.edit__empty {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+}
+
+.edit__admins {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1rem;
+}
+
+.admin-card {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-low);
+}
+
+.admin-card__avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  font: var(--mat-sys-title-small);
+  text-transform: uppercase;
+}
+
+.admin-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.admin-card__name {
+  font: var(--mat-sys-body-large);
+  font-weight: 600;
+}
+
+.admin-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.admin-card__icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+}
+
+.edit__errors {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--mat-sys-error);
+  font-size: 0.8125rem;
+}
+
+.license-card__delete {
+  color: var(--mat-sys-error);
+}

@@ -1,0 +1,27 @@
+{
+  "extends": "stylelint-config-standard-scss",
+  "ignoreFiles": ["src/styles/_theme-colors.scss"],
+  "rules": {
+    "no-empty-source": null,
+    "selector-class-pattern": null,
+    "scss/at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "tailwind",
+          "apply",
+          "use",
+          "forward",
+          "include",
+          "mixin",
+          "if",
+          "else",
+          "each",
+          "for",
+          "function",
+          "return"
+        ]
+      }
+    ]
+  }
+}

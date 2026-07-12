@@ -1,0 +1,45 @@
+.pvt {
+  // El centrado/ancho lo aporta el scaffold global `.list` y el padding el `.layout__content`.
+  // Acá sólo vive lo propio de esta página (la fila de filtros y la tabla).
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  &__filter {
+    min-width: 240px;
+  }
+
+  &__value {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__override-icon {
+    color: var(--mat-sys-tertiary);
+    font-size: 1.125rem;
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  // Editor inline (tbi-cell-input): el estilo compacto vive en el componente; acá sólo limitamos
+  // el ancho para que no ocupe toda la celda.
+  &__editor {
+    max-width: 220px;
+  }
+
+  &__col-acciones {
+    width: 7rem;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  &__empty {
+    margin-top: 2rem;
+    text-align: center;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}

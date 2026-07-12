@@ -1,0 +1,18 @@
+﻿{
+  "appTitle": "AcgFotos",
+  "year": "2026",
+  "version": "0.0.1",
+  "production": false,
+  "apiUrl": "REEMPLAZAR-EN-DEPLOY-QA",
+  "inactivity": {
+    "maxTimeMs": 7200000,
+    "maxResponseTimeMs": 60000
+  },
+  "pageSize": 100,
+  "pageSizeOptions": [5, 10, 25, 50, 100],
+  "defaultTenant": "",
+  "defaultTheme": "light",
+  "phoneMinLength": 10,
+  "phoneMaxLength": 13,
+  "oldSystemUrl": ""
+}

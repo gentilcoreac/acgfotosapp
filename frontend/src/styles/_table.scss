@@ -1,0 +1,54 @@
+// Look de "tabla M3" (card + theming de header/celdas/hover): FUENTE ÚNICA del estilo de tabla.
+// Lo consumen tanto el componente compartido `tbi-table` (aplica la clase en su root) como las
+// tablas que no pueden usarlo, como `parametros-valor-tenant` (tiene edición inline y por eso
+// conserva su `mat-table` propio, pero debe verse igual al resto).
+// Es GLOBAL (como `.list` en `_page.scss`) porque las clases `mat-mdc-*` las genera Material y un
+// estilo encapsulado de componente no las alcanzaría sin `::ng-deep`. Las variables `--tbi-surface*`
+// y `--tbi-row-hover` quedan disponibles para que el consumidor (p. ej. la celda de acciones sticky
+// de `tbi-table`) reuse exactamente los mismos colores.
+.tbi-card-table {
+  // Elevación comunicada por modo: en light, tono apenas sobre `surface` + sombra; en dark, la
+  // sombra casi no se ve sobre fondo oscuro, así que la elevación la da el TONO (contenedor más
+  // claro). Header un escalón por encima del cuerpo. De ahí el `light-dark()`.
+  --tbi-surface: light-dark(
+    var(--mat-sys-surface-container-low),
+    var(--mat-sys-surface-container-high)
+  );
+  --tbi-surface-header: light-dark(
+    var(--mat-sys-surface-container),
+    var(--mat-sys-surface-container-highest)
+  );
+  --tbi-row-hover: color-mix(in srgb, var(--mat-sys-primary) 5%, var(--tbi-surface));
+
+  display: block;
+  background-color: var(--tbi-surface);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 55%, transparent);
+  border-radius: 22px;
+  box-shadow: var(--mat-sys-level1);
+  overflow: hidden;
+
+  table {
+    width: 100%;
+    background-color: transparent;
+  }
+
+  // Header: superficie un escalón más alta + label (14px/600) en `on-surface-variant`, separador
+  // inferior más marcado que el de las filas.
+  th.mat-mdc-header-cell {
+    background-color: var(--tbi-surface-header);
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-label-large);
+    font-weight: 600;
+    border-bottom-color: color-mix(in srgb, var(--mat-sys-outline-variant) 75%, transparent);
+  }
+
+  // Cuerpo: separador tenue entre filas + hover sutil con tinte primary (5%).
+  td.mat-mdc-cell {
+    color: var(--mat-sys-on-surface);
+    border-bottom-color: color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
+  }
+
+  tr.mat-mdc-row:hover {
+    background-color: var(--tbi-row-hover);
+  }
+}

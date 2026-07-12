@@ -1,0 +1,13 @@
+# Normaliza fin de línea a LF dentro del repo (evita churn CRLF/LF entre Windows y CI).
+* text=auto eol=lf
+
+# Binarios: sin normalización.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

@@ -1,0 +1,45 @@
+@if (loadingAction()) {
+  <mat-progress-spinner mode="indeterminate" [diameter]="22" />
+} @else {
+  <!-- Desktop: íconos inline (revelados al hover de la fila desde tbi-table). -->
+  <div class="tbi-row-actions__inline">
+    @for (action of visibleActions(); track action.label) {
+      <button
+        matIconButton
+        type="button"
+        [matTooltip]="action.label"
+        [attr.aria-label]="action.label"
+        [attr.data-testid]="'row-action-' + action.label"
+        [disabled]="isDisabled(action)"
+        [class.tbi-row-actions__danger]="action.danger"
+        (click)="onAction(action)"
+      >
+        <mat-icon>{{ action.icon }}</mat-icon>
+      </button>
+    }
+  </div>
+
+  <!-- Touch: un único 3-puntos (sin hover disponible) que abre el menú con las mismas acciones. -->
+  @if (visibleActions().length) {
+    <div class="tbi-row-actions__menu">
+      <button matIconButton type="button" aria-label="Acciones" [matMenuTriggerFor]="menu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        @for (action of visibleActions(); track action.label) {
+          <button
+            mat-menu-item
+            type="button"
+            [attr.data-testid]="'row-action-menu-' + action.label"
+            [disabled]="isDisabled(action)"
+            [class.tbi-row-actions__danger]="action.danger"
+            (click)="onAction(action)"
+          >
+            <mat-icon>{{ action.icon }}</mat-icon>
+            <span>{{ action.label }}</span>
+          </button>
+        }
+      </mat-menu>
+    </div>
+  }
+}

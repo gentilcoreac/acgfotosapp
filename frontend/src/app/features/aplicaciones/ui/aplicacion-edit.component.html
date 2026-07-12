@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar aplicación' : 'Nueva aplicación' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    <tbi-text-field [formField]="form.nombre" label="Nombre" errorMessage="Requerido" />
+    <tbi-text-field [formField]="form.codigo" label="Código" errorMessage="Requerido" />
+
+    <mat-slide-toggle [formField]="form.activo">Activa</mat-slide-toggle>
+
+    <mat-slide-toggle [formField]="form.iconoSelected">
+      {{ form.iconoSelected().value() ? 'Definir nombre de ícono' : 'Definir URL de ícono' }}
+    </mat-slide-toggle>
+
+    @if (form.iconoSelected().value()) {
+      <tbi-text-field [formField]="form.icono" label="Nombre de ícono (opcional)" />
+    } @else {
+      <tbi-text-field [formField]="form.iconoUrl" label="URL de ícono (opcional)" />
+    }
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

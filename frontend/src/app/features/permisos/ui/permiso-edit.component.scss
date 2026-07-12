@@ -1,0 +1,66 @@
+.edit {
+  min-width: 0;
+
+  // El contenido del modal no scrollea: scrollean los árboles internamente.
+  overflow: hidden;
+}
+
+.edit__general {
+  display: flex;
+  gap: 1.5rem;
+  padding-top: 1rem;
+  align-items: flex-start;
+}
+
+.edit__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.edit__padre {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+
+  // Alto cómodo dentro del modal; el árbol scrollea acá adentro.
+  height: 58vh;
+  max-height: 460px;
+  overflow: auto;
+
+  legend {
+    padding: 0 0.25rem;
+    font: var(--mat-sys-title-small);
+  }
+}
+
+.edit__endpoints {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  height: 58vh;
+  max-height: 460px;
+}
+
+.edit__endpoints-filter {
+  flex: 0 0 auto;
+}
+
+// Solo el árbol scrollea; el toggle queda fijo arriba.
+.edit__endpoints-tree {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+.edit__errors {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--mat-sys-error);
+  font-size: 0.8125rem;
+}

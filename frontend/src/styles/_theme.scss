@@ -1,0 +1,65 @@
+﻿// Configuración del tema Angular Material (M3). Emite las variables de sistema `--mat-sys-*`
+// (color, tipografía, densidad). Las de color salen como `light-dark(claro, oscuro)`, así que
+// alternar light/dark = setear `color-scheme` en <html> (lo hace `ThemeStore`). Los componentes
+// Material caen por fallback a estas variables, por lo que se tematizan y responden a dark mode
+// sin emitir tokens por-componente.
+// La paleta es branded (semilla teal de AcgFotos) y se genera con
+// `ng generate @angular/material:theme-color` en `_theme-colors.scss`.
+@use '@angular/material' as mat;
+@use './theme-colors';
+
+html {
+  @include mat.theme(
+    (
+      color: (
+        primary: theme-colors.$primary-palette,
+        tertiary: theme-colors.$tertiary-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+
+  // Angular Material (M3) pinta el contenedor de diálogo con `surface` — el mismo color que el fondo
+  // de la página (ver `_base.scss`) — así que en dark mode el modal no se distingue del fondo. Lo
+  // subimos a `surface-container-high` (lo que indica la spec M3 para diálogos) para que tenga
+  // elevación visible en ambos modos. Aplica a todos los MatDialog (edición, confirmación, etc.).
+  @include mat.dialog-overrides(
+    (
+      container-color: var(--mat-sys-surface-container-high),
+    )
+  );
+
+  // Tabs (diálogos de edición con pestañas, p.ej. usuario-edit). El handoff de diseño pide un
+  // indicador activo más expresivo (M3 Expressive): 3px en vez de los 2px por defecto. El color
+  // activo ya es `primary` por el tema. La forma redondeada del extremo se hace abajo (el override
+  // no expone `active-indicator-shape`).
+  @include mat.tabs-overrides(
+    (
+      active-indicator-height: 3px,
+    )
+  );
+
+  // Campos outlined (todos los `tbi-text-field`): radio de 10px en vez del extra-small por defecto
+  // (4px), siguiendo el handoff (M3 Expressive). Es global: aplica a cualquier `mat-form-field`
+  // outlined, no solo a los del diálogo de edición.
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: 10px,
+    )
+  );
+
+  // Rol de color "success" (estados Activo/OK). NO es un token M3 oficial: M3 sólo define error.
+  // Lo definimos custom con la misma mecánica que los `--mat-sys-*` (`light-dark()` siguiendo el
+  // `color-scheme` de <html>) para que responda a dark mode sin JS. Valores OKLCH del handoff de
+  // diseño (hue 150°, contraste container/on-container análogo a error). Lo consume `tbi-status-chip`.
+  --tbi-sys-success-container: light-dark(oklch(90% 0.075 150deg), oklch(38% 0.075 150deg));
+  --tbi-sys-on-success-container: light-dark(oklch(32% 0.09 150deg), oklch(88% 0.075 150deg));
+}
+
+// Indicador de tab activo con el extremo superior redondeado (M3 Expressive, como el handoff).
+// Material lo pinta recto; `tabs-overrides` no expone la forma, así que se ajusta el elemento
+// interno del underline. Global porque vive fuera del scope de cualquier componente.
+.mat-mdc-tab .mdc-tab-indicator__content--underline {
+  border-radius: 3px 3px 0 0;
+}

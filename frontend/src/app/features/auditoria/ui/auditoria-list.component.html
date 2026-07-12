@@ -1,0 +1,20 @@
+<section class="list">
+  <header class="list__header">
+    <h1>Auditoría</h1>
+  </header>
+
+  <form class="filtros" [formGroup]="filtros" (ngSubmit)="aplicar()">
+    <tbi-date-picker class="filtros__field" formControlName="fechaDesde" label="Desde" />
+    <tbi-date-picker class="filtros__field" formControlName="fechaHasta" label="Hasta" />
+    <tbi-text-field class="filtros__field" formControlName="servicio" label="Servicio" />
+    <tbi-text-field class="filtros__field" formControlName="resultStatusCode" label="Resp. HTTP" />
+    <div class="filtros__actions">
+      <tbi-button type="submit" label="Filtrar" data-testid="auditoria-filtrar" />
+      <button matButton type="button" (click)="limpiar()" data-testid="auditoria-limpiar">
+        Limpiar
+      </button>
+    </div>
+  </form>
+
+  <tbi-table [columns]="columns" [fetch]="fetch" [filters]="filters()" [rowActions]="rowActions" />
+</section>

@@ -1,0 +1,47 @@
+<div class="confirm">
+  <div class="confirm__card">
+    <h1 class="confirm__title">Confirmar cuenta</h1>
+
+    @if (linkInvalido) {
+      <p class="confirm__error">
+        El enlace no es válido o está incompleto. Solicitá un nuevo correo de confirmación.
+      </p>
+    } @else {
+      <p class="confirm__hint">
+        Definí tu contraseña para activar la cuenta. Debe tener al menos 12 caracteres, con
+        mayúscula, minúscula, número y símbolo.
+      </p>
+
+      <form class="confirm__form" [formGroup]="form" (ngSubmit)="submit()">
+        <tbi-text-field
+          formControlName="password"
+          label="Contraseña"
+          type="password"
+          autocomplete="new-password"
+          errorMessage="Mínimo 12 caracteres, con mayúscula, minúscula, número y símbolo"
+        />
+        <tbi-text-field
+          formControlName="confirmPassword"
+          label="Repetir contraseña"
+          type="password"
+          autocomplete="new-password"
+          errorMessage="Requerido"
+        />
+
+        @if (form.errors?.['mismatch'] && form.controls.confirmPassword.touched) {
+          <p class="confirm__error">Las contraseñas no coinciden.</p>
+        }
+
+        @if (errors().length > 0) {
+          <ul class="confirm__errors">
+            @for (msg of errors(); track msg) {
+              <li>{{ msg }}</li>
+            }
+          </ul>
+        }
+
+        <tbi-button type="submit" label="Confirmar" [loading]="loading()" />
+      </form>
+    }
+  </div>
+</div>

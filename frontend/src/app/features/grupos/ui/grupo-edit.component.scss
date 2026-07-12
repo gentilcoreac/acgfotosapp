@@ -1,0 +1,95 @@
+.edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  // Ancho cómodo para que el rol + sus chips de licencia entren en una línea (el diálogo igual
+  // se limita al viewport en pantallas chicas).
+  min-width: 480px;
+  max-width: 100%;
+}
+
+.edit__usuarios {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+
+  legend {
+    padding: 0 0.25rem;
+    font: var(--mat-sys-title-small);
+  }
+}
+
+.edit__roles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  max-height: 220px;
+  overflow: auto;
+
+  legend {
+    padding: 0 0.25rem;
+    font: var(--mat-sys-title-small);
+  }
+
+  // El checkbox de Material no debe exceder el ancho del fieldset; descripciones largas hacen wrap.
+  mat-checkbox {
+    max-width: 100%;
+  }
+}
+
+// Fila de un rol: checkbox + chips de su(s) licencia(s) (§11.1). Grid de 2 columnas para que los
+// chips queden en su propia columna y, si envuelven, lo hagan alineados (no sueltos a la izquierda).
+.edit__rol {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+}
+
+.edit__rol-licencias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+
+  // Chips compactos, sólo informativos (de qué licencia viene el rol).
+  --mat-chip-container-height: 22px;
+
+  font: var(--mat-sys-label-small);
+}
+
+.edit__hint {
+  margin: 0 0 0.25rem;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+// Alerta blanda de mezcla de licencias (§11.2).
+.edit__alerta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+
+  mat-icon {
+    flex: none;
+    color: var(--mat-sys-tertiary);
+  }
+}
+
+.edit__errors {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--mat-sys-error);
+  font-size: 0.8125rem;
+}

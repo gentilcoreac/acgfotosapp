@@ -1,0 +1,22 @@
+:host {
+  display: block;
+}
+
+button {
+  width: 100%;
+}
+
+.tbi-button__content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.tbi-button__spinner {
+  flex-shrink: 0;
+
+  // El spinner toma el color del texto del botón (currentColor) → contrasta con el fondo
+  // y sigue el tema M3 (que la API sobreescribe en runtime). Sin colores hardcodeados.
+  --mdc-circular-progress-active-indicator-color: currentcolor;
+}

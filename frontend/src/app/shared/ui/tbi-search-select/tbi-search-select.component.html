@@ -1,0 +1,36 @@
+<mat-form-field appearance="outline">
+  <mat-label>{{ label() }}</mat-label>
+  <input
+    #searchInput
+    matInput
+    [placeholder]="placeholder()"
+    [matAutocomplete]="auto"
+    [disabled]="disabled()"
+    [required]="required() && value().length === 0"
+    [attr.aria-invalid]="hasError()"
+    (input)="onSearchInput(searchInput.value)"
+    (blur)="touch.emit()"
+  />
+  <mat-autocomplete #auto [displayWith]="displayWith" (optionSelected)="add($event, searchInput)">
+    @for (option of filteredOptions(); track option.id) {
+      <mat-option [value]="option">{{ option.label }}</mat-option>
+    }
+  </mat-autocomplete>
+</mat-form-field>
+
+@if (hasError()) {
+  <p class="tbi-search-select__error" role="alert">{{ errorText() }}</p>
+}
+
+@if (value().length > 0) {
+  <mat-chip-set aria-label="Seleccionados">
+    @for (item of value(); track item.id) {
+      <mat-chip (removed)="remove(item)">
+        {{ item.label }}
+        <button matChipRemove [attr.aria-label]="'Quitar ' + item.label">
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip>
+    }
+  </mat-chip-set>
+}

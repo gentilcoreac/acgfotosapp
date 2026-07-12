@@ -1,0 +1,17 @@
+<section class="list">
+  <header class="list__header">
+    <h1>Tipos de licencia</h1>
+    <button matButton="filled" (click)="add()">
+      <mat-icon>add</mat-icon>
+      Nuevo
+    </button>
+  </header>
+
+  <tbi-table
+    [columns]="columns"
+    [fetch]="fetch"
+    [rowActions]="rowActions"
+    [searchable]="true"
+    searchPlaceholder="Buscar tipo de licencia…"
+  />
+</section>

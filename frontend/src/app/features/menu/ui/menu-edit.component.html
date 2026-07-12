@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar menú' : 'Nuevo menú' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <tbi-select
+      [formField]="form.aplicacionId"
+      label="Aplicación"
+      [options]="aplicacionOptions()"
+    />
+    <tbi-text-field [formField]="form.nombre" label="Nombre" />
+    <tbi-text-field [formField]="form.codigo" label="Código" />
+
+    <tbi-select [formField]="form.menuPadreId" label="Menú padre" [options]="menuPadreOptions()" />
+    <tbi-select [formField]="form.permisoId" label="Permiso" [options]="permisoOptions()" />
+
+    <tbi-text-field [formField]="form.routePath" label="Ruta (opcional)" />
+    <tbi-text-field [formField]="form.orden" inputmode="numeric" label="Orden" />
+    <tbi-text-field [formField]="form.imagenWeb" label="Ícono (opcional)" />
+
+    <mat-slide-toggle [formField]="form.visibleSideMenu"
+      >Visible en el menú lateral</mat-slide-toggle
+    >
+    <mat-slide-toggle [formField]="form.visibleDash"
+      >Visible en accesos del inicio</mat-slide-toggle
+    >
+    <mat-slide-toggle [formField]="form.estado">Activo</mat-slide-toggle>
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

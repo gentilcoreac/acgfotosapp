@@ -1,0 +1,7 @@
+// Resto del layout en el scaffold global `.list` (styles/_page.scss). Acá sólo el filtro del header.
+.list__filter {
+  // El select de filtro no debe estirarse como en el form; le damos un ancho acotado y
+  // compensamos el espacio reservado para el `mat-error` (el filtro nunca muestra error).
+  width: 240px;
+  margin-bottom: -1.25em;
+}

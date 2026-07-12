@@ -1,0 +1,265 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar tenant' : 'Nuevo tenant' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <mat-tab-group animationDuration="0ms">
+      <!-- General -->
+      <mat-tab label="General">
+        <div class="edit__form">
+          <tbi-text-field [formField]="form.codigo" label="Código" />
+          <tbi-text-field [formField]="form.nombre" label="Nombre" />
+          <tbi-text-field [formField]="form.tituloWeb" label="Título web" />
+          <tbi-text-field [formField]="form.hostName" label="HostName" />
+          <mat-slide-toggle [formField]="form.activo">Activo</mat-slide-toggle>
+          @if (isEdit && !form.activo().value()) {
+            <p class="edit__warn">
+              <mat-icon>warning</mat-icon>
+              Al deshabilitar el tenant se cierran las sesiones de sus usuarios.
+            </p>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Aplicaciones -->
+      <mat-tab label="Aplicaciones">
+        <div class="edit__checks">
+          @for (app of aplicaciones(); track app.id) {
+            <mat-checkbox
+              [checked]="isAppChecked(app.id)"
+              (change)="toggleApp(app.id, $event.checked)"
+            >
+              {{ app.nombre }}
+            </mat-checkbox>
+          } @empty {
+            <p class="edit__empty">No hay aplicaciones disponibles.</p>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Licencias -->
+      <mat-tab label="Licencias">
+        <div class="edit__licenses">
+          <button
+            matButton="outlined"
+            type="button"
+            [disabled]="!canAddLicense()"
+            (click)="addLicense()"
+          >
+            <mat-icon>add</mat-icon>
+            Agregar licencia
+          </button>
+
+          @if (!canAddLicense() && licenses().length > 0) {
+            <p class="edit__empty">Ya se agregaron todos los tipos de licencia disponibles.</p>
+          }
+
+          @for (row of licenses(); track $index; let i = $index) {
+            <div class="license-card">
+              <div class="license-card__head">
+                <span class="license-card__title">
+                  <mat-icon class="license-card__icon">card_membership</mat-icon>
+                  Licencia {{ i + 1 }}
+                </span>
+                @if (isDefaultLicense(row)) {
+                  <span class="license-card__badge">Por defecto</span>
+                } @else {
+                  <button
+                    matIconButton
+                    class="license-card__delete"
+                    type="button"
+                    aria-label="Quitar licencia"
+                    (click)="removeLicense(i)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </div>
+
+              <div class="license-card__fields">
+                <mat-form-field appearance="outline" class="edit__license-type">
+                  <mat-label>Tipo</mat-label>
+                  <mat-select
+                    [value]="row.tipoLicenciaId"
+                    [disabled]="isDefaultLicense(row)"
+                    (selectionChange)="onTipoChange(i, $event.value)"
+                  >
+                    @for (t of availableTipoOptionsByRow()[i]; track t.id) {
+                      <mat-option [value]="t.id">{{ t.descripcion }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="edit__license-qty">
+                  <mat-label>Cantidad</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    min="1"
+                    [value]="row.cantidad"
+                    (input)="onCantidadChange(i, $any($event.target).value)"
+                  />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Inicio</mat-label>
+                  <input
+                    matInput
+                    type="date"
+                    [value]="row.startDateTime"
+                    (change)="onStartChange(i, $any($event.target).value)"
+                  />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Vencimiento</mat-label>
+                  <input
+                    matInput
+                    type="date"
+                    [value]="row.expireDateTime"
+                    (change)="onExpireChange(i, $any($event.target).value)"
+                  />
+                </mat-form-field>
+              </div>
+            </div>
+          } @empty {
+            <p class="edit__empty">Sin licencias. Agregá al menos una.</p>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Administrador: en alta se crea (form); en edición se muestra solo lectura -->
+      <mat-tab label="Administrador">
+        @if (!isEdit) {
+          <div class="edit__form">
+            <tbi-text-field [formField]="form.usuarioNombre" label="Nombre" />
+            <tbi-text-field [formField]="form.usuarioApellido" label="Apellido" />
+            <tbi-text-field [formField]="form.usuarioEmail" label="Email" type="email" />
+            <tbi-text-field [formField]="form.usuarioUserName" label="Usuario" />
+            <tbi-text-field
+              [formField]="form.usuarioTelefono"
+              label="Teléfono (opcional)"
+              inputmode="numeric"
+            />
+          </div>
+        } @else {
+          <div class="edit__admins">
+            @for (u of adminUsuarios(); track u.userName) {
+              <div class="admin-card">
+                <span class="admin-card__avatar">
+                  {{ u.nombre.charAt(0) }}{{ u.apellido.charAt(0) }}
+                </span>
+                <div class="admin-card__body">
+                  <span class="admin-card__name">{{ u.nombre }} {{ u.apellido }}</span>
+                  <span class="admin-card__meta">
+                    <mat-icon class="admin-card__icon">badge</mat-icon>{{ u.userName }}
+                  </span>
+                  <span class="admin-card__meta">
+                    <mat-icon class="admin-card__icon">mail</mat-icon>{{ u.email }}
+                  </span>
+                </div>
+              </div>
+            } @empty {
+              <p class="edit__empty">Este tenant no tiene administradores.</p>
+            }
+          </div>
+        }
+      </mat-tab>
+
+      <!-- Estilos -->
+      <mat-tab label="Estilos">
+        <div class="edit__styles">
+          <!-- Apariencia -->
+          <section class="style-group">
+            <h3 class="style-group__title">Apariencia</h3>
+            <mat-slide-toggle [formField]="form.darkModeByDefault">
+              Modo oscuro por defecto
+            </mat-slide-toggle>
+
+            <tbi-select
+              [formField]="form.tipoLayoutLogin"
+              label="Layout del login"
+              [options]="layoutOptions"
+            />
+
+            <div class="edit__colors">
+              <label class="edit__color">
+                <span>Color primario (claro)</span>
+                <input type="color" [formField]="form.colorPrimarioLight" />
+                <code>{{ form.colorPrimarioLight().value() }}</code>
+              </label>
+              <label class="edit__color">
+                <span>Color primario (oscuro)</span>
+                <input type="color" [formField]="form.colorPrimarioDark" />
+                <code>{{ form.colorPrimarioDark().value() }}</code>
+              </label>
+            </div>
+          </section>
+
+          <!-- Logos e ícono -->
+          <section class="style-group">
+            <h3 class="style-group__title">Logos e ícono</h3>
+            <div class="edit__uploads">
+              @for (slot of logoSlots; track slot) {
+                <tbi-file-upload
+                  [label]="slotLabels[slot]"
+                  [currentUrl]="fileUrls()[slot]"
+                  (fileSelected)="onFile(slot, $event)"
+                  (removed)="onFileRemove(slot)"
+                />
+              }
+            </div>
+          </section>
+
+          <!-- Fondos del login -->
+          <section class="style-group">
+            <h3 class="style-group__title">Fondos del login</h3>
+            <div class="edit__uploads">
+              @for (slot of fondoSlots; track slot) {
+                <tbi-file-upload
+                  [label]="slotLabels[slot]"
+                  [currentUrl]="fileUrls()[slot]"
+                  (fileSelected)="onFile(slot, $event)"
+                  (removed)="onFileRemove(slot)"
+                />
+              }
+            </div>
+          </section>
+
+          <!-- CSS personalizado -->
+          <section class="style-group">
+            <h3 class="style-group__title">CSS personalizado</h3>
+            <mat-slide-toggle [formField]="form.customizaTheme">
+              Usar CSS custom (en vez del theme por colores)
+            </mat-slide-toggle>
+
+            @if (form.customizaTheme().value()) {
+              <tbi-file-upload
+                label="CSS custom (.css)"
+                accept=".css,text/css"
+                [preview]="false"
+                [currentUrl]="cssUrl()"
+                (fileSelected)="onCssFile($event)"
+                (removed)="onCssRemove()"
+              />
+            }
+          </section>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" [disabled]="!dirty()" />
+  </mat-dialog-actions>
+</form>

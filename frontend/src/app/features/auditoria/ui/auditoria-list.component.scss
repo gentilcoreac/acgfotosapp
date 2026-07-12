@@ -1,0 +1,23 @@
+// El layout de `.list`/`.list__header` viene del scaffold global (styles/_page.scss).
+// Acá sólo la barra de filtros propia de Auditoría.
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.filtros__field {
+  flex: 1 1 180px;
+  min-width: 160px;
+}
+
+.filtros__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  // Alinea los botones con los campos (que tienen el label arriba).
+  margin-top: 0.25rem;
+}

@@ -1,0 +1,46 @@
+// Estilos de los snackbar de feedback (NotificationService). Por defecto Material pinta el surface
+// con `inverse-surface` (claro en dark) y un intento previo por tokens `--*-snackbar-container-color`
+// no aplicaba (Material no los expone; ver probe). Además su regla del fondo tiene la MISMA
+// especificidad que un descendiente simple (0,2,0) y carga después → ganaba. Por eso acá:
+//   1) Subimos especificidad concatenando la clase del container (`.mat-mdc-snack-bar-container.tbi-…`
+//      → 0,3,0) para ganarle al fondo de Material sin `!important`.
+//   2) Usamos los pares semánticos del proyecto (container/on-container), duales light/dark:
+//      error = `--mat-sys-error-container` (rojo profundo en dark); éxito = `--tbi-sys-success-*`
+//      (verde, el mismo que usa `tbi-status-chip`). Así error se ve rojo y éxito verde en ambos modos,
+//      con texto y botones legibles (on-container).
+
+.mat-mdc-snack-bar-container.tbi-snack--error {
+  color: var(--mat-sys-on-error-container);
+
+  .mdc-snackbar__surface {
+    background-color: var(--mat-sys-error-container);
+  }
+
+  .mat-mdc-snack-bar-label,
+  .mdc-snackbar__label,
+  .mat-mdc-button,
+  .mat-mdc-snack-bar-action {
+    --mat-text-button-label-text-color: var(--mat-sys-on-error-container);
+    --mat-snack-bar-button-color: var(--mat-sys-on-error-container);
+
+    color: var(--mat-sys-on-error-container);
+  }
+}
+
+.mat-mdc-snack-bar-container.tbi-snack--success {
+  color: var(--tbi-sys-on-success-container);
+
+  .mdc-snackbar__surface {
+    background-color: var(--tbi-sys-success-container);
+  }
+
+  .mat-mdc-snack-bar-label,
+  .mdc-snackbar__label,
+  .mat-mdc-button,
+  .mat-mdc-snack-bar-action {
+    --mat-text-button-label-text-color: var(--tbi-sys-on-success-container);
+    --mat-snack-bar-button-color: var(--tbi-sys-on-success-container);
+
+    color: var(--tbi-sys-on-success-container);
+  }
+}

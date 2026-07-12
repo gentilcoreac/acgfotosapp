@@ -1,0 +1,118 @@
+<section class="list pvt">
+  <header class="list__header">
+    <h1>Parámetros por tenant</h1>
+  </header>
+
+  <div class="pvt__filters">
+    <tbi-select
+      class="pvt__filter"
+      label="Tenant"
+      [formControl]="tenantControl"
+      [options]="tenantOptions()"
+    />
+    <tbi-select
+      class="pvt__filter"
+      label="Aplicación"
+      [formControl]="aplicacionControl"
+      [options]="aplicacionOptions()"
+    />
+  </div>
+
+  @if (loading() || loadingApps()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  @if (rows().length > 0) {
+    <div class="tbi-card-table">
+      <table mat-table [dataSource]="rows()">
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>Id</th>
+          <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let row">{{ row.nombre }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="descripcion">
+          <th mat-header-cell *matHeaderCellDef>Descripción</th>
+          <td mat-cell *matCellDef="let row">{{ row.descripcion }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="valor">
+          <th mat-header-cell *matHeaderCellDef>Valor</th>
+          <td mat-cell *matCellDef="let row">
+            @if (editingId() === row.id) {
+              @if (row.tipoDato === TIPO_DATO.Booleano) {
+                <mat-slide-toggle [checked]="boolEdit()" (change)="boolEdit.set($event.checked)">
+                  {{ boolEdit() ? 'Sí' : 'No' }}
+                </mat-slide-toggle>
+              } @else {
+                <tbi-cell-input
+                  class="pvt__editor"
+                  [inputMode]="row.tipoDato === TIPO_DATO.Entero ? 'numeric' : 'text'"
+                  [formControl]="valorControl"
+                  ariaLabel="Valor"
+                />
+              }
+            } @else {
+              <span class="pvt__value">
+                @if (row.parametroValorId !== null) {
+                  <mat-icon
+                    class="pvt__override-icon"
+                    aria-label="Valor personalizado"
+                    matTooltip="Valor personalizado para este tenant"
+                    >build_circle</mat-icon
+                  >
+                }
+                {{ displayValor(row) }}
+              </span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef class="pvt__col-acciones">Acciones</th>
+          <td mat-cell *matCellDef="let row" class="pvt__col-acciones">
+            @if (editingId() === row.id) {
+              <tbi-row-action icon="check" ariaLabel="Confirmar" [run]="saveFn(row)" />
+              <button matIconButton aria-label="Cancelar" (click)="cancelEdit()">
+                <mat-icon>close</mat-icon>
+              </button>
+            } @else {
+              <button
+                matIconButton
+                aria-label="Editar"
+                [disabled]="editingId() !== null"
+                (click)="startEdit(row)"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <tbi-row-action
+                icon="restore"
+                ariaLabel="Restaurar valor por defecto"
+                [disabled]="row.parametroValorId === null || editingId() !== null"
+                [confirm]="restoreConfirm(row)"
+                [run]="restoreFn(row)"
+              />
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  } @else if (!loading() && !loadingApps()) {
+    <p class="pvt__empty">
+      @if (tenantControl.value === null) {
+        Seleccioná un tenant y una aplicación para ver sus parámetros.
+      } @else if (aplicacionControl.value === null) {
+        Seleccioná una aplicación del tenant.
+      } @else if (searched()) {
+        El tenant no tiene parámetros para esta aplicación.
+      }
+    </p>
+  }
+</section>

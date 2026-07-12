@@ -1,0 +1,225 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <mat-tab-group animationDuration="0ms">
+      <mat-tab label="General">
+        <div class="edit__general">
+          <div class="edit__form">
+            <tbi-text-field [formField]="form.userName" label="Usuario" />
+            <tbi-text-field [formField]="form.nombre" label="Nombre" />
+            <tbi-text-field [formField]="form.apellido" label="Apellido" />
+            <tbi-text-field [formField]="form.email" label="Email" type="email" />
+            <tbi-text-field [formField]="form.telefono" label="Teléfono" inputmode="numeric" />
+
+            @if (isRoot()) {
+              <mat-slide-toggle [formField]="form.administrador">Administrador</mat-slide-toggle>
+            }
+
+            <!-- En alta el panel de estado no existe: avisar igual que sin licencia no va a poder
+                 iniciar sesión (en edición lo muestra el panel "Acceso"). -->
+            @if (!isEdit && !isRoot() && acceso().bloquea) {
+              <p class="edit__status-hint">
+                Sin una licencia vigente el usuario no va a poder iniciar sesión, aunque la cuenta
+                esté activa.
+              </p>
+            }
+          </div>
+
+          @if (isEdit) {
+            <aside class="edit__status-panel">
+              <span class="edit__status-label">Estado de la cuenta</span>
+              <tbi-status-chip
+                class="edit__status-chip"
+                [label]="bloqueado() ? 'Bloqueado' : 'Activo'"
+                [tone]="bloqueado() ? 'error' : 'success'"
+                [icon]="bloqueado() ? 'lock' : 'check_circle'"
+              />
+              <button
+                matButton="outlined"
+                type="button"
+                [disabled]="busyAction()"
+                (click)="toggleBloqueo()"
+              >
+                @if (bloqueando()) {
+                  <mat-progress-spinner mode="indeterminate" [diameter]="18" />
+                } @else {
+                  <mat-icon>{{ bloqueado() ? 'lock_open' : 'lock' }}</mat-icon>
+                }
+                {{ bloqueado() ? 'Desbloquear' : 'Bloquear' }}
+              </button>
+
+              @if (!isRoot()) {
+                <div class="edit__status-divider"></div>
+                <span class="edit__status-label">Acceso</span>
+                <tbi-status-chip
+                  class="edit__status-chip"
+                  [label]="acceso().label"
+                  [tone]="acceso().tone"
+                  [icon]="acceso().icon"
+                />
+                @if (acceso().bloquea) {
+                  <span class="edit__status-hint">
+                    Sin una licencia vigente no puede iniciar sesión, aunque la cuenta esté activa.
+                  </span>
+                }
+              }
+
+              @if (!emailConfirmed()) {
+                <div class="edit__status-divider"></div>
+                <button
+                  matButton="outlined"
+                  type="button"
+                  [disabled]="busyAction()"
+                  (click)="reConfirmar()"
+                >
+                  @if (reenviando()) {
+                    <mat-progress-spinner mode="indeterminate" [diameter]="18" />
+                  } @else {
+                    <mat-icon>mail</mat-icon>
+                  }
+                  Reenviar confirmación
+                </button>
+              }
+            </aside>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          Licencia y Roles
+          @if (licenciaTabSeveridad() !== 'none') {
+            <mat-icon
+              class="edit__tab-alert"
+              [class.edit__tab-alert--error]="licenciaTabSeveridad() === 'error'"
+              [matTooltip]="
+                licenciaTabSeveridad() === 'error'
+                  ? 'La licencia asignada está vencida'
+                  : 'La licencia asignada está por vencer'
+              "
+            >
+              {{ licenciaTabSeveridad() === 'error' ? 'error' : 'warning' }}
+            </mat-icon>
+          }
+        </ng-template>
+        <div class="edit__license-roles">
+          <tbi-licencias-warning-banner [licencias]="licenciaSeleccionadaAlerta()" />
+
+          <tbi-select
+            [formField]="form.tipoLicenciaId"
+            label="Licencia"
+            [options]="tipoLicenciaOptions()"
+          />
+
+          <div class="edit__checks">
+            @for (rol of licenseRoles(); track rol.id) {
+              <mat-checkbox
+                [checked]="isRoleChecked(rol.id)"
+                (change)="toggleRole(rol.id, $event.checked)"
+              >
+                {{ rol.descripcion }}
+              </mat-checkbox>
+            } @empty {
+              <p class="edit__empty">Seleccioná una licencia para ver los roles que habilita.</p>
+            }
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Aplicaciones">
+        <div class="edit__apps">
+          <div class="edit__checks">
+            @for (app of aplicaciones(); track app.id) {
+              <mat-checkbox
+                [checked]="isAppChecked(app.id)"
+                (change)="toggleApp(app.id, $event.checked)"
+              >
+                {{ app.nombre }}
+              </mat-checkbox>
+            } @empty {
+              <p class="edit__empty">No hay aplicaciones disponibles.</p>
+            }
+          </div>
+
+          @if (defaultAppOptions().length > 0) {
+            <tbi-select
+              [formField]="form.aplicacionDefaultId"
+              label="Aplicación por defecto"
+              [options]="defaultAppOptions()"
+            />
+          }
+        </div>
+      </mat-tab>
+
+      @if (isEdit) {
+        <mat-tab label="Ver Roles efectivos">
+          <!--
+            Tope de licencia para root (§10.5): root es EXENTO (menú por PermisoRoot, authz
+            CheckPemissions()=false), así que mostrarle roles "bloqueados por licencia" sería engañoso.
+            Se gatea con isRoot() del usuario LOGUEADO: como root sólo edita otros tenants impersonando
+            (y ahí isRoot pasa a false) y root es por-tenant, vale la equivalencia
+            "viewer isRoot=true ⟺ todos los usuarios que edita son root". Es cosmético (la exención real
+            es server-side). Revisar si algún día root deja de ser por-tenant.
+          -->
+          <div class="edit__efectivos">
+            @if (loadingEfectivos()) {
+              <mat-progress-bar mode="indeterminate" />
+            }
+            @if (isRoot()) {
+              <p class="edit__hint">
+                Este usuario pertenece al tenant root (administrador del sistema): el
+                <strong>tope de licencia no aplica</strong> y conserva todos sus roles sin
+                restricción.
+              </p>
+            } @else {
+              <p class="edit__hint">
+                {{ rolesUsuarioDesc }} Los que exceden su licencia aparecen
+                <strong>bloqueados</strong> (no tienen efecto). Refleja lo elegido en las otras
+                pestañas (aunque no hayas guardado).
+              </p>
+            }
+            @for (rol of rolesEfectivos(); track rol.origen + '-' + rol.rolId + '-' + rol.grupoId) {
+              <div
+                class="edit__efectivo"
+                [class.edit__efectivo--bloqueado]="!isRoot() && !rol.permitidoPorLicencia"
+              >
+                <span class="edit__efectivo-rol">{{ rol.rolDescripcion }}</span>
+                <span class="edit__efectivo-tags">
+                  @if (!isRoot() && !rol.permitidoPorLicencia) {
+                    <span class="edit__efectivo-bloqueado">Bloqueado por licencia</span>
+                  }
+                  <span
+                    class="edit__efectivo-origen"
+                    [class.edit__efectivo-origen--grupo]="rol.origen === 'Grupo'"
+                  >
+                    {{ rol.origen === 'Grupo' ? 'Grupo: ' + rol.grupoNombre : 'Directo' }}
+                  </span>
+                </span>
+              </div>
+            } @empty {
+              @if (!loadingEfectivos()) {
+                <p class="edit__empty">El usuario no tiene roles efectivos.</p>
+              }
+            }
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

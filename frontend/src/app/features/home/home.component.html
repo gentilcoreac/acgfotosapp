@@ -1,0 +1,14 @@
+<section class="home">
+  <header class="home__header">
+    <h1>Inicio</h1>
+    <p>{{ subtitulo() }}</p>
+  </header>
+
+  <div class="home__grid">
+    @for (widget of widgets; track widget.component) {
+      @if (canShow(widget)) {
+        <ng-container *ngComponentOutlet="widget.component; injector: injector" />
+      }
+    }
+  </div>
+</section>

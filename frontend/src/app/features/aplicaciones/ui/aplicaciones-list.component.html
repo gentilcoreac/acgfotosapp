@@ -1,0 +1,19 @@
+<section class="list">
+  <header class="list__header">
+    <h1>Aplicaciones</h1>
+    <div class="list__actions">
+      <button matButton="filled" (click)="add()">
+        <mat-icon>add</mat-icon>
+        Nuevo
+      </button>
+    </div>
+  </header>
+
+  <tbi-table
+    [columns]="columns"
+    [fetch]="fetch"
+    [rowActions]="rowActions"
+    [searchable]="true"
+    searchPlaceholder="Buscar aplicación…"
+  />
+</section>

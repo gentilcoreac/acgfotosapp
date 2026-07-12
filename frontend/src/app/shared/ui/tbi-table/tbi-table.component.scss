@@ -1,0 +1,179 @@
+.tbi-table {
+  // El look de card (superficie por modo light/dark, borde, radius 22px, sombra) y el theming de
+  // header/celda/hover de fila viven en el partial global `.tbi-card-table` (styles/_table.scss),
+  // que este componente aplica en su elemento raíz (`class="tbi-table tbi-card-table"`). Acá queda
+  // sólo lo propio de `tbi-table`: layout, toolbar, buscador, columna de acciones sticky y empty
+  // state. Las variables `--tbi-surface*`/`--tbi-row-hover` las define el partial y las reusan las
+  // reglas de la celda de acciones de más abajo.
+  display: block;
+  position: relative;
+
+  &__bar {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 1;
+  }
+
+  // Barra de herramientas: buscador a la izquierda, acciones (Columnas) empujadas a la derecha.
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    flex-wrap: wrap;
+  }
+
+  &__toolbar-spacer {
+    flex: 1;
+  }
+
+  // Buscador píldora (44px) sobre `surface-container-high`, como el mockup.
+  &__search {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 10px;
+    min-width: 200px;
+    max-width: 380px;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__search-icon {
+    width: 21px;
+    height: 21px;
+    font-size: 21px;
+    line-height: 1;
+  }
+
+  &__search-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    outline: none;
+    font: var(--mat-sys-body-medium);
+    color: var(--mat-sys-on-surface);
+
+    &::placeholder {
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+
+  &__columns-title {
+    padding: 8px 16px 10px;
+    font: var(--mat-sys-label-medium);
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+
+    // mat-paginator trae su propio fondo (`--mat-sys-surface`), distinto al `--tbi-surface` del
+    // card. Como acá es un flex item (sólo ocupa su contenido, a la derecha), ese fondo pintaba una
+    // caja con color que no matchea el resto del footer. Lo hacemos transparente para que toda la
+    // franja inferior sea una sola superficie continua con el card.
+    .mat-mdc-paginator {
+      background: transparent;
+    }
+  }
+
+  &__footer-spacer {
+    flex: 1;
+  }
+
+  // Scroll horizontal SÓLO de la tabla; el card exterior conserva radius/clip. En mobile permite
+  // alcanzar columnas/acciones que no entran en el viewport; en desktop no muestra scrollbar si entra.
+  &__scroll {
+    overflow-x: auto;
+  }
+
+  // Columna de acciones fija a la derecha: queda siempre visible aunque haya scroll horizontal
+  // (clave en mobile, donde antes había que arrastrar hasta el borde). Fondo opaco (= al de la
+  // celda) para que el contenido no se transparente debajo al hacer scroll.
+  &__actions {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+  }
+
+  td.tbi-table__actions {
+    background-color: var(--tbi-surface);
+  }
+
+  th.tbi-table__actions {
+    background-color: var(--tbi-surface-header);
+  }
+
+  // En hover, la celda sticky toma EXACTAMENTE el mismo color que la fila (misma variable).
+  tr.mat-mdc-row:hover td.tbi-table__actions {
+    background-color: var(--tbi-row-hover);
+  }
+
+  // Acciones reveladas al hover (estilo Gmail), SÓLO en desktop con puntero fino: atenúa el
+  // CONTENIDO (no la celda, así no oculta su borde inferior ni el fondo sticky). Aparece al pasar
+  // por la fila o al enfocar con teclado (`:focus-within`, a11y). En touch quedan siempre visibles.
+  @media (hover: hover) and (pointer: fine) {
+    &__actions tbi-row-actions {
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    tr.mat-mdc-row:hover &__actions tbi-row-actions,
+    tr.mat-mdc-row:focus-within &__actions tbi-row-actions {
+      opacity: 1;
+    }
+  }
+
+  // Alineación opcional por columna (`TbiColumn.align`). Para headers ordenables, el contenido va
+  // dentro de un contenedor flex de mat-sort, así que también ajustamos su `justify-content`.
+  &__cell--center {
+    text-align: center;
+
+    .mat-sort-header-container {
+      justify-content: center;
+    }
+  }
+
+  &__cell--end {
+    text-align: right;
+
+    .mat-sort-header-container {
+      justify-content: flex-end;
+    }
+  }
+
+  // Estado vacío: ícono atenuado + título + ayuda, centrado. Reemplaza el "Sin resultados." plano.
+  &__empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 2.5rem 1rem;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__empty-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    opacity: 0.6;
+  }
+
+  &__empty-title {
+    margin: 0.25rem 0 0;
+    font: var(--mat-sys-title-medium);
+  }
+
+  &__empty-hint {
+    margin: 0;
+    font: var(--mat-sys-body-small);
+  }
+}

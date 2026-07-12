@@ -1,0 +1,22 @@
+:host {
+  display: block;
+}
+
+.tree-node {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  &__toggle {
+    flex: 0 0 auto;
+
+    &--leaf {
+      display: inline-block;
+      width: 40px;
+    }
+  }
+
+  &__children {
+    margin-left: 1.25rem;
+  }
+}
