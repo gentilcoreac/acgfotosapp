@@ -5,6 +5,11 @@
     <ProjectReference Include="..\AcgFotos.Fotos.Domain\AcgFotos.Fotos.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Read path de DTOs por Mapperly (source generator), misma versión que usaba Budget. -->
+    <PackageReference Include="Riok.Mapperly" Version="4.1.1" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

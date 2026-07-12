@@ -1,7 +1,9 @@
 using Autofac;
 using AcgFotos.Core.AutoFac;
 using AcgFotos.Fotos.Application.Imaging;
+using AcgFotos.Fotos.Domain.Repositories;
 using AcgFotos.Fotos.Infrastructure.Imaging;
+using AcgFotos.Fotos.Infrastructure.Persistence.Ef.Repositories;
 
 namespace AcgFotos.Fotos.Controllers
 {
@@ -26,6 +28,10 @@ namespace AcgFotos.Fotos.Controllers
             builder.RegisterType<ImageSharpImageProcessor>()
                 .As<IImageProcessor>()
                 .SingleInstance(); // sin estado: una instancia alcanza
+
+            builder.RegisterType<EventoRepository>()
+                .As<IEventoRepository>()
+                .InstancePerLifetimeScope();
 
             base.Load(builder);
         }

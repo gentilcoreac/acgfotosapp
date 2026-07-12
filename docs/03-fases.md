@@ -13,17 +13,17 @@ Objetivo: plataforma portada del código base compilando y verificada, y el vert
 - [x] Entidades del vertical (docs/02) con EF config (`fot_`, 8 tablas) y migración `VerticalFotos` aplicada
 - [x] `IImageProcessor` (ImageSharp): thumb + preview con watermark en diagonal, con tests de humo (dimensiones, no-upscale, watermark en los 4 cuadrantes, contenido inválido)
 - [x] API levantada en dev (:30000) con base `AcgFotos` migrada y seedeada; login de `root` verificado end-to-end; runbook en el README
-- [ ] Front (:4200) corriendo contra la API dev con login por navegador (queda como arranque de Fase 1)
+- [x] Front (:4200) corriendo contra la API dev (verificado: front 200, login con CORS correcto desde el origen 4200)
 
-**Terminada cuando**: el front dev loguea contra la API local (único pendiente; el pipeline de fotos y el vertical ya están verificados por tests).
+**FASE 0 TERMINADA** (2026-07-12).
 
 ## Fase 1 — MVP admin
 
 Objetivo: el fotógrafo puede dejar un evento listo para publicar.
 
-- [ ] Login admin (JWT)
-- [ ] CRUD Evento / Curso / Álbum (generación de código de acceso al crear álbum)
-- [ ] Catálogo TamanoPrecio por evento
+- [x] Login admin (JWT) — heredado de la plataforma, verificado
+- [x] CRUD Evento con catálogo TamanoPrecio como colección hija (API `api/fotos/eventos`, 10 tests de integración). Nota: el fotógrafo opera como usuario NO-root de su propio tenant (guard multi-tenant de la plataforma); root + header `SimulatedTenant` en dev/tests
+- [ ] CRUD Curso / Álbum (generación de código de acceso al crear álbum)
 - [ ] Upload masivo de fotos (multi-archivo, asignando a curso o álbum) con procesamiento automático (thumb + preview con watermark)
 - [ ] Vista de galería admin para verificar lo subido
 - [ ] Impresión/descarga de tarjetas con código y QR por álbum (para repartir a las familias)
