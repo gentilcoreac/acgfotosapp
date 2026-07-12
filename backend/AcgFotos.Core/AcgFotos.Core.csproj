@@ -1,0 +1,219 @@
+﻿
+
+
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <Version>1.0.6</Version>
+    <PackageProjectUrl>http://www.tech-bi.com/</PackageProjectUrl>
+    <Copyright>AcgFotos</Copyright>
+    <Description>Librería con el framework de AcgFotos usado para los desarrollos de la empresa</Description>
+    <!-- En la solución Budgeting, Core se consume por ProjectReference (no como NuGet),
+         así que no se empaqueta en cada build. La publicación como paquete vive en el repo base. -->
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Title>AcgFotos Framework</Title>
+    <Company>AcgFotos</Company>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- La suite de integracion drena la AuditLogQueue de forma deterministica (sin el background
+         writer, que en tests racea con Respawn): necesita el Reader interno del Channel. -->
+    <InternalsVisibleTo Include="AcgFotos.Api.IntegrationTests" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.0" />
+    <!--
+      AutoMapper 14.0.0 es la última versión OSS (MIT). A partir de 15.0 pasó a licencia comercial.
+      NU1903 (GHSA-rvv3-g6hj-g44x / CVE-2026-32933) reporta una vuln. de DoS por StackOverflow al
+      mapear objetos auto-referenciados de profundidad > 25.000. El fix está en 15.1.1+ (paga).
+      Vector externo mitigado: Newtonsoft.Json deserializa con MaxDepth=64 por defecto, lo que
+      bloquea cualquier payload con anidamiento extremo antes de llegar a AutoMapper.
+      Opciones futuras: migrar a Mapster (OSS, MIT), migrar a Mapperly (OSS, Apache 2.0),
+      o contratar licencia comercial de AutoMapper. Hasta tomar esa decisión, suprimimos sólo
+      NU1903 para este paquete específico.
+    -->
+    <PackageReference Include="AutoMapper" Version="14.0.0" NoWarn="NU1903" />
+    <!--
+      Fix explícito del CVE GHSA-37gx-xxp4-5rgx / GHSA-w3x6-4m5h-cxqf en System.Security.Cryptography.Xml.
+      La versión transitiva 8.0.2 estaba marcada como vulnerable; pinneamos a la última 10.0.x para cortar la cadena.
+      net10 provee la lib nativamente via FrameworkReference, de ahí el NU1510. Mantenemos el pin
+      como defensa en profundidad (por si alguna lib transitiva vuelve a tirar la 8.0.2 vulnerable).
+    -->
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.8" NoWarn="NU1510" />
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
+    <PackageReference Include="ExcelDataReader" Version="3.8.0" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="LazyCache.AspNetCore" Version="2.4.0" />
+    <PackageReference Include="RazorEngine.NetCore" Version="3.1.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="10.0.0" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="9.0.3">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.8" />
+    <PackageReference Include="Wacton.Unicolour" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Localization\APIResources\MessagesAPI.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MessagesAPI.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\PrivateResources\Database\Fields\Fields.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Fields.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\PrivateResources\Database\Messages\Messages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Messages.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\PrivateResources\General\Fields\Fields.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Fields.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\PrivateResources\General\Messages\Messages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Messages.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\PrivateResources\General\Texts\Texts.Designer.cs">
+      <DependentUpon>Texts.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Localization\PrivateResources\Office\Fields\Fields.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Fields.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\PrivateResources\Office\Messages\Messages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Messages.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\PrivateResources\WebappRoot\Fields\Fields.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Fields.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\PrivateResources\WebappRoot\Messages\Messages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Messages.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\PrivateResources\Webapp\Fields\Fields.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Fields.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\PrivateResources\Webapp\Messages\Messages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Messages.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\PublicResources\Fields\Fields.Designer.cs">
+      <DependentUpon>Fields.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Localization\PublicResources\Messages\Messages.Designer.cs">
+      <DependentUpon>Messages.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Localization\PublicResources\Texts\Texts.Designer.cs">
+      <DependentUpon>Texts.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Localization\PrivateResources\Webapp\Texts\Texts.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Texts.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Localization\APIResources\MessagesAPI.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>MessagesAPI.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PrivateResources\Database\Fields\Fields.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Fields.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PrivateResources\Database\Messages\Messages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PrivateResources\General\Fields\Fields.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Fields.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PrivateResources\General\Messages\Messages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PrivateResources\General\Texts\Texts.resx">
+      <LastGenOutput>Texts.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PrivateResources\Office\Fields\Fields.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Fields.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PrivateResources\Office\Messages\Messages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PrivateResources\WebappRoot\Fields\Fields.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Fields.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PrivateResources\WebappRoot\Messages\Messages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PrivateResources\Webapp\Fields\Fields.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Fields.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PrivateResources\Webapp\Messages\Messages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PublicResources\Fields\Fields.es-AR.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PublicResources\Fields\Fields.resx">
+      <LastGenOutput>Fields.Designer.cs</LastGenOutput>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PublicResources\Messages\Messages.resx">
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PublicResources\Texts\Texts.resx">
+      <LastGenOutput>Texts.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\PrivateResources\Webapp\Texts\Texts.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Texts.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+</Project>

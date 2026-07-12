@@ -1,0 +1,12 @@
+﻿{
+  "profiles": {
+    "AcgFotos.Base.Domain": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:60755;http://localhost:60756"
+    }
+  }
+}

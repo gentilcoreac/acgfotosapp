@@ -1,0 +1,270 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AtTimeCron" xml:space="preserve">
+    <value>Con</value>
+  </data>
+  <data name="BFPSendEmailHint" xml:space="preserve">
+    <value>Para agregar más de un correo presione COMA o ENTER para agregarlo</value>
+  </data>
+  <data name="ConditionExample_1" xml:space="preserve">
+    <value>Artículos que no son Zapatos</value>
+  </data>
+  <data name="ConditionExample_1_value" xml:space="preserve">
+    <value>&lt;&gt;Zapatos</value>
+  </data>
+  <data name="ConditionExample_2" xml:space="preserve">
+    <value>Artículos que empiezan con A</value>
+  </data>
+  <data name="ConditionExample_3" xml:space="preserve">
+    <value>Artículos que son Pantalones</value>
+  </data>
+  <data name="ConditionExample_3_value" xml:space="preserve">
+    <value>Pantalones</value>
+  </data>
+  <data name="Daily" xml:space="preserve">
+    <value>Diariamente</value>
+  </data>
+  <data name="Day" xml:space="preserve">
+    <value>Día</value>
+  </data>
+  <data name="Day/s" xml:space="preserve">
+    <value>Día(s)</value>
+  </data>
+  <data name="Every" xml:space="preserve">
+    <value>Cada</value>
+  </data>
+  <data name="ExampleOfConditions" xml:space="preserve">
+    <value>Ejemplo de condiciones</value>
+  </data>
+  <data name="Fifth" xml:space="preserve">
+    <value>Quinto</value>
+  </data>
+  <data name="First" xml:space="preserve">
+    <value>Primero</value>
+  </data>
+  <data name="Fourth" xml:space="preserve">
+    <value>Cuarto</value>
+  </data>
+  <data name="Hour/s" xml:space="preserve">
+    <value>Hora(s)</value>
+  </data>
+  <data name="Hourly" xml:space="preserve">
+    <value>Cada hora</value>
+  </data>
+  <data name="AttachFile" xml:space="preserve">
+    <value>Adjuntar archivo</value>
+  </data>
+  <data name="InfoQueryDaxCalculatedConceptsDesc" xml:space="preserve">
+    <value>Un ejemplo para crear conceptos calculados es: crear una measure DAX que obtenga la suma del Value del Modelo y filtre por el/los concepto(s) que se deseen</value>
+  </data>
+  <data name="InfoQueryDaxCalculatedConceptsReturnValues" xml:space="preserve">
+    <value>(ESCALAR) Tiene que devolver un valor único</value>
+  </data>
+  <data name="InfoQueryDaxCalculateDesc" xml:space="preserve">
+    <value>Evalúa una expresión en un contexto modificado por filtros.</value>
+  </data>
+  <data name="InfoQueryDaxCalculateParamExpression" xml:space="preserve">
+    <value>La expresión que se va a evaluar.</value>
+  </data>
+  <data name="InfoQueryDaxCalculateParamFilter" xml:space="preserve">
+    <value>(Opcional) (Repetible) Una expresión booleana -Verdadero/Falso- o una expresión de tabla que define un filtro.</value>
+  </data>
+  <data name="InfoQueryDaxCalculateReturnValues" xml:space="preserve">
+    <value>(ESCALAR): devuelve un valor único de cualquier tipo.</value>
+  </data>
+  <data name="InfoQueryDaxDefineColumnDesc" xml:space="preserve">
+    <value>La palabra clave COLUMN permite definir una columna en una consulta (en la sección DEFINE).&amp;lt;br/&amp;gt; La columna no se persistirá en el modelo, solo existe en la duración de la query. &amp;lt;/br&amp;gt; Será como una columna calculada en todos los sentidos</value>
+  </data>
+  <data name="InfoQueryDaxDefineMeasuresDesc" xml:space="preserve">
+    <value>La palabra clave MEASURE introduce una definición de medida en una consulta (en la sección DEFINE).&amp;lt;br/&amp;gt; La sintaxis después de MEASURE define una medida, que se puede utilizar en cualquier otra expresión de la misma consulta.&amp;lt;br/&amp;gt; Sobreescribe la medida modelo con el mismo nombre en la duración de la query. Esto no afectará a la mesaure del modelo</value>
+  </data>
+  <data name="InfoQueryDaxDefineTableDesc" xml:space="preserve">
+    <value>La palabra clave TABLE introduce una definición de tabla en una consulta (en la sección DEFINE).&amp;lt;br/&amp;gt; La tabla no es persistida en el modelo, solo existe mientras dure la consulta.</value>
+  </data>
+  <data name="InfoQueryDaxDefineVarDesc" xml:space="preserve">
+    <value>La palabra clave VAR introduce variables en una expresión.&amp;lt;br/&amp;gt; La sintaxis después de VAR define una variable, que se puede consumir en las siguientes declaraciones VAR o dentro de la declaración RETURN obligatoria después de la declaración de una o más variables.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt; Si se usa VAR en la sección DEFINE de una declaración EVALUATE, se puede usar en cualquier expresión de la declaración y no se puede usar la palabra clave RETURN.</value>
+  </data>
+  <data name="InfoQueryDaxEvaluateDesc" xml:space="preserve">
+    <value>EVALUATE es una declaración DAX necesaria para ejecutar una consulta. &amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;EVALUATE seguido de cualquier expresión de tabla devuelve el resultado de la expresión de tabla. &amp;lt;br/&amp;gt;Además, una o más declaraciones EVALUATE pueden ir precedidas de definiciones especiales como tablas, columnas, medidas y variables locales que tienen el alcance de todo el lote de declaraciones EVALUATE ejecutadas juntas. &amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt; EVALUATE se divide en tres partes: &amp;lt;br/&amp;gt;&amp;lt;b&amp;gt;- DEFINE - Sección de definición:&amp;lt;/b&amp;gt; se definen las entidades locales como tablas, columnas, variables y medidas. Puede haber una única sección de definición para una o más consultas.&amp;lt;br/&amp;gt; &amp;lt;b&amp;gt; - EVALUATE - Expresión de consulta:&amp;lt;/b&amp;gt; se define la expresión de la tabla a evaluar y devolver como resultado. &amp;lt;br/&amp;gt; &amp;lt;b&amp;gt;- Modificadores de resultados:&amp;lt;/b&amp;gt; es una sección adicional y opcional para EVALUATE, que se agrega mediante la palabra clave ORDER BY. Incluye el orden del resultado y la definición opcional de qué filas devolver, proporcionando un punto de partida con START AT.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt; La primera y tercera parte de la declaración son opcionales. Por lo tanto, uno puede usar EVALUATE seguido de cualquier expresión de tabla para generar una consulta.</value>
+  </data>
+  <data name="InfoQueryDaxSelectColumnsDesc" xml:space="preserve">
+    <value>Permite elegir que columnas tomar dada una tabla. A su vez, te permite ponerle alias a las columnas o agregar nuevas columnas por medio de expresiones DAX</value>
+  </data>
+  <data name="InfoQueryDaxSelectColumnsParamExpression" xml:space="preserve">
+    <value>(Opcional) (Repetible) La expresión de la nueva columna que se agregará.</value>
+  </data>
+  <data name="InfoQueryDaxSelectColumnsParamName" xml:space="preserve">
+    <value>(Opcional) El nombre de la nueva columna que se agregará.</value>
+  </data>
+  <data name="InfoQueryDaxSelectColumnsParamTable" xml:space="preserve">
+    <value>La tabla de la que se seleccionan las columnas.</value>
+  </data>
+  <data name="InfoQueryDaxSelectColumnsReturnValues" xml:space="preserve">
+    <value>(TABLA): devuelve una tabla con el mismo número de filas que la tabla especificada como primer argumento.</value>
+  </data>
+  <data name="InfoQueryDaxTopNDescription" xml:space="preserve">
+    <value>Retorna un número determinado de filas según una expresión especificada.</value>
+  </data>
+  <data name="Last" xml:space="preserve">
+    <value>Último</value>
+  </data>
+  <data name="Minute/s" xml:space="preserve">
+    <value>Minuto(s)</value>
+  </data>
+  <data name="Minutely" xml:space="preserve">
+    <value>Cada minuto</value>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>Mes</value>
+  </data>
+  <data name="Monthly" xml:space="preserve">
+    <value>Mensualmente</value>
+  </data>
+  <data name="Of" xml:space="preserve">
+    <value>De</value>
+  </data>
+  <data name="OfEvery" xml:space="preserve">
+    <value>De cada</value>
+  </data>
+  <data name="OnThe" xml:space="preserve">
+    <value>El</value>
+  </data>
+  <data name="Second" xml:space="preserve">
+    <value>Segundo</value>
+  </data>
+  <data name="Third" xml:space="preserve">
+    <value>Tercero</value>
+  </data>
+  <data name="TitleDelete" xml:space="preserve">
+    <value>Borrar {0}</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>Semana</value>
+  </data>
+  <data name="WeekDayOptions" xml:space="preserve">
+    <value>Días de la semana (LUN-VIE)</value>
+  </data>
+  <data name="Weekly" xml:space="preserve">
+    <value>Semanalmente</value>
+  </data>
+  <data name="Yearly" xml:space="preserve">
+    <value>Anualmente</value>
+  </data>
+</root>

@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+
+    </style>
+    <title>@Model.Subject</title>
+</head>
+<body style="font-family: Tahoma, Geneva, Verdana, sans-serif;">
+
+    <table style="border-spacing: 0px;width:100%;">
+        <!-- HEADER -->
+
+        <tr style="background-color:@Model.TenantColor; color:white;">
+            <td style="padding: 5px;" align="center">
+                <img src="@Model.TenantLogoUrl" alt="logoTenant" style="width: 100px;" />
+            </td>
+            <td align="center" style="font-size: 30px">
+                <b>@Model.TenantName</b>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+
+        <!-- HEADER -->
+
+        <tr>
+            <td>&nbsp;</td>
+            <td align="center">
+                <h2>@Model.Subject</h2>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+
+        <tr>
+            <td>&nbsp;</td>
+            <td align="center" style='padding: 20px; font-size: 15px'>
+                @Model.BodyMsg
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+
+        <tr>
+            <td>&nbsp;</td>
+            <td align="center" style='padding: 10px;'>
+                <a href='@Model.Url' style='margin: auto; padding: 8px 10px; background-color: @Model.TenantColor; border-radius: 4px; border: none; color: white; text-decoration: none;'>
+                    <b>@Model.ButtonAction</b>
+                </a>
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+
+        <tr>
+            <td>&nbsp;</td>
+            <td align="center" style="padding-top:40px; padding-bottom:20px;font-size:12px;">
+                @Model.InfoSupport
+            </td>
+            <td>&nbsp;</td>
+        </tr>
+
+        <!-- FOOTER -->
+
+        <tr style="font-size:12px; background-color: #F4F4F4;">
+            <td style="padding-left:10px;">@Model.Year &copy;</td>
+            <td>&nbsp;</td>
+            <td align="right" style="padding-right:10px;">
+                <a href="@Model.CompanyWebSite">
+                    <img src="@Model.CompanyLogoUrl" alt="@Model.CompanyName" style="width: 100px;" />
+                </a>
+            </td>
+        </tr>
+
+        <!-- FOOTER -->
+    </table>
+</body>
+</html>

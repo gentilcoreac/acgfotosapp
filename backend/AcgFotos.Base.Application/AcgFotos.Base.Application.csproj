@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Services\Templates\Confirmar-cuenta.cshtml" />
+    <None Remove="Services\Templates\Recuperar-clave.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Services\Templates\Confirmar-cuenta.cshtml" />
+    <EmbeddedResource Include="Services\Templates\Recuperar-clave.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
+    <!--
+      SixLabors.ImageSharp 2.1.x es la última versión bajo licencia Apache 2.0 (OSS pleno).
+      A partir de la 3.0 cambió a "Six Labors Split License" (gratis < $1M USD/año revenue,
+      comercial sino). Se mantiene 2.1.x porque cumple el use case (resize + JPEG encode en
+      UsuarioAppService.cs para foto de perfil) y evita el riesgo de licencia.
+      Antes del upgrade a .NET 10 venía como transitiva implícita; al cortar esa cadena hubo
+      que pinearlo explícitamente. NU1902 = aviso de vulnerabilidad moderada conocida; se
+      suprime porque la decisión de quedarse en 2.1.x está documentada en Docs/adrs.md.
+    -->
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.10" NoWarn="NU1902" />
+    <!-- PoC #2: Mapperly como reemplazo de AutoMapper para el read path.
+         Source-generator, free (MIT), zero runtime reflection. Pin de versión explícito
+         para no traer cambios automáticos hasta que esté validado en todo el código. -->
+    <PackageReference Include="Riok.Mapperly" Version="4.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AcgFotos.Core\AcgFotos.Core.csproj" />
+    <ProjectReference Include="..\AcgFotos.Base.Domain\AcgFotos.Base.Domain.csproj" />
+    <ProjectReference Include="..\AcgFotos.Base.Infrastructure\AcgFotos.Base.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

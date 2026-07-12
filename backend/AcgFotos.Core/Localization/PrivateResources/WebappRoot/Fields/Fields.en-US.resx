@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Activate" xml:space="preserve">
+    <value>Activate</value>
+  </data>
+  <data name="Administrator" xml:space="preserve">
+    <value>Administrador</value>
+  </data>
+  <data name="Applications" xml:space="preserve">
+    <value>Applications</value>
+  </data>
+  <data name="AuditDetail" xml:space="preserve">
+    <value>Audit detail</value>
+  </data>
+  <data name="AutoRegisterEndpoints" xml:space="preserve">
+    <value>Register endpoints automatically</value>
+  </data>
+  <data name="Client" xml:space="preserve">
+    <value>Client {0}</value>
+  </data>
+  <data name="CreateDatabase" xml:space="preserve">
+    <value>Context params</value>
+  </data>
+  <data name="DataBaseName" xml:space="preserve">
+    <value>Cron expression</value>
+  </data>
+  <data name="DefaultAssignAdminNewTenant" xml:space="preserve">
+    <value>Dax Statement</value>
+  </data>
+  <data name="Duration" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="Endpoint" xml:space="preserve">
+    <value>End date</value>
+  </data>
+  <data name="Exception" xml:space="preserve">
+    <value>Excel sheet name</value>
+  </data>
+  <data name="Files" xml:space="preserve">
+    <value>Expression</value>
+  </data>
+  <data name="FilterMenus" xml:space="preserve">
+    <value>Configure filter</value>
+  </data>
+  <data name="FilterPermissions" xml:space="preserve">
+    <value>Filter menus</value>
+  </data>
+  <data name="HTTPMethod" xml:space="preserve">
+    <value>HTTP method</value>
+  </data>
+  <data name="Icon" xml:space="preserve">
+    <value>Icon</value>
+  </data>
+  <data name="IconName" xml:space="preserve">
+    <value>Nombre del icono</value>
+  </data>
+  <data name="IconUrl" xml:space="preserve">
+    <value>Last status</value>
+  </data>
+  <data name="LicenseExpiration" xml:space="preserve">
+    <value>License expiration</value>
+  </data>
+  <data name="LicenseStart" xml:space="preserve">
+    <value>License start</value>
+  </data>
+  <data name="LicenseType" xml:space="preserve">
+    <value>License type</value>
+  </data>
+  <data name="Listing" xml:space="preserve">
+    <value>Listing</value>
+  </data>
+  <data name="MessageTemplate" xml:space="preserve">
+    <value>Message template</value>
+  </data>
+  <data name="Method" xml:space="preserve">
+    <value>Method</value>
+  </data>
+  <data name="Module" xml:space="preserve">
+    <value>Module</value>
+  </data>
+  <data name="Paramenters" xml:space="preserve">
+    <value>Parameters</value>
+  </data>
+  <data name="ParameterDataType" xml:space="preserve">
+    <value>Parameter data type</value>
+  </data>
+  <data name="ParentMenu" xml:space="preserve">
+    <value>Parent menu</value>
+  </data>
+  <data name="Path" xml:space="preserve">
+    <value>Path</value>
+  </data>
+  <data name="Permission" xml:space="preserve">
+    <value>Permission</value>
+  </data>
+  <data name="PermissionCode" xml:space="preserve">
+    <value>Permission code</value>
+  </data>
+  <data name="Qty" xml:space="preserve">
+    <value>Qty.</value>
+  </data>
+  <data name="Restricted" xml:space="preserve">
+    <value>Restricted</value>
+  </data>
+  <data name="Result" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="Route" xml:space="preserve">
+    <value>Route</value>
+  </data>
+  <data name="RoutingPath" xml:space="preserve">
+    <value>Routing path</value>
+  </data>
+  <data name="SelectParentPermission" xml:space="preserve">
+    <value>Select parent permission</value>
+  </data>
+  <data name="Service" xml:space="preserve">
+    <value>Service</value>
+  </data>
+  <data name="ShowModulesAndControlsWithSelectedItems" xml:space="preserve">
+    <value>Show modules / controllers with selected items</value>
+  </data>
+  <data name="Storage" xml:space="preserve">
+    <value>Storage</value>
+  </data>
+  <data name="Tree" xml:space="preserve">
+    <value>Tree</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="ViewDatabase" xml:space="preserve">
+    <value>View database</value>
+  </data>
+  <data name="VisibleInHomeShortcuts" xml:space="preserve">
+    <value>Visible in shortcuts</value>
+  </data>
+  <data name="VisibleInMenu" xml:space="preserve">
+    <value>Visible in menu</value>
+  </data>
+  <data name="Detail" xml:space="preserve">
+    <value>Delete structure</value>
+  </data>
+  <data name="DefineIconName" xml:space="preserve">
+    <value>Define icon indicating the name</value>
+  </data>
+  <data name="RestoreValue" xml:space="preserve">
+    <value>Restore value</value>
+  </data>
+  <data name="CustomizeTheme" xml:space="preserve">
+    <value>Customize theme</value>
+  </data>
+  <data name="LoginLayoutType" xml:space="preserve">
+    <value>Login layout type</value>
+  </data>
+  <data name="RegenerateAllThemes" xml:space="preserve">
+    <value>Regenerate all themes</value>
+  </data>
+</root>

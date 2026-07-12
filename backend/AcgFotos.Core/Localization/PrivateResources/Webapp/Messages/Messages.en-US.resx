@@ -1,0 +1,323 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ConfirmStayConnected" xml:space="preserve">
+    <value>It's been a while since we've had any activity on the page, so for security reasons we are about to close your session.</value>
+  </data>
+  <data name="Error404Message" xml:space="preserve">
+    <value>We're sorry, but we couldn't find the page you're looking for. The URL might be incorrect or the page may no longer exist.</value>
+  </data>
+  <data name="Error404Title" xml:space="preserve">
+    <value>OOPS! something went wrong here</value>
+  </data>
+  <data name="ErrorDimCategoryFilterNotFound" xml:space="preserve">
+    <value>The category dimension filter was not found</value>
+  </data>
+  <data name="ErrorDimCategoryNotFound" xml:space="preserve">
+    <value>A dimension type category was not found</value>
+  </data>
+  <data name="ErrorEmailNotValid" xml:space="preserve">
+    <value>Error the mail is not valid</value>
+  </data>
+  <data name="ErrorGenericData" xml:space="preserve">
+    <value>Error while getting data.</value>
+  </data>
+  <data name="ErrorGenericExist" xml:space="preserve">
+    <value>Field already exists.</value>
+  </data>
+  <data name="ErrorIsNulleable" xml:space="preserve">
+    <value>Null values ​​are not allowed</value>
+  </data>
+  <data name="ErrorLowGranularityNotReached" xml:space="preserve">
+    <value>The lowest level of granularity was not reached</value>
+  </data>
+  <data name="ErrorModelNotRelatedToDimConcept" xml:space="preserve">
+    <value>The model is not related to a dimension concept</value>
+  </data>
+  <data name="ErrorValueMustSelected" xml:space="preserve">
+    <value>You must select an items to continue</value>
+  </data>
+  <data name="ErrorValueNotSelected" xml:space="preserve">
+    <value>There are no items selected</value>
+  </data>
+  <data name="InfoAdminExecuteProcess" xml:space="preserve">
+    <value>The process will be executed using the Tenant's Admin user</value>
+  </data>
+  <data name="InfoDataRuleColumnsCustomNoMatched" xml:space="preserve">
+    <value>These columns could not be associated with any target column</value>
+  </data>
+  <data name="InfoDataRulePreviewTooltip" xml:space="preserve">
+    <value>In order to run the preview, you will need to save the data rule. If you prefer to test your DAX Query without saving, remember that you can use the DAX Query Executer</value>
+  </data>
+  <data name="InfoHierarchyCreate" xml:space="preserve">
+    <value>Please select a hierarchy first.</value>
+  </data>
+  <data name="InfoHierarchyDelete" xml:space="preserve">
+    <value>Select a hierarchy to delete.</value>
+  </data>
+  <data name="InfoParentChildLoadDataFlattened" xml:space="preserve">
+    <value>Load data to view flattened columns.</value>
+  </data>
+  <data name="InfoValuesNotFound" xml:space="preserve">
+    <value>No records found</value>
+  </data>
+  <data name="SuccessDataRuleCopy" xml:space="preserve">
+    <value>The data rule has been copied successfully</value>
+  </data>
+  <data name="SuccessDataRuleProfileAdd" xml:space="preserve">
+    <value>Data rules profile has been added successfully</value>
+  </data>
+  <data name="SuccessDataRuleUpdate" xml:space="preserve">
+    <value>The data rule has been updated successfully</value>
+  </data>
+  <data name="SuccessHierarchyDelete" xml:space="preserve">
+    <value>Hierarchy deleted.</value>
+  </data>
+  <data name="SuccessNodeUpdate" xml:space="preserve">
+    <value>Node updated successfully</value>
+  </data>
+  <data name="SuccessScheduleUpdated" xml:space="preserve">
+    <value>The schedule was updated successfully</value>
+  </data>
+  <data name="SuccessTableImport" xml:space="preserve">
+    <value>Table imported successfully.</value>
+  </data>
+  <data name="SuccessTableUpdate" xml:space="preserve">
+    <value>Table updated successfully</value>
+  </data>
+  <data name="SuccessUserLocked" xml:space="preserve">
+    <value>User locked succesfully.</value>
+  </data>
+  <data name="SuccessUserUnlocked" xml:space="preserve">
+    <value>User unlocked succesfully.</value>
+  </data>
+  <data name="WarnDataRuleCustom" xml:space="preserve">
+    <value>It is irreversible to change its origin to a custom query. You will not be able to undo this change in this Profile.
+The column names of the query you will develop must match with the column names of the target.</value>
+  </data>
+  <data name="WarnRelationshipDelete" xml:space="preserve">
+    <value>Be careful! The column: [{0}] and the Foreign Key: [{1}] will be deleted</value>
+  </data>
+  <data name="WarnRelationshipInsert" xml:space="preserve">
+    <value>A column [{0}] and a Foreign Key [{1}] will be created</value>
+  </data>
+  <data name="ConfirmDeleteRegister" xml:space="preserve">
+    <value>Are you sure to delete the registry '{0}'?</value>
+  </data>
+  <data name="ConfirmViewChangeModel" xml:space="preserve">
+    <value>You are about to change the model, all filters and columns will be deleted. Do you want to continue?</value>
+  </data>
+  <data name="ConfirmPerformAction" xml:space="preserve">
+    <value>Are you sure you want to perform this action?</value>
+  </data>
+  <data name="ErrorStructureCantNotDeleted" xml:space="preserve">
+    <value>The structure cannot be deleted</value>
+  </data>
+  <data name="SuccessStructureCreated" xml:space="preserve">
+    <value>Structure created successfully</value>
+  </data>
+  <data name="ErrorModelsNotAvailable" xml:space="preserve">
+    <value>There are no models available</value>
+  </data>
+  <data name="SuccessUserDelete" xml:space="preserve">
+    <value>User deleted successfully.</value>
+  </data>
+  <data name="StatusFilterAdd" xml:space="preserve">
+    <value>Click to filter by this State</value>
+  </data>
+  <data name="StatusFilterRemove" xml:space="preserve">
+    <value>Click to remove filter</value>
+  </data>
+  <data name="InfoRelationship" xml:space="preserve">
+    <value>Use Column: [{0}] and Foreign Key: [{1}]</value>
+  </data>
+  <data name="MustSelectDefaultValue" xml:space="preserve">
+    <value>Select a value other than -999 to use as the default value</value>
+  </data>
+  <data name="ErrorHierachyRelatedToModel" xml:space="preserve">
+    <value>Cannot be updated. The hierarchy selected by default does not contain a column that is related to a model</value>
+  </data>
+  <data name="InfoHiearchyNameExist" xml:space="preserve">
+    <value>The entered hierarchy name already exists</value>
+  </data>
+  <data name="ErrorTableNameImport" xml:space="preserve">
+    <value>The file name must be the same as the table name.</value>
+  </data>
+  <data name="ErrorFiltersTypeTimeToIndetifyContextDataNotFound" xml:space="preserve">
+    <value>The time type filters needed to identify the data context were not found</value>
+  </data>
+  <data name="WarnCannotAddLevelRealsColsExist" xml:space="preserve">
+    <value>Cannot add a level because a level with real columns exists. Only real columns are allowed on the last level.</value>
+  </data>
+  <data name="ErrorExcelColumnDimensionIDRequired" xml:space="preserve">
+    <value>It is required to add the row with ID field</value>
+  </data>
+  <data name="WarnExcelColumnCannotConfigure" xml:space="preserve">
+    <value>Configure is not allowed</value>
+  </data>
+  <data name="ErrorExcelColumnDimensionForPivotRequired" xml:space="preserve">
+    <value>When there is a level, it is required to add the rows</value>
+  </data>
+  <data name="ConfirmViewChangeHierarchyTime" xml:space="preserve">
+    <value>You are about to change the hierarchy, all levels will be deleted. Do you want to continue?</value>
+  </data>
+  <data name="ErrorExcelColumnAssociatedWithRowSubtotalCannotRemove" xml:space="preserve">
+    <value>The column is associated with a subtotal row, it cannot be deleted.</value>
+  </data>
+  <data name="InfoTableMultipleSelection" xml:space="preserve">
+    <value>If you do not select any records, all of them will be selected.</value>
+  </data>
+  <data name="InfoColMadeFromFilterSortTooltip" xml:space="preserve">
+    <value>Sort the values ​​obtained to create the new columns. This way, the created columns will be in this order.</value>
+  </data>
+  <data name="InfoLevelTableTimeColSelectDisabledTooltip" xml:space="preserve">
+    <value>Modifying the selected column is not allowed because it is a time dimension and only the model's granularity column can be used</value>
+  </data>
+  <data name="InfoLevelColSelectDisabledTooltip" xml:space="preserve">
+    <value>Modifying the selected column is not allowed because this level has columns already set up</value>
+  </data>
+  <data name="InfoIncludeRecordsWithoutModelValuesRows" xml:space="preserve">
+    <value>Displays all records regardless of whether they have values in the model.
+
+¡Attention!
+This option at the "row" level implicitly performs a "Cross Join" against all tables.
+Therefore, we recommend filtering each of the other tables.</value>
+  </data>
+  <data name="InfoIncludeRecordsWithoutModelValuesCols" xml:space="preserve">
+    <value>If enabled, new columns will be created using a query against the table and filtered using the "input form" filters. Otherwise, the new columns will be created from the data returned by the "input form" query.</value>
+  </data>
+  <data name="ErrorLevelColumnsRequired" xml:space="preserve">
+    <value>The level has no columns. They need to be added.</value>
+  </data>
+  <data name="InfoFilterAddedBylevel" xml:space="preserve">
+    <value>Filter added by Column Level</value>
+  </data>
+  <data name="WarnOnDisableTeanant" xml:space="preserve">
+    <value>All logged-in users, except the administrator, will be automatically logged out of the application. Only the administrator will be able to use the application.</value>
+  </data>
+  <data name="InfoColsLettersAndColsMadeFromFilters" xml:space="preserve">
+    <value>The letter shown is for illustrative purposes only and may vary depending on the filters chosen by the user.</value>
+  </data>
+  <data name="InfoSortData" xml:space="preserve">
+    <value>Sort the data by this column</value>
+  </data>
+  <data name="ConfirmPivotColumnsWillBeRebuilt" xml:space="preserve">
+    <value>Columns have been customized. Modifying levels will erase these customizations. Do you want to continue?</value>
+  </data>
+</root>

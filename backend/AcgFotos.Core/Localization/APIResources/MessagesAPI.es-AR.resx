@@ -1,0 +1,633 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AccountCreation" xml:space="preserve">
+    <value>Creación de cuenta</value>
+  </data>
+  <data name="ErrorAccountBlocked" xml:space="preserve">
+    <value>La cuenta {0} se encuentra bloqueada.</value>
+  </data>
+  <data name="ErrorAccountNotActivelicense" xml:space="preserve">
+    <value>La cuenta {0} no posee licencia activa.</value>
+  </data>
+  <data name="ErrorAdminLicensesNotAssaigned" xml:space="preserve">
+    <value>El usuario administrador debe tener una licencia asignada.</value>
+  </data>
+  <data name="ErrorAggregateFunctionIdInvalid" xml:space="preserve">
+    <value>El id de la función de agregación '{0}' no es válida</value>
+  </data>
+  <data name="ErrorAggregateFunctionNotFound" xml:space="preserve">
+    <value>No se encontraron Aggregate Functions.</value>
+  </data>
+  <data name="ErrorAnalysisServices" xml:space="preserve">
+    <value>Error de analysis services: {0}</value>
+  </data>
+  <data name="ErrorApprovalCycleNotFound" xml:space="preserve">
+    <value>No se encontró el ciclo de aprobación</value>
+  </data>
+  <data name="ErrorApprovalCyclesModelFound" xml:space="preserve">
+    <value>El modelo ya se encuentra asignado en el ciclo de aprobación: [{0}]</value>
+  </data>
+  <data name="ErrorBPFNotFound" xml:space="preserve">
+    <value>No se encontró el BPF</value>
+  </data>
+  <data name="ErrorBPFTaskParametersRequired" xml:space="preserve">
+    <value>Los parámetros son requeridos. La tarea que desea ejecutar no tiene asociado parámetros. </value>
+  </data>
+  <data name="ErrorBussinesRules" xml:space="preserve">
+    <value>Se detectaron errores en las reglas de negocio</value>
+  </data>
+  <data name="ErrorClauseWhereInvalidArgs" xml:space="preserve">
+    <value>Clausula where inválida: {0}</value>
+  </data>
+  <data name="ErrorCodeInvalid" xml:space="preserve">
+    <value>Ha ingresado un código Inválido.</value>
+  </data>
+  <data name="ErrorCollectionNotInitiated" xml:space="preserve">
+    <value>La colección no ha sido instanciada. Verifique el constructor de su entidad.</value>
+  </data>
+  <data name="ErrorColumnHasNotValue" xml:space="preserve">
+    <value>La columna con la cual se va a mostrar el valor no existe</value>
+  </data>
+  <data name="ErrorColumnIsRealNotFound" xml:space="preserve">
+    <value>No se encontró la columna 'IsReal'</value>
+  </data>
+  <data name="ErrorColumnNameInvalid" xml:space="preserve">
+    <value>Error nombre de columna inválido</value>
+  </data>
+  <data name="ErrorColumnNameInvalidArgs" xml:space="preserve">
+    <value>Nombre de la columna inválida: {0}</value>
+  </data>
+  <data name="ErrorColumnParentDuplicate" xml:space="preserve">
+    <value>La tabla no puede tener mas de una columna padre</value>
+  </data>
+  <data name="ErrorColumnParentNotFound" xml:space="preserve">
+    <value>No se encontró la columna Padre</value>
+  </data>
+  <data name="ErrorColumnsIsCalculatedNotFound" xml:space="preserve">
+    <value>No se encontró la columna 'IsCalculated'</value>
+  </data>
+  <data name="ErrorConnectionStringNotFound" xml:space="preserve">
+    <value>No se encontró la cadena de conexión</value>
+  </data>
+  <data name="ErrorContextGlobalValuesNotFound" xml:space="preserve">
+    <value>No se encontraron los valores del contexto global</value>
+  </data>
+  <data name="ErrorCredentialsInvalid" xml:space="preserve">
+    <value>Las credenciales ingresadas no son válidas.</value>
+  </data>
+  <data name="ErrorDapNotFound" xml:space="preserve">
+    <value>No se encontró el DAP</value>
+  </data>
+  <data name="ErrorDapNotFoundForUser" xml:space="preserve">
+    <value>No se encontró un DAP para el usuario</value>
+  </data>
+  <data name="ErrorDatabaseCheckOnline" xml:space="preserve">
+    <value>No se pudo chequear si la base de datos está en línea</value>
+  </data>
+  <data name="ErrorDataBaseNameInvalid" xml:space="preserve">
+    <value>Nombre de base de datos inválida</value>
+  </data>
+  <data name="ErrorDataBaseRegisterExist" xml:space="preserve">
+    <value>El registro ya existe en la base de datos.</value>
+  </data>
+  <data name="ErrorDataEntryValues" xml:space="preserve">
+    <value>Se detectaron errores en los valores de entrada</value>
+  </data>
+  <data name="ErrorDataIntegrity" xml:space="preserve">
+    <value>Problema de integridad referencial con el campo {0} en la entidad {1}</value>
+  </data>
+  <data name="ErrorDataInvalid" xml:space="preserve">
+    <value>Datos inválidos</value>
+  </data>
+  <data name="ErrorDataListEmpty" xml:space="preserve">
+    <value>La lista de datos no puede ser null o vacia</value>
+  </data>
+  <data name="ErrorDataRuleNotFound" xml:space="preserve">
+    <value>No se encontró la regla de datos</value>
+  </data>
+  <data name="ErrorDataRuleProfileHasNotColumns" xml:space="preserve">
+    <value>El perfil de la regla de datos no tiene columnas</value>
+  </data>
+  <data name="ErrorDataRuleProfileMaxValueColumn" xml:space="preserve">
+    <value>El perfil de la regla de datos tiene mas de una columna valor</value>
+  </data>
+  <data name="ErrorDataRuleProfileNotFound" xml:space="preserve">
+    <value>No se encontró el perfil de la regla de datos</value>
+  </data>
+  <data name="ErrorDataTypeNotFound" xml:space="preserve">
+    <value>No se encontraron Data Types.</value>
+  </data>
+  <data name="ErrorDependeciesFound" xml:space="preserve">
+    <value>Se encontraron dependencias: </value>
+  </data>
+  <data name="ErrorEmailCurrentRegistered" xml:space="preserve">
+    <value>La direccion de email '{0}' ya se encuentra registrada. Puede recupar su contraseña para ingresar nuevamente al sistema.</value>
+  </data>
+  <data name="ErrorEmailIncorrect" xml:space="preserve">
+    <value>La dirección de email '{0}' es incorrecta.</value>
+  </data>
+  <data name="ErrorEmailNotCorrespondToRegisteredUser" xml:space="preserve">
+    <value>El email no corresponde a un usuario registrado.</value>
+  </data>
+  <data name="ErrorEmailNotValid" xml:space="preserve">
+    <value>Formato de Email Inválido</value>
+  </data>
+  <data name="ErrorEmailPort" xml:space="preserve">
+    <value>El parametro Port debe tener un valor</value>
+  </data>
+  <data name="ErrorEmailSmtpServer" xml:space="preserve">
+    <value>El parametro SMTPServer debe tener un valor</value>
+  </data>
+  <data name="ErrorFieldMaximumMinimumLength" xml:space="preserve">
+    <value>Error con el tamaño (máximo y mínimo) del campo</value>
+  </data>
+  <data name="ErrorFileNotValid" xml:space="preserve">
+    <value>El tamaño máximo para el archivo es de {0} mb.</value>
+  </data>
+  <data name="ErrorFileProcess" xml:space="preserve">
+    <value>Se produjo un error, no se pudo procesar el archivo</value>
+  </data>
+  <data name="ErrorFilterTypeNotExists" xml:space="preserve">
+    <value>El tipo de filtro {0} no existe</value>
+  </data>
+  <data name="ErrorGeneric" xml:space="preserve">
+    <value>Ha ocurrido un error.</value>
+  </data>
+  <data name="ErrorEntityNotFoundForUpdate" xml:space="preserve">
+    <value>El registro que intenta editar no existe o no está disponible.</value>
+  </data>
+  <data name="ErrorGenericInternal" xml:space="preserve">
+    <value>Error interno</value>
+  </data>
+  <data name="ErrorGenericPermission" xml:space="preserve">
+    <value>No tiene permisos</value>
+  </data>
+  <data name="ErrorGenericRetrieveData" xml:space="preserve">
+    <value>Error al recuperar los datos</value>
+  </data>
+  <data name="ErrorGenericSaveData" xml:space="preserve">
+    <value>Error al guardar los datos</value>
+  </data>
+  <data name="ErrorGroupNotFound" xml:space="preserve">
+    <value>No se encontró el grupo</value>
+  </data>
+  <data name="ErrorHierarchyColumnNotFound" xml:space="preserve">
+    <value>No se podrá crear la jerarquía {0}, ya que no se encontró la columna {1}. El problema puede ser que no exista la columna o que exista pero aún no se haya guardado en Analysis Services previamente.</value>
+  </data>
+  <data name="ErrorInputPasswordWrong" xml:space="preserve">
+    <value>Clave incorrecta. Le quedan {0} intentos antes de que la cuenta sea bloqueada.</value>
+  </data>
+  <data name="ErrorLicenseAmountAssign" xml:space="preserve">
+    <value>No se puede establecer una cantidad de licencias menor debido a que ya hay usuarios asignados y utilizando licencias. Primero debería quitarles las licencias a [{0}] </value>
+  </data>
+  <data name="ErrorLicensesAmount" xml:space="preserve">
+    <value>Cantidad de licencias insuficientes.</value>
+  </data>
+  <data name="ErrorMeasuresConceptIdDuplicated" xml:space="preserve">
+    <value>Se encontró conceptos medida siendo utilizados en más de un modelo</value>
+  </data>
+  <data name="ErrorModelDimensionDuplicate" xml:space="preserve">
+    <value>El modelo tiene asociado dimensiones repetidas</value>
+  </data>
+  <data name="ErrorModelDimensionRelationshipDuplicate" xml:space="preserve">
+    <value>El modelo no puede estar relacionado con una dimensión más de una vez</value>
+  </data>
+  <data name="ErrorModelNotFound" xml:space="preserve">
+    <value>No se encontró el modelo</value>
+  </data>
+  <data name="ErrorNodeNotFound" xml:space="preserve">
+    <value>No se encontró el nodo</value>
+  </data>
+  <data name="ErrorNotificationUsersNotFound" xml:space="preserve">
+    <value>No fueron encontrados los usuarios para enviar las notificaciones</value>
+  </data>
+  <data name="ErrorObjectHasBeenUpdated" xml:space="preserve">
+    <value>Ha ocurrido un error, el objeto ya ha sido modificado (Optimistic concurrency failure).</value>
+  </data>
+  <data name="ErrorOptionsValidNotFound" xml:space="preserve">
+    <value>No se encontraron opciones válidas</value>
+  </data>
+  <data name="ErrorParameterNotFound" xml:space="preserve">
+    <value>No se pudo encontar el parámetro {0}</value>
+  </data>
+  <data name="ErrorParamNotExists" xml:space="preserve">
+    <value>El parametro [{0}] no existe</value>
+  </data>
+  <data name="ErrorParamsUsed" xml:space="preserve">
+    <value>Los parámetros estan siendo utilizados</value>
+  </data>
+  <data name="ErrorParentCodeNotFound" xml:space="preserve">
+    <value>No se pudo encontrar el padre con código [{0}]</value>
+  </data>
+  <data name="ErrorPasswordConfirmIsRequired" xml:space="preserve">
+    <value>El campo Confirmar Nueva Password es requerido</value>
+  </data>
+  <data name="ErrorPasswordConfirmNotMatch" xml:space="preserve">
+    <value>El nuevo password ingresado no coincide con su confirmación</value>
+  </data>
+  <data name="ErrorPasswordIncorrect" xml:space="preserve">
+    <value>Contraseña incorrecta</value>
+  </data>
+  <data name="ErrorPasswordMinLength2" xml:space="preserve">
+    <value>La contraseña debe tener un largo mínimo de {0} caracteres.</value>
+  </data>
+  <data name="ErrorPasswordMustHaveAnNonAlphanumericCharacter" xml:space="preserve">
+    <value>La contraseña debe contener al menos un caracter no alfanumérico.</value>
+  </data>
+  <data name="ErrorPasswordMustHaveDigits" xml:space="preserve">
+    <value>La contraseña debe incluir al menos un dígito ('0'-'9').</value>
+  </data>
+  <data name="ErrorPassworMustHaveDiferentsCharacters" xml:space="preserve">
+    <value>La contraseña debe incluir al menos 6 caracteres diferentes.</value>
+  </data>
+  <data name="ErrorPassworMustHaveLowercaseCharacter" xml:space="preserve">
+    <value>La contraseña debe incluir al menos una letra minúscula ('a'-'z').</value>
+  </data>
+  <data name="ErrorPassworMustHaveUppercaseCharacter" xml:space="preserve">
+    <value>La contraseña debe incluir al menos una letra MAYÚSCULA ('A'-'Z').</value>
+  </data>
+  <data name="ErrorPhoneNotValid" xml:space="preserve">
+    <value>El campo Telefono no cumple con la cantidad {0} de '{1}' digitos.</value>
+  </data>
+  <data name="ErrorPk" xml:space="preserve">
+    <value>Error con el manejo de PK.</value>
+  </data>
+  <data name="ErrorViewNotFound" xml:space="preserve">
+    <value>No se encontró la vista </value>
+  </data>
+  <data name="ErrorPrefixNotUnique" xml:space="preserve">
+    <value>El prefijo ingresado no es único</value>
+  </data>
+  <data name="ErrorProvidedDataColumnNotExists" xml:space="preserve">
+    <value>La columna {0} no existe en los datos proporcionados.</value>
+  </data>
+  <data name="ErrorProvidedDataFieldsNotExists" xml:space="preserve">
+    <value>Ninguno de los campos existe en los datos proporcionados.</value>
+  </data>
+  <data name="ErrorRazorGenerate" xml:space="preserve">
+    <value>Se produjo un error, no se pudo generar la vista Razor</value>
+  </data>
+  <data name="ErrorRelationshipNameExist" xml:space="preserve">
+    <value>El nombre de la relación ya existe</value>
+  </data>
+  <data name="ErrorRelationshipsInvalid" xml:space="preserve">
+    <value>Relaciones con nombre de tabla o columna inválida</value>
+  </data>
+  <data name="ErrorRequiredInfoGet" xml:space="preserve">
+    <value>No se pudo obtener la información requerida.</value>
+  </data>
+  <data name="ErrorRoleNameExists" xml:space="preserve">
+    <value>El nombre de rol '{0}' ya existe.</value>
+  </data>
+  <data name="ErrorRoleNameInvalid" xml:space="preserve">
+    <value>El nombre de rol '{0}' es inválido.</value>
+  </data>
+  <data name="ErrorSqlServer" xml:space="preserve">
+    <value>Error de SQL Server: {0}</value>
+  </data>
+  <data name="ErrorStatusSubmittedNotExists" xml:space="preserve">
+    <value>El estado ingresado no existe</value>
+  </data>
+  <data name="ErrorTableNameExists" xml:space="preserve">
+    <value>El nombre de la tabla existe</value>
+  </data>
+  <data name="ErrorTableNameInvalid" xml:space="preserve">
+    <value>Error nombre de tabla inválido</value>
+  </data>
+  <data name="ErrorTableNameInvalidArgs" xml:space="preserve">
+    <value>Nombre de tabla inválido: {0}</value>
+  </data>
+  <data name="ErrorTableNotExitsInDataBase" xml:space="preserve">
+    <value> La tabla no existe en la base de datos</value>
+  </data>
+  <data name="ErrorTableNotFound" xml:space="preserve">
+    <value>No se encontró la tabla</value>
+  </data>
+  <data name="ErrorTableType" xml:space="preserve">
+    <value>El tipo de tabla debe ser "Provider" o "M"</value>
+  </data>
+  <data name="ErrorTenantDBNotFound" xml:space="preserve">
+    <value>No se encontró una base de datos activa en el tenant.</value>
+  </data>
+  <data name="ErrorTenantExists" xml:space="preserve">
+    <value>El Tenant ya existe</value>
+  </data>
+  <data name="ErrorTenantIsRoot" xml:space="preserve">
+    <value>El tenant es root.</value>
+  </data>
+  <data name="ErrorTenantNotFound" xml:space="preserve">
+    <value>No se encontró el tenant</value>
+  </data>
+  <data name="ErrorTenantNotRoot" xml:space="preserve">
+    <value>Error tenant no root</value>
+  </data>
+  <data name="ErrorTenantNotSelected" xml:space="preserve">
+    <value>No se pueden hacer modificaciones de información sin un tenant asignado</value>
+  </data>
+  <data name="ErrorUKManage" xml:space="preserve">
+    <value>Error con el manejo de UK.</value>
+  </data>
+  <data name="ErrorUserBelongsRole" xml:space="preserve">
+    <value>El usuario ya es parte del rol '{0}'.</value>
+  </data>
+  <data name="ErrorUserBlockingNotEnable" xml:space="preserve">
+    <value>El bloqueo no está habilitado para este usuario.</value>
+  </data>
+  <data name="ErrorUserExists" xml:space="preserve">
+    <value>El usuario ya existe en la base de datos.</value>
+  </data>
+  <data name="ErrorUserHavePassword" xml:space="preserve">
+    <value>El usuario ya tiene contraseña.</value>
+  </data>
+  <data name="ErrorUserNameExist" xml:space="preserve">
+    <value>Un usuario con ese nombre ya existe.</value>
+  </data>
+  <data name="ErrorUserNameExistUseNewOne" xml:space="preserve">
+    <value>El usuario '{0}' ya existe, por favor ingrese un nombre diferente.</value>
+  </data>
+  <data name="ErrorUserNameInvalid" xml:space="preserve">
+    <value>El nombre de usuario '{0}' es inválido. Solo puede contener letras y números.</value>
+  </data>
+  <data name="ErrorUserNoPrivilegesChangeTenantData" xml:space="preserve">
+    <value>El usuario logueado no tiene privilegios para modificar los datos del tenant de un usuario .</value>
+  </data>
+  <data name="ErrorUserNoPrivilegesViewUserSelected" xml:space="preserve">
+    <value>Error, no tiene permiso para ver Usuario seleccionado</value>
+  </data>
+  <data name="ErrorUserNotBelongsRole" xml:space="preserve">
+    <value>El usuario no es parte del rol '{0}'.</value>
+  </data>
+  <data name="ErrorUserNotFound" xml:space="preserve">
+    <value>No se pudo encontrar el usuario</value>
+  </data>
+  <data name="ErrorUserNotPrivilegesAccess" xml:space="preserve">
+    <value>No tiene permisos para acceder a esta funcionalidad</value>
+  </data>
+  <data name="ErrorUserPassRequired" xml:space="preserve">
+    <value>Usuario y Clave son requeridos.</value>
+  </data>
+  <data name="ErrorUserRecuparate" xml:space="preserve">
+    <value>Se produjo un error, no se pudo recuperar el usuario o el mismo no tiene los permisos suficientes.</value>
+  </data>
+  <data name="ErrorValidation" xml:space="preserve">
+    <value>Error validation</value>
+  </data>
+  <data name="ErrorValueTargetIdIsRequired" xml:space="preserve">
+    <value>Los IDs objetivo son requeridos</value>
+  </data>
+  <data name="ReconfirmAccount" xml:space="preserve">
+    <value>Re-confirmación de cuenta</value>
+  </data>
+  <data name="SqlError18456" xml:space="preserve">
+    <value>Error de inicio de sesión para el usuario.</value>
+  </data>
+  <data name="SqlError208" xml:space="preserve">
+    <value>El nombre del objeto es inválido.</value>
+  </data>
+  <data name="SqlError2627" xml:space="preserve">
+    <value>No se puede insertar un valor duplicado.</value>
+  </data>
+  <data name="SqlError4060" xml:space="preserve">
+    <value>No se puede abrir la base de datos solicitada.</value>
+  </data>
+  <data name="SqlError515" xml:space="preserve">
+    <value>No se puede insertar un valor NULL en una columna que no acepta valores NULL.</value>
+  </data>
+  <data name="SqlError547" xml:space="preserve">
+    <value>No se puede eliminar el registro porque está siendo referenciado por otro registro.</value>
+  </data>
+  <data name="SqlError8152" xml:space="preserve">
+    <value>Los datos de cadena o binarios serían truncados.</value>
+  </data>
+  <data name="SqlErrorDefault" xml:space="preserve">
+    <value>Se produjo un error en la base de datos.</value>
+  </data>
+  <data name="SqlErrorUnknown" xml:space="preserve">
+    <value>Se produjo un error desconocido.</value>
+  </data>
+  <data name="SuccessAccountConfirm" xml:space="preserve">
+    <value>Se confirmo la cuenta {0}. Ingrese Usuario y Contraseña para iniciar sesión.</value>
+  </data>
+  <data name="SuccessAccountConfirm2" xml:space="preserve">
+    <value>La cuenta ya ha sido confirmada</value>
+  </data>
+  <data name="SuccessPasswordReset" xml:space="preserve">
+    <value>Se completo el cambio de clave de la cuenta {0}. Complete los campos para ingresar.</value>
+  </data>
+  <data name="WarnColumnUnique" xml:space="preserve">
+    <value>Al menos una columna debe ser Unique.</value>
+  </data>
+  <data name="WarnFieldMaxLength" xml:space="preserve">
+    <value>La longitud máxima para el campo '{0}' es de {1} caracteres.</value>
+  </data>
+  <data name="ErrorModeTypeNotAvailable" xml:space="preserve">
+    <value>El ModeType que estas queriendo utilizar no está disponible para ser utilizado en una base de datos en el entorno actual de Analysis Services que tenemos</value>
+  </data>
+  <data name="ErrorModeTypeNotFound" xml:space="preserve">
+    <value>ModeType no encontrado</value>
+  </data>
+  <data name="ErrorBPFDateRange" xml:space="preserve">
+    <value>La fecha actual no se encuentra entre el rango de fechas del BFP</value>
+  </data>
+  <data name="ErrorRelationshipsViewExist" xml:space="preserve">
+    <value>Existe una Vista creada, no se pueden modificar las relaciones del modelo</value>
+  </data>
+  <data name="ErrorRelationshipsApprovalCycleExist" xml:space="preserve">
+    <value>Existe un ciclo de aprobación que está utilizando una relación del modelo. No se puede modificar</value>
+  </data>
+  <data name="ErrorRelationshipsBpfExist" xml:space="preserve">
+    <value>Existe un Flujo de proceso de negocio que utiliza la relación del modelo. No se puede modificar</value>
+  </data>
+  <data name="ErrorRelationshipsDapExist" xml:space="preserve">
+    <value>Existe un perfil de acceso de datos que utiliza la relación del modelo. No se puede modificar</value>
+  </data>
+  <data name="ErrorRelationshipsCgvExist" xml:space="preserve">
+    <value>Existe valores de contexto global que utilizan la relación del modelo. No se puede modificar</value>
+  </data>
+  <data name="ErrorDataRuleScheduleExist" xml:space="preserve">
+    <value>Existe una ejecución programada asociada a la regla de datos. No se puede borrar</value>
+  </data>
+  <data name="ErrorDataRuleScheduleJobExist" xml:space="preserve">
+    <value>Existe una ejecución programada asociada a la regla de datos. No se puede borrar</value>
+  </data>
+  <data name="ErrorInvalidCronExpression" xml:space="preserve">
+    <value>La expresión cron no es válida</value>
+  </data>
+  <data name="ErrorEmailExists" xml:space="preserve">
+    <value>El correo ya existe</value>
+  </data>
+  <data name="ErrorDimensionTypeNotTime" xml:space="preserve">
+    <value>Tipo de Dimensión incorrecto. Este proceso solo es para las Dimensiones de Tiempo</value>
+  </data>
+  <data name="ErrorDateFromIsGreaterDateTo" xml:space="preserve">
+    <value>'Fecha hasta' debe ser mayor o igual que 'fecha desde'</value>
+  </data>
+  <data name="ErrorDimTimeCannotExpandIntoHoursByData" xml:space="preserve">
+    <value>La tabla ya tiene datos cargados y no se puede expandir en horas</value>
+  </data>
+  <data name="ErrorFieldIsRequired" xml:space="preserve">
+    <value>El campo {0} es requerido</value>
+  </data>
+  <data name="ErrorDimTimeColumnHoursNotFound" xml:space="preserve">
+    <value>No existe, en la tabla time, la columna de 'horas'</value>
+  </data>
+  <data name="ErrorTableTypeNotModel" xml:space="preserve">
+    <value>Tipo de tabla incorrecta. Este proceso solo es para los Modelos</value>
+  </data>
+  <data name="ErrorInvalidOperation" xml:space="preserve">
+    <value>Operación inválida: {0}</value>
+  </data>
+  <data name="Concept" xml:space="preserve">
+    <value>Dim Concepto</value>
+  </data>
+  <data name="ErrorTimeColumnGranularityNotFound" xml:space="preserve">
+    <value>No se encontró la columna que indica la granularidad del Modelo</value>
+  </data>
+  <data name="ErrorBPFTaskDateNowRange" xml:space="preserve">
+    <value>La fecha actual no se encuentra entre el rango de fechas de la tarea</value>
+  </data>
+  <data name="ErrorTenantNotActive" xml:space="preserve">
+    <value>El tenant no está activo</value>
+  </data>
+  <data name="EmailInfoSupport" xml:space="preserve">
+    <value>Si tiene alguna pregunta/problema visite nuestra página o contáctenos.</value>
+  </data>
+  <data name="EmailWelcomeMsg" xml:space="preserve">
+    <value>Bienvenido '{0}'  - '{1}', deberás confirmar tu cuenta.</value>
+  </data>
+  <data name="EmailResetPasswordMsg" xml:space="preserve">
+    <value>Bienvenido '{0}' - '{1}', para restablecer su clave ingrese al siguiente link.</value>
+  </data>
+  <data name="EmailCAChangeStatusMsg" xml:space="preserve">
+    <value>Hola,  '{0}' - '{1}'.</value>
+  </data>
+  <data name="EmailCAChangeStatusNotif" xml:space="preserve">
+    <value>Ciclo de aprobación - Notificación de cambio de estado</value>
+  </data>
+  <data name="ErrorColumnLevelNameInvalid" xml:space="preserve">
+    <value>Error, nombre de columna inválido. La tabla PadreHijo no puede tener nombres de columnas reservados como NivelX, donde "X" sea un número</value>
+  </data>
+  <data name="ErrorColumnModelLogNameInvalid" xml:space="preserve">
+    <value>Error, nombre de columna inválido. No puede utilizar nombres reservados de columnas que son utilizadas para el Log</value>
+  </data>
+  <data name="ErrorLicenseExpired" xml:space="preserve">
+    <value>La licencia ha expirado</value>
+  </data>
+</root>

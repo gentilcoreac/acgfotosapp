@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InfoAutomaticTooltip" xml:space="preserve">
+    <value>Interno unicamente.</value>
+  </data>
+  <data name="InfoBinaryTooltip" xml:space="preserve">
+    <value>La columna o medida contiene datos binarios.</value>
+  </data>
+  <data name="InfoBooleanTooltip" xml:space="preserve">
+    <value>La columna o medida contiene valores de datos booleanos.</value>
+  </data>
+  <data name="InfoBPFActionExecuteDataRuleProfile" xml:space="preserve">
+    <value>Ejecutar perfil de regla de datos</value>
+  </data>
+  <data name="InfoBPFActionLoadDimensions" xml:space="preserve">
+    <value>Cargar dimensiones</value>
+  </data>
+  <data name="InfoBPFActionLoadRealDataToModel" xml:space="preserve">
+    <value>Cargar datos reales al modelo.</value>
+  </data>
+  <data name="InfoBPFActionOpenApprovalCycle" xml:space="preserve">
+    <value>Abrir ciclo de aprobación</value>
+  </data>
+  <data name="InfoBPFActionOpenInputForm" xml:space="preserve">
+    <value>Abrir Planilla de carga</value>
+  </data>
+  <data name="InfoBPFActionOpenURL" xml:space="preserve">
+    <value>Abrir URL</value>
+  </data>
+  <data name="InfoBPFActionSendEmail" xml:space="preserve">
+    <value>Enviar correo</value>
+  </data>
+  <data name="InfoBPFTaskStatusCompleteTooltip" xml:space="preserve">
+    <value>Completo</value>
+  </data>
+  <data name="InfoBPFTaskStatusOpenTooltip" xml:space="preserve">
+    <value>Abierto</value>
+  </data>
+  <data name="InfoDateTimeTooltip" xml:space="preserve">
+    <value>La columna o medida contiene datos de fecha y hora.</value>
+  </data>
+  <data name="InfoDecimalTooltip" xml:space="preserve">
+    <value>La columna o medida contiene valores de datos decimales.</value>
+  </data>
+  <data name="InfoDimTypeCategoryTooltip" xml:space="preserve">
+    <value>Una dimensión cuyos atributos representan versiones o reales de una planificación.</value>
+  </data>
+  <data name="InfoDimTypeConceptTooltip" xml:space="preserve">
+    <value>Una dimensión cuyos atributos representan los valores numéricos de los indicadores de negocio.</value>
+  </data>
+  <data name="InfoDimTypeMoneyTooltip" xml:space="preserve">
+    <value>Este tipo de dimensión contiene datos y metadatos de moneda.</value>
+  </data>
+  <data name="InfoDimTypeTimeTooltip" xml:space="preserve">
+    <value>Una dimensión cuyos atributos representan períodos de tiempo, como años, semestres, trimestres, meses y días.</value>
+  </data>
+  <data name="InfoDimTypeUserDefinedTooltip" xml:space="preserve">
+    <value>Una dimensión cuyo tipo no se ha establecido en un tipo de dimensión especial.</value>
+  </data>
+  <data name="InfoDoubleTooltip" xml:space="preserve">
+    <value>La columna o medida contiene números de punto flotante de doble precisión.</value>
+  </data>
+  <data name="InfoInputTypeDropdownTooltip" xml:space="preserve">
+    <value>Ingreso de datos con una lista desplegable</value>
+  </data>
+  <data name="InfoInputTypeTextboxTooltip" xml:space="preserve">
+    <value>Ingreso de datos en campo de texto</value>
+  </data>
+  <data name="InfoInt64Tooltip" xml:space="preserve">
+    <value>La columna o medida contiene números enteros.</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeConceptTooltip" xml:space="preserve">
+    <value>Tipo de columna relacionada con una dimensión de tipo concepto</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeDimensionTooltip" xml:space="preserve">
+    <value>Tipo de columna que muestra los valores de la columna de la dimensión seleccionada</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeExcelFormulaTooltip" xml:space="preserve">
+    <value>Tipo de columna que contiene una fórmula de Excel</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeMeasureTooltip" xml:space="preserve">
+    <value>Tipo de columna relacionada con una medida DAX</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeTimeTooltip" xml:space="preserve">
+    <value>Tipo de columna relacionada a una dimensión de tipo tiempo</value>
+  </data>
+  <data name="InfoScheduleCopyTablesByDataRuleProfile" xml:space="preserve">
+    <value>Programar método de tabla de copia por perfil de regla de datos</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsAverageTooltip" xml:space="preserve">
+    <value>Calcula el promedio de valores para todos los miembros secundarios que no están vacíos.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsCountTooltip" xml:space="preserve">
+    <value>Devuelve el recuento de filas de la tabla.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsDefaultTooltip" xml:space="preserve">
+    <value>La agregación predeterminada es Suma para columnas numéricas. De lo contrario, el valor predeterminado es Ninguno.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsDistinctCountTooltip" xml:space="preserve">
+    <value>Devuelve el recuento de todos los miembros secundarios únicos.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsMaxTooltip" xml:space="preserve">
+    <value>Devuelve el valor más alto para todos los miembros secundarios.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsMinTooltip" xml:space="preserve">
+    <value>Devuelve el valor más bajo para todos los miembros secundarios.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsNoneTooltip" xml:space="preserve">
+    <value>Deja la función agregada sin especificar.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsSumTooltip" xml:space="preserve">
+    <value>Calcula la suma de los valores contenidos en la columna. Esta es la función de agregación predeterminada.</value>
+  </data>
+  <data name="InfoSSASDataSourceTypeMTooltip" xml:space="preserve">
+    <value>Fuente de datos estructurados</value>
+  </data>
+  <data name="InfoSSASDataSourceTypeProviderTooltip" xml:space="preserve">
+    <value>Legado: fuente de datos del proveedor</value>
+  </data>
+  <data name="InfoSSASModeTypeDefaultTooltip" xml:space="preserve">
+    <value>Solo las particiones pueden usar este valor. Hereda el DefaultMode del Model</value>
+  </data>
+  <data name="InfoSSASModeTypeDirectLakeTooltip" xml:space="preserve">
+    <value>Los datos se cargarán en la memoria desde el lago de datos o se consultarán dinámicamente si el fallback de DirectLake está habilitado. Este valor solo se admite cuando el nivel de compatibilidad de la base de datos es 1604 o superior</value>
+  </data>
+  <data name="InfoSSASModeTypeDirectQueryTooltip" xml:space="preserve">
+    <value>Los datos serán consultados dinamicamente en el origen de datos</value>
+  </data>
+  <data name="InfoSSASModeTypeDualTooltip" xml:space="preserve">
+    <value>Utiliza Import y DirectQuery para soportar consultar en composite models. Este valor solo se admite cuando el nivel de compatibilidad de la base de datos es 1455 o superior</value>
+  </data>
+  <data name="InfoSSASModeTypeImportTooltip" xml:space="preserve">
+    <value>Los datos se importarán desde el origen de datos</value>
+  </data>
+  <data name="InfoSSASModeTypePushTooltip" xml:space="preserve">
+    <value>No referenciarlo. Interno de Analysis Services.</value>
+  </data>
+  <data name="InfoSSASObjectStatesCalculationNeededTooltip" xml:space="preserve">
+    <value>El objeto no es consultable y no contiene datos. Debe ser actualizado para que funcione. Esto se aplica solo a objetos calculados, como columnas calculadas, jerarquías y tablas calculadas.</value>
+  </data>
+  <data name="InfoSSASObjectStatesDependencyErrorTooltip" xml:space="preserve">
+    <value>El objeto se encuentra en un estado de error debido a que algunas de sus dependencias de cálculo están en un estado de error. No es consultable.</value>
+  </data>
+  <data name="InfoSSASObjectStatesEvaluationErrorTooltip" xml:space="preserve">
+    <value>El objeto se encuentra en un estado de error debido a que ocurrió un error durante la evaluación de la expresión. No es consultable.</value>
+  </data>
+  <data name="InfoSSASObjectStatesIncompleteTooltip" xml:space="preserve">
+    <value>Algunas partes del objeto no tienen datos. Refresca el objeto para agregar el resto de los datos. El objeto es consultable. Esto se aplica a objetos no calculados, como columnas de datos, particiones y tablas.</value>
+  </data>
+  <data name="InfoSSASObjectStatesNoDataTooltip" xml:space="preserve">
+    <value>El objeto es consultable pero no contiene datos. Refréscalo para traer los datos. Se aplica a objetos no calculados, como columnas de datos, particiones y tablas</value>
+  </data>
+  <data name="InfoSSAsObjectStatesNotCreatedTooltip" xml:space="preserve">
+    <value>El objeto no ha sido creado aún</value>
+  </data>
+  <data name="InfoSSASObjectStatesReadyTooltip" xml:space="preserve">
+    <value>El objeto está actualizado, contiene datos actuales y es consultable.</value>
+  </data>
+  <data name="InfoSSASObjectStatesSemanticErrorTooltip" xml:space="preserve">
+    <value>El objeto se encuentra en un estado de error debido a una expresión no válida. No se puede consultar.</value>
+  </data>
+  <data name="InfoSSASRelationshipEndCardinalityManyTooltip" xml:space="preserve">
+    <value>Especifica el lado "muchos" de una relación de "uno a muchos".</value>
+  </data>
+  <data name="InfoSSASRelationshipEndCardinalityNoneTooltip" xml:space="preserve">
+    <value>La relación no está especificada.</value>
+  </data>
+  <data name="InfoSSASRelationshipEndCardinalityOneTooltip" xml:space="preserve">
+    <value>Especifica el lado "uno" de una relación "uno a uno" o "uno a muchos".</value>
+  </data>
+  <data name="InfoStringTooltip" xml:space="preserve">
+    <value>La columna o medida contiene valores de datos de cadena.</value>
+  </data>
+  <data name="InfoUnknownTooltip" xml:space="preserve">
+    <value>Valor inicial de una columna recién creada, reemplazada por un valor real después de guardar una columna en el servidor.</value>
+  </data>
+  <data name="InfoVariantTooltip" xml:space="preserve">
+    <value>Una medida con diferentes tipos de datos.</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeFixedTableValueTooltip" xml:space="preserve">
+    <value>Tipo de columna útil para dimensiones tipo Tiempo. Muestra el valor seleccionado y no depende de los filtros creados para esta tabla. Si ya hubiese filtros en esta tabla se agregará una condición OR para contemplar este valor (es decir, "filtros existentes" OR "valor fijo")</value>
+  </data>
+  <data name="OpenInputForm" xml:space="preserve">
+    <value>Abrir Planilla de carga</value>
+  </data>
+  <data name="OpenApprovalCycle" xml:space="preserve">
+    <value>Abrir Ciclo de aprobación</value>
+  </data>
+  <data name="ExecuteDataRuleProfile" xml:space="preserve">
+    <value>Ejecutar Perfil de Regla de datos</value>
+  </data>
+  <data name="OpenURL" xml:space="preserve">
+    <value>Abrir URL</value>
+  </data>
+  <data name="SendEmail" xml:space="preserve">
+    <value>Enviar correo</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeColumnSubTotalTooltip" xml:space="preserve">
+    <value>Tipo de columna que muestra el subtotal para un rango de columnas mediante una fórmula de Excel</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeColumnsMadeFromFiltersTooltip" xml:space="preserve">
+    <value>Tipo de columna que puede producir cero o varias columnas, dependiendo de los datos de la planilla de carga y los filtros utilizados.</value>
+  </data>
+</root>

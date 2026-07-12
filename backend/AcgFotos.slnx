@@ -1,0 +1,19 @@
+﻿<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/0 - Core/">
+    <Project Path="AcgFotos.Core/AcgFotos.Core.csproj" />
+  </Folder>
+  <Folder Name="/1 - Base/">
+    <Project Path="AcgFotos.Base.Application/AcgFotos.Base.Application.csproj" />
+    <Project Path="AcgFotos.Base.Controllers/AcgFotos.Base.Controllers.csproj" />
+    <Project Path="AcgFotos.Base.Domain/AcgFotos.Base.Domain.csproj" />
+    <Project Path="AcgFotos.Base.Infrastructure/AcgFotos.Base.Infrastructure.csproj" />
+    <Project Path="AcgFotos.Base.SqlMigrations/AcgFotos.Base.SqlMigrations.csproj" />
+  </Folder>
+  <Project Path="AcgFotos.Api.IntegrationTests/AcgFotos.Api.IntegrationTests.csproj" />
+  <Project Path="AcgFotos.Api/AcgFotos.Api.csproj" />
+</Solution>

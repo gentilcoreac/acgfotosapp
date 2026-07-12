@@ -1,0 +1,270 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AtTimeCron" xml:space="preserve">
+    <value>AtTime</value>
+  </data>
+  <data name="BFPSendEmailHint" xml:space="preserve">
+    <value>To add more than one email press COMMA or ENTER to add it</value>
+  </data>
+  <data name="ConditionExample_1" xml:space="preserve">
+    <value>Items that aren't Shoes</value>
+  </data>
+  <data name="ConditionExample_1_value" xml:space="preserve">
+    <value>&lt;&gt;Shoes</value>
+  </data>
+  <data name="ConditionExample_2" xml:space="preserve">
+    <value>Items that begin with A</value>
+  </data>
+  <data name="ConditionExample_3" xml:space="preserve">
+    <value>Items that are Trousers</value>
+  </data>
+  <data name="ConditionExample_3_value" xml:space="preserve">
+    <value>Trousers</value>
+  </data>
+  <data name="Daily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="Day" xml:space="preserve">
+    <value>Day</value>
+  </data>
+  <data name="Day/s" xml:space="preserve">
+    <value>Day(s)</value>
+  </data>
+  <data name="Every" xml:space="preserve">
+    <value>Every</value>
+  </data>
+  <data name="ExampleOfConditions" xml:space="preserve">
+    <value>Example of conditions</value>
+  </data>
+  <data name="Fifth" xml:space="preserve">
+    <value>Fifth</value>
+  </data>
+  <data name="First" xml:space="preserve">
+    <value>First</value>
+  </data>
+  <data name="Fourth" xml:space="preserve">
+    <value>Fourth</value>
+  </data>
+  <data name="Hour/s" xml:space="preserve">
+    <value>Hour(s)</value>
+  </data>
+  <data name="Hourly" xml:space="preserve">
+    <value>Hourly</value>
+  </data>
+  <data name="AttachFile" xml:space="preserve">
+    <value>Attach file</value>
+  </data>
+  <data name="InfoQueryDaxCalculatedConceptsDesc" xml:space="preserve">
+    <value>An example to create Calculated Concepts is to create a DAX measure that obtains the sum of Value column (model table) and filter by the Concepts to work</value>
+  </data>
+  <data name="InfoQueryDaxCalculatedConceptsReturnValues" xml:space="preserve">
+    <value>(SCALAR) Have to return a single value</value>
+  </data>
+  <data name="InfoQueryDaxCalculateDesc" xml:space="preserve">
+    <value>Evaluates an expression in a context modified by filters.</value>
+  </data>
+  <data name="InfoQueryDaxCalculateParamExpression" xml:space="preserve">
+    <value>The expression to be evaluated.</value>
+  </data>
+  <data name="InfoQueryDaxCalculateParamFilter" xml:space="preserve">
+    <value>(Optional) (Repeatable) A boolean -True/False- expression or a table expression that defines a filter.</value>
+  </data>
+  <data name="InfoQueryDaxCalculateReturnValues" xml:space="preserve">
+    <value>(SCALAR) - Return a single value of any type.</value>
+  </data>
+  <data name="InfoQueryDaxDefineColumnDesc" xml:space="preserve">
+    <value>The DEFINE COLUMN statement lets you define a calculated column local to a query. The column is not persisted in the model, it exists only for the lifetime of the query. Apart from that, it is a calculated column in every sense of the term.</value>
+  </data>
+  <data name="InfoQueryDaxDefineMeasuresDesc" xml:space="preserve">
+    <value>The MEASURE keyword introduces a measure definition (DEFINE) in a query (also known as query measure). &amp;lt;br/&amp;gt; The syntax after MEASURE defines a measure, which can be consumed in any other expression of the same query.&amp;lt;br/&amp;gt; A query measure overrides a model measure with the same name for the duration of the query. They will not affect the model measure.</value>
+  </data>
+  <data name="InfoQueryDaxDefineTableDesc" xml:space="preserve">
+    <value>The DEFINE TABLE statement lets you define a calculated table local to a query. &amp;lt;/br&amp;gt;The table is not persisted in the model, it exists only for the lifetime of the query. &amp;lt;/br&amp;gt;Apart from that, it is a calculated table in every sense of the term albeit with some limitations.</value>
+  </data>
+  <data name="InfoQueryDaxDefineVarDesc" xml:space="preserve">
+    <value>The VAR keyword introduces variables in an expression.&amp;lt;br/&amp;gt;The syntax after VAR defines a variable, which can be consumed in following VAR statements or within the mandatory RETURN statement following the declaration of one or more variables.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;If VAR is used in the DEFINE section of an EVALUATE statement, it can be used in any expression of the statement and the RETURN keyword cannot be used.</value>
+  </data>
+  <data name="InfoQueryDaxEvaluateDesc" xml:space="preserve">
+    <value>EVALUATE is a DAX statement that is needed to execute a query. &amp;lt;/br&amp;gt;&amp;lt;/br&amp;gt; EVALUATE followed by any table expression returns the result of the table expression. &amp;lt;/br&amp;gt;Moreover, one or more EVALUATE statements can be preceded by special definitions like local tables, columns, measures, and variables that have the scope of the entire batch of EVALUATE statements executed together. &amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;An EVALUATE statement is divided into three parts: &amp;lt;br/&amp;gt;&amp;lt;b&amp;gt; - DEFINE - Definition section: &amp;lt;/b&amp;gt; it includes the definition of local entities like tables, columns, variables, and measures. &amp;lt;br/&amp;gt; - &amp;lt;b&amp;gt;EVALUATE - Query expression: &amp;lt;/b&amp;gt; it contains the table expression to evaluate and return as the result.&amp;lt;br/&amp;gt; - &amp;lt;b&amp;gt; Result modifiers: &amp;lt;/b&amp;gt; an optional additional section to EVALUATE, which is introduced by the keyword ORDER BY. It includes the sort order of the result and the optional definition of which rows to return, by providing a starting point with START AT.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt; The first and third parts of the statement are optional. Thus, one can just use EVALUATE followed by any table expression to produce a query.</value>
+  </data>
+  <data name="InfoQueryDaxSelectColumnsDesc" xml:space="preserve">
+    <value>Allows you to choose which columns to take given a table. In turn, it allows you to alias columns or add new columns through DAX expressions.</value>
+  </data>
+  <data name="InfoQueryDaxSelectColumnsParamExpression" xml:space="preserve">
+    <value>(Optional) (Repeatable) The expression for the new column to be added.</value>
+  </data>
+  <data name="InfoQueryDaxSelectColumnsParamName" xml:space="preserve">
+    <value>(Optional) The name of the new column to be added.</value>
+  </data>
+  <data name="InfoQueryDaxSelectColumnsParamTable" xml:space="preserve">
+    <value>The table from which columns are selected.</value>
+  </data>
+  <data name="InfoQueryDaxSelectColumnsReturnValues" xml:space="preserve">
+    <value>(TABLE) - Return a table with the same number of rows as the table specified as the first argument.</value>
+  </data>
+  <data name="InfoQueryDaxTopNDescription" xml:space="preserve">
+    <value>Returns a given number of top rows according to a specified expression.</value>
+  </data>
+  <data name="Last" xml:space="preserve">
+    <value>Last</value>
+  </data>
+  <data name="Minute/s" xml:space="preserve">
+    <value>Minute(s)</value>
+  </data>
+  <data name="Minutely" xml:space="preserve">
+    <value>Minutely</value>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="Monthly" xml:space="preserve">
+    <value>Monthly</value>
+  </data>
+  <data name="Of" xml:space="preserve">
+    <value>Of</value>
+  </data>
+  <data name="OfEvery" xml:space="preserve">
+    <value>Of every</value>
+  </data>
+  <data name="OnThe" xml:space="preserve">
+    <value>On the</value>
+  </data>
+  <data name="Second" xml:space="preserve">
+    <value>Second</value>
+  </data>
+  <data name="Third" xml:space="preserve">
+    <value>Third</value>
+  </data>
+  <data name="TitleDelete" xml:space="preserve">
+    <value>Delete {0}</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>Week</value>
+  </data>
+  <data name="WeekDayOptions" xml:space="preserve">
+    <value>Week Day (MON-FRI)</value>
+  </data>
+  <data name="Weekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="Yearly" xml:space="preserve">
+    <value>Yearly</value>
+  </data>
+</root>

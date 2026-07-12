@@ -1,0 +1,936 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Addressee" xml:space="preserve">
+    <value>Addressee</value>
+  </data>
+  <data name="AdminDimension" xml:space="preserve">
+    <value>Manage dimension</value>
+  </data>
+  <data name="AdminModel" xml:space="preserve">
+    <value>Manage model</value>
+  </data>
+  <data name="AggregateFunction" xml:space="preserve">
+    <value>Aggregate function</value>
+  </data>
+  <data name="AllowEdit" xml:space="preserve">
+    <value>Allow edit</value>
+  </data>
+  <data name="AppSelector" xml:space="preserve">
+    <value>Application selector</value>
+  </data>
+  <data name="AreYouThere" xml:space="preserve">
+    <value>Are you still there?</value>
+  </data>
+  <data name="Assign" xml:space="preserve">
+    <value>Assign</value>
+  </data>
+  <data name="Assigned" xml:space="preserve">
+    <value>Assigned</value>
+  </data>
+  <data name="AvaiableFields" xml:space="preserve">
+    <value>Avaiable fields</value>
+  </data>
+  <data name="LicensesAvailable" xml:space="preserve">
+    <value>Licenses available</value>
+  </data>
+  <data name="Availables" xml:space="preserve">
+    <value>Availables</value>
+  </data>
+  <data name="CanEditChildrenData" xml:space="preserve">
+    <value>Can edit children data</value>
+  </data>
+  <data name="ChangeApp" xml:space="preserve">
+    <value>Change application</value>
+  </data>
+  <data name="Clients" xml:space="preserve">
+    <value>Clients</value>
+  </data>
+  <data name="Column" xml:space="preserve">
+    <value>Column</value>
+  </data>
+  <data name="ColumnConfiguration" xml:space="preserve">
+    <value>Column configuration</value>
+  </data>
+  <data name="ColumnName" xml:space="preserve">
+    <value>Column name</value>
+  </data>
+  <data name="Columns" xml:space="preserve">
+    <value>Columns</value>
+  </data>
+  <data name="ColumnValue" xml:space="preserve">
+    <value>Column value</value>
+  </data>
+  <data name="ContextParams" xml:space="preserve">
+    <value>Context params</value>
+  </data>
+  <data name="CopyBetweenModels" xml:space="preserve">
+    <value>Copy between models</value>
+  </data>
+  <data name="CronExpression" xml:space="preserve">
+    <value>Cron expression</value>
+  </data>
+  <data name="Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="DataRuleName" xml:space="preserve">
+    <value>Data rule name</value>
+  </data>
+  <data name="DatasourceType" xml:space="preserve">
+    <value>Datasource type</value>
+  </data>
+  <data name="DataType" xml:space="preserve">
+    <value>Data type</value>
+  </data>
+  <data name="DateAndTime" xml:space="preserve">
+    <value>Date and time</value>
+  </data>
+  <data name="DateTimeEnd" xml:space="preserve">
+    <value>End date</value>
+  </data>
+  <data name="DateTimeStart" xml:space="preserve">
+    <value>Start time</value>
+  </data>
+  <data name="DAXExpression" xml:space="preserve">
+    <value>DAX expression</value>
+  </data>
+  <data name="DaxFunction" xml:space="preserve">
+    <value>Dax Function</value>
+  </data>
+  <data name="DaxStatement" xml:space="preserve">
+    <value>Dax Statement</value>
+  </data>
+  <data name="DefaultAppication" xml:space="preserve">
+    <value>Default application</value>
+  </data>
+  <data name="DefaultValue" xml:space="preserve">
+    <value>Default value</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteHierarchy" xml:space="preserve">
+    <value>Delete Hierarchy</value>
+  </data>
+  <data name="DeleteStructure" xml:space="preserve">
+    <value>Delete structure</value>
+  </data>
+  <data name="Destination" xml:space="preserve">
+    <value>Destination</value>
+  </data>
+  <data name="DimensionColumn" xml:space="preserve">
+    <value>Dimension column</value>
+  </data>
+  <data name="DimensionFields" xml:space="preserve">
+    <value>Dimension fields</value>
+  </data>
+  <data name="DimensionName" xml:space="preserve">
+    <value>Dimension name</value>
+  </data>
+  <data name="DimensionParentChild" xml:space="preserve">
+    <value>Dimension parent-child</value>
+  </data>
+  <data name="DimensionsAvailable" xml:space="preserve">
+    <value>Dimensions available</value>
+  </data>
+  <data name="DimensionsBlocked" xml:space="preserve">
+    <value>Dimensions blocked</value>
+  </data>
+  <data name="DimensionsRelated" xml:space="preserve">
+    <value>Dimensions related</value>
+  </data>
+  <data name="DimensionType" xml:space="preserve">
+    <value>Dimension type</value>
+  </data>
+  <data name="DimensionValue" xml:space="preserve">
+    <value>Dimension value</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Download {0}</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit {0}</value>
+  </data>
+  <data name="EmailAddresses" xml:space="preserve">
+    <value>Email addresses</value>
+  </data>
+  <data name="EmailReConfirm" xml:space="preserve">
+    <value>Resend confirmation email</value>
+  </data>
+  <data name="EmptyExcelColumns" xml:space="preserve">
+    <value>No columns added</value>
+  </data>
+  <data name="Example" xml:space="preserve">
+    <value>Example</value>
+  </data>
+  <data name="ExcelColumn" xml:space="preserve">
+    <value>Excel column</value>
+  </data>
+  <data name="ExcelColumnsRequired" xml:space="preserve">
+    <value>Complete the required fields</value>
+  </data>
+  <data name="ExcelFormula" xml:space="preserve">
+    <value>Excel formula</value>
+  </data>
+  <data name="ExcelFormulaType" xml:space="preserve">
+    <value>Excel formula type</value>
+  </data>
+  <data name="ExcelSheetName" xml:space="preserve">
+    <value>Excel sheet name</value>
+  </data>
+  <data name="ExecuteQuery" xml:space="preserve">
+    <value>Execute query</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="ExportData" xml:space="preserve">
+    <value>Export data</value>
+  </data>
+  <data name="Expression" xml:space="preserve">
+    <value>Expression</value>
+  </data>
+  <data name="FilterConfiguration" xml:space="preserve">
+    <value>Configure filter</value>
+  </data>
+  <data name="FilterStructures" xml:space="preserve">
+    <value>Filter structures</value>
+  </data>
+  <data name="FilterTableValues" xml:space="preserve">
+    <value>Filter table values</value>
+  </data>
+  <data name="Formula" xml:space="preserve">
+    <value>Formula</value>
+  </data>
+  <data name="GeneralData" xml:space="preserve">
+    <value>General data</value>
+  </data>
+  <data name="Group" xml:space="preserve">
+    <value>Group</value>
+  </data>
+  <data name="HeaderName" xml:space="preserve">
+    <value>Header name</value>
+  </data>
+  <data name="Hierarchies" xml:space="preserve">
+    <value>Hierarchies</value>
+  </data>
+  <data name="Hierarchy" xml:space="preserve">
+    <value>Hierarchy</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="ImportData" xml:space="preserve">
+    <value>Import data</value>
+  </data>
+  <data name="Indicadores" xml:space="preserve">
+    <value>Indicators</value>
+  </data>
+  <data name="InputType" xml:space="preserve">
+    <value>Input type</value>
+  </data>
+  <data name="isDrivenByProcess" xml:space="preserve">
+    <value>Is driven by process</value>
+  </data>
+  <data name="IsHidden" xml:space="preserve">
+    <value>is hidden</value>
+  </data>
+  <data name="IsVisible" xml:space="preserve">
+    <value>Is visible</value>
+  </data>
+  <data name="Label" xml:space="preserve">
+    <value>Label</value>
+  </data>
+  <data name="LastExecution" xml:space="preserve">
+    <value>Last execution</value>
+  </data>
+  <data name="LastStatus" xml:space="preserve">
+    <value>Last status</value>
+  </data>
+  <data name="LockUser" xml:space="preserve">
+    <value>Lock user</value>
+  </data>
+  <data name="Manage" xml:space="preserve">
+    <value>Manage</value>
+  </data>
+  <data name="ManageStatus" xml:space="preserve">
+    <value>Manage status</value>
+  </data>
+  <data name="MapColumns" xml:space="preserve">
+    <value>Map columns</value>
+  </data>
+  <data name="Measure" xml:space="preserve">
+    <value>Measure</value>
+  </data>
+  <data name="Measures" xml:space="preserve">
+    <value>Measures</value>
+  </data>
+  <data name="MeasureType" xml:space="preserve">
+    <value>Measure type</value>
+  </data>
+  <data name="ModelRelated" xml:space="preserve">
+    <value>Model related</value>
+  </data>
+  <data name="ModeType" xml:space="preserve">
+    <value>Mode type</value>
+  </data>
+  <data name="MustEnterA" xml:space="preserve">
+    <value>You must enter a: '{0}'</value>
+  </data>
+  <data name="NameSchedule" xml:space="preserve">
+    <value>Schedule name</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="DimensionClassic" xml:space="preserve">
+    <value>Classic dimension</value>
+  </data>
+  <data name="NoContextParams" xml:space="preserve">
+    <value>No context params</value>
+  </data>
+  <data name="NoResultsFound" xml:space="preserve">
+    <value>No Results Found</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="NotificationMessage" xml:space="preserve">
+    <value>Notification message</value>
+  </data>
+  <data name="Observation" xml:space="preserve">
+    <value>Observation</value>
+  </data>
+  <data name="Operator" xml:space="preserve">
+    <value>Operator</value>
+  </data>
+  <data name="Origin" xml:space="preserve">
+    <value>Origin</value>
+  </data>
+  <data name="OriginalsColumnsParentChild" xml:space="preserve">
+    <value>Originals columns parent child</value>
+  </data>
+  <data name="Outdated" xml:space="preserve">
+    <value>Outdated</value>
+  </data>
+  <data name="Parameter" xml:space="preserve">
+    <value>Parameter</value>
+  </data>
+  <data name="ParentChild" xml:space="preserve">
+    <value>Parent-child</value>
+  </data>
+  <data name="ParentNode" xml:space="preserve">
+    <value>Parent node</value>
+  </data>
+  <data name="ColumnPivotType" xml:space="preserve">
+    <value>Column type that displays the selected value and depends on the filters created for this table</value>
+  </data>
+  <data name="ViewName" xml:space="preserve">
+    <value>View name</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="Prefix" xml:space="preserve">
+    <value>Prefix</value>
+  </data>
+  <data name="Preview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="PreviousPassword" xml:space="preserve">
+    <value>Previous password</value>
+  </data>
+  <data name="Privacy" xml:space="preserve">
+    <value>Privacy</value>
+  </data>
+  <data name="ProcessContext" xml:space="preserve">
+    <value>Process context</value>
+  </data>
+  <data name="ProcessFlow" xml:space="preserve">
+    <value>Process flow</value>
+  </data>
+  <data name="ProfileActive" xml:space="preserve">
+    <value>Active Profile</value>
+  </data>
+  <data name="Properties" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="QueryDax" xml:space="preserve">
+    <value>Query DAX</value>
+  </data>
+  <data name="QueryDaxHelp" xml:space="preserve">
+    <value>Query dax help</value>
+  </data>
+  <data name="QueryDaxUnpivot" xml:space="preserve">
+    <value>Query DAX unpivot</value>
+  </data>
+  <data name="RealsConcept" xml:space="preserve">
+    <value>Concept - Real</value>
+  </data>
+  <data name="RealsTime" xml:space="preserve">
+    <value>Time - Real</value>
+  </data>
+  <data name="RealType" xml:space="preserve">
+    <value>Real type</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Relationships" xml:space="preserve">
+    <value>Relationships</value>
+  </data>
+  <data name="ReturnValues" xml:space="preserve">
+    <value>Return values</value>
+  </data>
+  <data name="Safe" xml:space="preserve">
+    <value>Safe</value>
+  </data>
+  <data name="SaveAndDesignQueries" xml:space="preserve">
+    <value>Save and design queries</value>
+  </data>
+  <data name="SaveNode" xml:space="preserve">
+    <value>Save node</value>
+  </data>
+  <data name="SchedulableMethod" xml:space="preserve">
+    <value>Schedulable method</value>
+  </data>
+  <data name="Schedulate" xml:space="preserve">
+    <value>Schedulate</value>
+  </data>
+  <data name="Schedule" xml:space="preserve">
+    <value>Schedule</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Searching" xml:space="preserve">
+    <value>Searching</value>
+  </data>
+  <data name="SecondValueToFilter" xml:space="preserve">
+    <value>Second value to filter</value>
+  </data>
+  <data name="See" xml:space="preserve">
+    <value>See</value>
+  </data>
+  <data name="SelectClientUser" xml:space="preserve">
+    <value>Select client / user</value>
+  </data>
+  <data name="SelectColumns" xml:space="preserve">
+    <value>Select columns</value>
+  </data>
+  <data name="SelectTableValue" xml:space="preserve">
+    <value>Select table value</value>
+  </data>
+  <data name="SelectValue" xml:space="preserve">
+    <value>Select value</value>
+  </data>
+  <data name="Sender" xml:space="preserve">
+    <value>Sender</value>
+  </data>
+  <data name="SendNotification" xml:space="preserve">
+    <value>Send notification</value>
+  </data>
+  <data name="SendToParent" xml:space="preserve">
+    <value>Send to parent</value>
+  </data>
+  <data name="SourceTable" xml:space="preserve">
+    <value>Source table</value>
+  </data>
+  <data name="StayConnected" xml:space="preserve">
+    <value>Stay connected</value>
+  </data>
+  <data name="Structure" xml:space="preserve">
+    <value>Structure</value>
+  </data>
+  <data name="Subject" xml:space="preserve">
+    <value>Subject</value>
+  </data>
+  <data name="Syntax" xml:space="preserve">
+    <value>Syntax</value>
+  </data>
+  <data name="TableValues" xml:space="preserve">
+    <value>Table values</value>
+  </data>
+  <data name="TargetNode" xml:space="preserve">
+    <value>Target node</value>
+  </data>
+  <data name="TargetTable" xml:space="preserve">
+    <value>Target table</value>
+  </data>
+  <data name="TaskAction" xml:space="preserve">
+    <value>Task action</value>
+  </data>
+  <data name="TermAndConditions" xml:space="preserve">
+    <value>Term and conditions</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="TheMeasureHasAConceptRelated" xml:space="preserve">
+    <value>The measure has a concept related</value>
+  </data>
+  <data name="TimeGranularity" xml:space="preserve">
+    <value>Granularity for the time dimension</value>
+  </data>
+  <data name="Tooltip" xml:space="preserve">
+    <value>Tooltip</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="UnlockUser" xml:space="preserve">
+    <value>Unlock user</value>
+  </data>
+  <data name="UnverifiedEmail" xml:space="preserve">
+    <value>Unverified email</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="UseContextGlobalValue" xml:space="preserve">
+    <value>Use context global value</value>
+  </data>
+  <data name="ValueToFilter" xml:space="preserve">
+    <value>Value to filter</value>
+  </data>
+  <data name="VerifiedEmail" xml:space="preserve">
+    <value>Verified email</value>
+  </data>
+  <data name="VisualFilters" xml:space="preserve">
+    <value>Visual filters</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Configuration" xml:space="preserve">
+    <value>Configuration</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="Processing" xml:space="preserve">
+    <value>Processing</value>
+  </data>
+  <data name="Retry" xml:space="preserve">
+    <value>Retry</value>
+  </data>
+  <data name="ShowAll" xml:space="preserve">
+    <value>Show all</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="TableSynchronized" xml:space="preserve">
+    <value>Well-built metadata</value>
+  </data>
+  <data name="FirstNode" xml:space="preserve">
+    <value>First node</value>
+  </data>
+  <data name="Node" xml:space="preserve">
+    <value>Node</value>
+  </data>
+  <data name="NodeRelated" xml:space="preserve">
+    <value>Node related</value>
+  </data>
+  <data name="Parent" xml:space="preserve">
+    <value>Parent</value>
+  </data>
+  <data name="Son" xml:space="preserve">
+    <value>Son</value>
+  </data>
+  <data name="SubStep" xml:space="preserve">
+    <value>Substep</value>
+  </data>
+  <data name="Secure" xml:space="preserve">
+    <value>Secure</value>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>Start date</value>
+  </data>
+  <data name="EndDate" xml:space="preserve">
+    <value>End date</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="NextExec" xml:space="preserve">
+    <value>Next execution</value>
+  </data>
+  <data name="TaskName" xml:space="preserve">
+    <value>Task name</value>
+  </data>
+  <data name="SearchValue" xml:space="preserve">
+    <value>Enter a search value.</value>
+  </data>
+  <data name="EnterValueToSearch" xml:space="preserve">
+    <value>Enter a value to search</value>
+  </data>
+  <data name="ShowClassicMeasures" xml:space="preserve">
+    <value>Show classic measure</value>
+  </data>
+  <data name="ShowSelectedItems" xml:space="preserve">
+    <value>Show selected items</value>
+  </data>
+  <data name="TakeFromFilter" xml:space="preserve">
+    <value>Take from filter</value>
+  </data>
+  <data name="DissolvingChanges" xml:space="preserve">
+    <value>Dissolving changes...</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>Comment</value>
+  </data>
+  <data name="DisabledExcelColumn" xml:space="preserve">
+    <value>Disable Excel column</value>
+  </data>
+  <data name="EnabledExcelColumn" xml:space="preserve">
+    <value>Enabled Excel column</value>
+  </data>
+  <data name="DisabledExcelFilter" xml:space="preserve">
+    <value>Disabled filter</value>
+  </data>
+  <data name="EnabledExcelFilter" xml:space="preserve">
+    <value>Enabled filter</value>
+  </data>
+  <data name="LastLogin" xml:space="preserve">
+    <value>Last login</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="EnterName" xml:space="preserve">
+    <value>Enter name</value>
+  </data>
+  <data name="FilterByStatus" xml:space="preserve">
+    <value>Filter by this status</value>
+  </data>
+  <data name="FilterByStatusRemove" xml:space="preserve">
+    <value>Remove status filter</value>
+  </data>
+  <data name="DefaultHierarchy" xml:space="preserve">
+    <value>Default hierarchy</value>
+  </data>
+  <data name="HierarchyTime" xml:space="preserve">
+    <value>Hierarchy time dimension</value>
+  </data>
+  <data name="CustumizeColumns" xml:space="preserve">
+    <value>Customize columns</value>
+  </data>
+  <data name="SplitRealsColumns" xml:space="preserve">
+    <value>Split real's columns</value>
+  </data>
+  <data name="LevelConfiguration" xml:space="preserve">
+    <value>Configure level</value>
+  </data>
+  <data name="Levels" xml:space="preserve">
+    <value>Levels</value>
+  </data>
+  <data name="Rows" xml:space="preserve">
+    <value>Rows</value>
+  </data>
+  <data name="Row" xml:space="preserve">
+    <value>Row</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="ColumnSubTotal" xml:space="preserve">
+    <value>Columna Subtotal</value>
+  </data>
+  <data name="EnabledAsSubtotal" xml:space="preserve">
+    <value>Enable as row subtotal</value>
+  </data>
+  <data name="DisabledAsSubtotal" xml:space="preserve">
+    <value>Disable as row subtotal</value>
+  </data>
+  <data name="RowsSubtotalOrder" xml:space="preserve">
+    <value>Order of row subtotal</value>
+  </data>
+  <data name="ExcelColumnExists" xml:space="preserve">
+    <value>Column exists</value>
+  </data>
+  <data name="ModelTimeGranularityNeeded" xml:space="preserve">
+    <value>Model granularity needs to be assigned</value>
+  </data>
+  <data name="Visible" xml:space="preserve">
+    <value>Show {0}</value>
+  </data>
+  <data name="Hidden" xml:space="preserve">
+    <value>Hide {0}</value>
+  </data>
+  <data name="Condition" xml:space="preserve">
+    <value>Condition</value>
+  </data>
+  <data name="CustomizeFormula" xml:space="preserve">
+    <value>Customize formula</value>
+  </data>
+  <data name="FilterColumn" xml:space="preserve">
+    <value>Column to filter</value>
+  </data>
+  <data name="FilterColumnCondition" xml:space="preserve">
+    <value>Condition to filter</value>
+  </data>
+  <data name="SubtotalFormula" xml:space="preserve">
+    <value>Subtotal formula</value>
+  </data>
+  <data name="Range" xml:space="preserve">
+    <value>Range</value>
+  </data>
+  <data name="KeyWords" xml:space="preserve">
+    <value>Key words</value>
+  </data>
+  <data name="KeyWord_range" xml:space="preserve">
+    <value>Represents the range field and will be replaced when applied in Excel</value>
+  </data>
+  <data name="KeyWord_hastag" xml:space="preserve">
+    <value>Represents the row number and will be replaced when applied in Excel</value>
+  </data>
+  <data name="ExampleOfFormula" xml:space="preserve">
+    <value>Examples of formula</value>
+  </data>
+  <data name="License" xml:space="preserve">
+    <value>License</value>
+  </data>
+  <data name="IncludeRecordsWithoutModelValues" xml:space="preserve">
+    <value>Include records without values in the model</value>
+  </data>
+  <data name="FixedTableValue" xml:space="preserve">
+    <value>Fixed table value</value>
+  </data>
+  <data name="ColumnsMadeFromFilters" xml:space="preserve">
+    <value>Columns made from filters</value>
+  </data>
+  <data name="Sort" xml:space="preserve">
+    <value>Sort</value>
+  </data>
+  <data name="ExampleRefColByHeaders" xml:space="preserve">
+    <value>Using header names. For a two-level input form, this would be:</value>
+  </data>
+  <data name="ExampleRefColByLetter" xml:space="preserve">
+    <value>Using the column letter: A</value>
+  </data>
+  <data name="ExampleRefColExcel" xml:space="preserve">
+    <value>Referencing a column in Excel</value>
+  </data>
+  <data name="ConfigParamsGral" xml:space="preserve">
+    <value>Configure general style</value>
+  </data>
+  <data name="ConfigParamsOffice" xml:space="preserve">
+    <value>Configure style for Office</value>
+  </data>
+  <data name="ConfigParamsWebapp" xml:space="preserve">
+    <value>Configure style for the webapp</value>
+  </data>
+  <data name="Style" xml:space="preserve">
+    <value>Style</value>
+  </data>
+  <data name="StyleSheet" xml:space="preserve">
+    <value>Style sheet</value>
+  </data>
+  <data name="LightModeDefault" xml:space="preserve">
+    <value>Default light theme</value>
+  </data>
+  <data name="LoginImageBackground" xml:space="preserve">
+    <value>Login background image</value>
+  </data>
+  <data name="LoginImageLogo" xml:space="preserve">
+    <value>Login Logo Image</value>
+  </data>
+  <data name="LogoImageHeader" xml:space="preserve">
+    <value>Header Logo Image</value>
+  </data>
+  <data name="SelectImageToPreview" xml:space="preserve">
+    <value>Select an image to view it</value>
+  </data>
+  <data name="DarkModeDefault" xml:space="preserve">
+    <value>Default dark theme</value>
+  </data>
+  <data name="DarkTheme" xml:space="preserve">
+    <value>Dark Theme</value>
+  </data>
+  <data name="BuildFileBasedOnColors" xml:space="preserve">
+    <value>Generate file based on selected colors</value>
+  </data>
+  <data name="TableHeader" xml:space="preserve">
+    <value>Table header</value>
+  </data>
+  <data name="BackgroundColor" xml:space="preserve">
+    <value>Background color</value>
+  </data>
+  <data name="FontColor" xml:space="preserve">
+    <value>Font color</value>
+  </data>
+  <data name="LoginAlignLeft" xml:space="preserve">
+    <value>Login on the Left, Background Image on the Right</value>
+  </data>
+  <data name="LoginAlignRight" xml:space="preserve">
+    <value>Login on the Right, Background Image on the Left</value>
+  </data>
+  <data name="LightTheme" xml:space="preserve">
+    <value>Light Theme</value>
+  </data>
+  <data name="PrimaryColor" xml:space="preserve">
+    <value>Primary color</value>
+  </data>
+  <data name="SecondaryColor" xml:space="preserve">
+    <value>Secondary color</value>
+  </data>
+  <data name="Centered" xml:space="preserve">
+    <value>Centered</value>
+  </data>
+  <data name="SheetHeader" xml:space="preserve">
+    <value>Sheet header</value>
+  </data>
+  <data name="OnlyAllowedFilesType" xml:space="preserve">
+    <value>Only {0} files are allowed</value>
+  </data>
+  <data name="AdminTenantClient" xml:space="preserve">
+    <value>Manage Tenant</value>
+  </data>
+  <data name="FreezeColumn" xml:space="preserve">
+    <value>Freeze column</value>
+  </data>
+  <data name="ColumnOrder" xml:space="preserve">
+    <value>Order of column</value>
+  </data>
+  <data name="ShowAllRunsHistory" xml:space="preserve">
+    <value>Show all runs history</value>
+  </data>
+  <data name="ManualTrigger" xml:space="preserve">
+    <value>Manual trigger</value>
+  </data>
+  <data name="ExecutedFrom" xml:space="preserve">
+    <value>Executed from</value>
+  </data>
+  <data name="CountRowsSourceReaded" xml:space="preserve">
+    <value>Count of rows readed from source</value>
+  </data>
+  <data name="RunsHistory" xml:space="preserve">
+    <value>Runs history</value>
+  </data>
+  <data name="ApplyFilter" xml:space="preserve">
+    <value>Apply filter</value>
+  </data>
+</root>

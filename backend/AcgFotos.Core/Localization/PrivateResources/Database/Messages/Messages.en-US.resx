@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InfoAutomaticTooltip" xml:space="preserve">
+    <value>Internal only.</value>
+  </data>
+  <data name="InfoBinaryTooltip" xml:space="preserve">
+    <value>Column or measure contains binary data.</value>
+  </data>
+  <data name="InfoBooleanTooltip" xml:space="preserve">
+    <value>Column or measure contains boolean data values.</value>
+  </data>
+  <data name="InfoBPFActionExecuteDataRuleProfile" xml:space="preserve">
+    <value>Execute data rule profile</value>
+  </data>
+  <data name="InfoBPFActionLoadDimensions" xml:space="preserve">
+    <value>Load dimensions</value>
+  </data>
+  <data name="InfoBPFActionLoadRealDataToModel" xml:space="preserve">
+    <value>Load real data to model</value>
+  </data>
+  <data name="InfoBPFActionOpenApprovalCycle" xml:space="preserve">
+    <value>Open approval cycle</value>
+  </data>
+  <data name="InfoBPFActionOpenInputForm" xml:space="preserve">
+    <value>Open Input form</value>
+  </data>
+  <data name="InfoBPFActionOpenURL" xml:space="preserve">
+    <value>Open URL</value>
+  </data>
+  <data name="InfoBPFActionSendEmail" xml:space="preserve">
+    <value>Send email</value>
+  </data>
+  <data name="InfoBPFTaskStatusCompleteTooltip" xml:space="preserve">
+    <value>Complete</value>
+  </data>
+  <data name="InfoBPFTaskStatusOpenTooltip" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="InfoDateTimeTooltip" xml:space="preserve">
+    <value>Column or measure contains date and time data</value>
+  </data>
+  <data name="InfoDecimalTooltip" xml:space="preserve">
+    <value>Column or measure contains decimal data values.</value>
+  </data>
+  <data name="InfoDimTypeCategoryTooltip" xml:space="preserve">
+    <value>A dimension whose attributes represent versions or real of a planning</value>
+  </data>
+  <data name="InfoDimTypeConceptTooltip" xml:space="preserve">
+    <value>A dimension whose attributes represents the numerical values of the business indicators</value>
+  </data>
+  <data name="InfoDimTypeMoneyTooltip" xml:space="preserve">
+    <value>This type of dimension contains currency data and metadata.</value>
+  </data>
+  <data name="InfoDimTypeTimeTooltip" xml:space="preserve">
+    <value>A dimension whose attributes represent time periods, such as years, semesters, quarters, months, and days.</value>
+  </data>
+  <data name="InfoDimTypeUserDefinedTooltip" xml:space="preserve">
+    <value>A dimension whose type has not been set to a special dimension type.</value>
+  </data>
+  <data name="InfoDoubleTooltip" xml:space="preserve">
+    <value>Column or measure contains double-precision floating-point numbers.</value>
+  </data>
+  <data name="InfoInputTypeDropdownTooltip" xml:space="preserve">
+    <value>Entering data with a drop-down list</value>
+  </data>
+  <data name="InfoInputTypeTextboxTooltip" xml:space="preserve">
+    <value>Data entry in text box</value>
+  </data>
+  <data name="InfoInt64Tooltip" xml:space="preserve">
+    <value>Column or measure contains integers.</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeConceptTooltip" xml:space="preserve">
+    <value>Column type related to a concept type dimension</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeDimensionTooltip" xml:space="preserve">
+    <value>Column type that displays the values ​​of the selected dimension column</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeExcelFormulaTooltip" xml:space="preserve">
+    <value>Type of column that contains an Excel formula</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeMeasureTooltip" xml:space="preserve">
+    <value>Column type related to a DAX measure</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeTimeTooltip" xml:space="preserve">
+    <value>Column type related to a time-type dimension</value>
+  </data>
+  <data name="InfoScheduleCopyTablesByDataRuleProfile" xml:space="preserve">
+    <value>Schedule copy table method by data rule profile</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsAverageTooltip" xml:space="preserve">
+    <value>Calculates the average of values for all non-empty child members.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsCountTooltip" xml:space="preserve">
+    <value>Returns the rows count in the table.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsDefaultTooltip" xml:space="preserve">
+    <value>The default aggregation is Sum for numeric columns. Otherwise the default is None</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsDistinctCountTooltip" xml:space="preserve">
+    <value>Returns the count of all unique child members.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsMaxTooltip" xml:space="preserve">
+    <value>Returns the highest value for all child members.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsMinTooltip" xml:space="preserve">
+    <value>Returns the lowest value for all child members.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsNoneTooltip" xml:space="preserve">
+    <value>Leaves the aggregate function unspecified.</value>
+  </data>
+  <data name="InfoSSASAggregateFunctionsSumTooltip" xml:space="preserve">
+    <value>Calculates the sum of values contained in the column. This is the default aggregation function.</value>
+  </data>
+  <data name="InfoSSASDataSourceTypeMTooltip" xml:space="preserve">
+    <value>Structured Data Source</value>
+  </data>
+  <data name="InfoSSASDataSourceTypeProviderTooltip" xml:space="preserve">
+    <value>Legacy - Provider Data Source</value>
+  </data>
+  <data name="InfoSSASModeTypeDefaultTooltip" xml:space="preserve">
+    <value>Only partitions can use this value. When set, the partition will inherit the DefaultMode of the Model.</value>
+  </data>
+  <data name="InfoSSASModeTypeDirectLakeTooltip" xml:space="preserve">
+    <value>Data will be loaded into memory from the data lake or queried dynamically if DirectLake fallback is enabled. This value is only supported when the compatibility level of the database is at 1604 or above</value>
+  </data>
+  <data name="InfoSSASModeTypeDirectQueryTooltip" xml:space="preserve">
+    <value>Data will be queried dynamically from a data source.</value>
+  </data>
+  <data name="InfoSSASModeTypeDualTooltip" xml:space="preserve">
+    <value>Uses both Import and DirectQuery storage modes to support queries in composite models with high performance. This value is only supported when the compatibility level of the database is at 1455 or above</value>
+  </data>
+  <data name="InfoSSASModeTypeImportTooltip" xml:space="preserve">
+    <value>Data will be imported from a data source</value>
+  </data>
+  <data name="InfoSSASModeTypePushTooltip" xml:space="preserve">
+    <value>Do not reference this member directly in your code. It supports the Analysis Services infrastructure. This value is only supported for Pbi server</value>
+  </data>
+  <data name="InfoSSASObjectStatesCalculationNeededTooltip" xml:space="preserve">
+    <value>Object is not queryable and contains no data. It needs to be refreshed to become functional. Applies only to calculated objects, such as calculated columns, hierarchies, and calculated tables</value>
+  </data>
+  <data name="InfoSSASObjectStatesDependencyErrorTooltip" xml:space="preserve">
+    <value>Object is in an error state because some of its calculation dependencies are in an error state. It is not queryable.</value>
+  </data>
+  <data name="InfoSSASObjectStatesEvaluationErrorTooltip" xml:space="preserve">
+    <value>Object is in an error state because an error occurred during expression evaluation. It is not queryable.</value>
+  </data>
+  <data name="InfoSSASObjectStatesIncompleteTooltip" xml:space="preserve">
+    <value>Some parts of the object have no data. Refresh the object to add the rest of the data. The object is queryable. Applies to non-calculated objects, such as DataColumns, partitions, and tables.</value>
+  </data>
+  <data name="InfoSSASObjectStatesNoDataTooltip" xml:space="preserve">
+    <value>Object is queryable but contains no data. Refresh it to bring in data. Applies to non-calculated objects, such as DataColumns, partitions, and Tables.</value>
+  </data>
+  <data name="InfoSSAsObjectStatesNotCreatedTooltip" xml:space="preserve">
+    <value>Object is not created yet</value>
+  </data>
+  <data name="InfoSSASObjectStatesReadyTooltip" xml:space="preserve">
+    <value>Object is refreshed, contains up-to-date data, and is queryable.</value>
+  </data>
+  <data name="InfoSSASObjectStatesSemanticErrorTooltip" xml:space="preserve">
+    <value>Object is in an error state because of an invalid expression. It is not queryable.</value>
+  </data>
+  <data name="InfoSSASRelationshipEndCardinalityManyTooltip" xml:space="preserve">
+    <value>Specifies the ''many'' side of a one-to-many relationship</value>
+  </data>
+  <data name="InfoSSASRelationshipEndCardinalityNoneTooltip" xml:space="preserve">
+    <value>The relationship is unspecified.</value>
+  </data>
+  <data name="InfoSSASRelationshipEndCardinalityOneTooltip" xml:space="preserve">
+    <value>Specifies the ''one'' side of a one-to-one or one-to-many relationship.</value>
+  </data>
+  <data name="InfoStringTooltip" xml:space="preserve">
+    <value>Column or measure contains string data values.</value>
+  </data>
+  <data name="InfoUnknownTooltip" xml:space="preserve">
+    <value>Initial value of a newly created column, replaced with an actual value after saving a Column to the Server.</value>
+  </data>
+  <data name="InfoVariantTooltip" xml:space="preserve">
+    <value>A measure with varying data type.</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeFixedTableValueTooltip" xml:space="preserve">
+    <value>Column type useful for Time dimensions. It displays the selected value and does not depend on filters created for this table. If there are already filters in this table, an OR condition will be added to consider this value (i.e., "existing filters" OR "fixed value").</value>
+  </data>
+  <data name="OpenInputForm" xml:space="preserve">
+    <value>Open Input form</value>
+  </data>
+  <data name="OpenApprovalCycle" xml:space="preserve">
+    <value>Open Approval cycle</value>
+  </data>
+  <data name="ExecuteDataRuleProfile" xml:space="preserve">
+    <value>Execute Data rule Profile</value>
+  </data>
+  <data name="OpenURL" xml:space="preserve">
+    <value>Open URL</value>
+  </data>
+  <data name="SendEmail" xml:space="preserve">
+    <value>Send email</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeColumnSubTotalTooltip" xml:space="preserve">
+    <value>Column type that displays the subtotal for a range of columns using an Excel formula</value>
+  </data>
+  <data name="InfoViewExcelColumnTypeColumnsMadeFromFiltersTooltip" xml:space="preserve">
+    <value>Column type that can produce zero or more columns, depending on the input form and the filters used.</value>
+  </data>
+</root>

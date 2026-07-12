@@ -1,0 +1,276 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ErrorCARefreshingForm" xml:space="preserve">
+    <value>Error when refreshing form data</value>
+  </data>
+  <data name="ErrorDimTimeInvalidFormat" xml:space="preserve">
+    <value>The format of the time dimension is invalid</value>
+  </data>
+  <data name="ErrorDimTimeRecordsNotFound" xml:space="preserve">
+    <value>No records found in the time dimension</value>
+  </data>
+  <data name="ErrorModelTimeGranularityNotDefined" xml:space="preserve">
+    <value>The granularity of the time dimension is not defined</value>
+  </data>
+  <data name="InfoApprovalCyclesNotFound" xml:space="preserve">
+    <value>No approval cycles found</value>
+  </data>
+  <data name="InfoBPFUserNotFound" xml:space="preserve">
+    <value>No business process flows found</value>
+  </data>
+  <data name="InfoDataNotFound" xml:space="preserve">
+    <value>No data found</value>
+  </data>
+  <data name="InfoExcelDontInteractWithSheet" xml:space="preserve">
+    <value>Do not interact with the Excel sheet until you have finished the process</value>
+  </data>
+  <data name="InfoInputFormsNotFound" xml:space="preserve">
+    <value>No input forms found</value>
+  </data>
+  <data name="InfoModelGranularityNotAssigned" xml:space="preserve">
+    <value>The model does not have a granularity assigned for the time dimension</value>
+  </data>
+  <data name="InfoTableTypeNotFound" xml:space="preserve">
+    <value>No tables of the indicated type were found</value>
+  </data>
+  <data name="ConfirmRepeatRecordsGroupDiscart" xml:space="preserve">
+    <value>There are repeated records, how do you want to continue?</value>
+  </data>
+  <data name="ConfirmRefreshChangesWillLost" xml:space="preserve">
+    <value>Are you sure to refresh the sheet? Changes will be lost</value>
+  </data>
+  <data name="InfoNoDimensionsToBlockOrNodes" xml:space="preserve">
+    <value>There are no dimensions or nodes to lock</value>
+  </data>
+  <data name="InfoNoDimensionsToBlock" xml:space="preserve">
+    <value>There are no dimensions to block</value>
+  </data>
+  <data name="ErrorExcelSheetDataNotRecovered" xml:space="preserve">
+    <value>We could not read data from Excel sheet</value>
+  </data>
+  <data name="ErrorDateRange" xml:space="preserve">
+    <value>You must enter a value greater than the start date</value>
+  </data>
+  <data name="ErrorAddSubtotalRows" xml:space="preserve">
+    <value>There was an error adding the subtotal rows</value>
+  </data>
+  <data name="ErrorAddSubtotalFormulasAndGroups" xml:space="preserve">
+    <value>There was an error creating the formulas and groups in the subtotal rows</value>
+  </data>
+  <data name="ErrorExcelHeaderSheetCreate" xml:space="preserve">
+    <value>There was an error creating the sheet header in Exce</value>
+  </data>
+  <data name="ErrorExcelHeaderParentNameSet" xml:space="preserve">
+    <value>There was an error setting the parent column names</value>
+  </data>
+  <data name="ErrorExcelSheetCreate" xml:space="preserve">
+    <value>There was an error creating the sheet</value>
+  </data>
+  <data name="ErrorExcelSheetPasteData" xml:space="preserve">
+    <value>There was an error pasting the data into the sheet</value>
+  </data>
+  <data name="ErrorExcelSheetGetData" xml:space="preserve">
+    <value>There was an error getting the data from the sheet</value>
+  </data>
+  <data name="ErrorExcelSheetAddRow" xml:space="preserve">
+    <value>There was an error adding a row to the sheet</value>
+  </data>
+  <data name="ErrorExcelSheetRemoveRow" xml:space="preserve">
+    <value>There was an error removing a row in the sheet</value>
+  </data>
+  <data name="ErrorExcelSheetInitialValueSetting" xml:space="preserve">
+    <value>There was an error setting the initial values ​​on the sheet</value>
+  </data>
+  <data name="ErrorExcelSheetValidationListSetting" xml:space="preserve">
+    <value>There was an error setting the validation lists on the sheet</value>
+  </data>
+  <data name="ErrorExcelSheetValidationListCheckboxSetting" xml:space="preserve">
+    <value>There was an error setting the checkbox validation lists on the sheet.</value>
+  </data>
+  <data name="ErrorExcelSheetGroupsRows" xml:space="preserve">
+    <value>There was an error grouping the rows in the sheet</value>
+  </data>
+  <data name="ErrorExcelSheetColumnVisibility" xml:space="preserve">
+    <value>There was an error setting the visibility of the columns</value>
+  </data>
+  <data name="ErrorExcelPaintAndBlockColumn" xml:space="preserve">
+    <value>There was an error in painting and protecting the columns</value>
+  </data>
+  <data name="ErrorExcelPaintAndBlockRows" xml:space="preserve">
+    <value>There was an error painting and protecting the rows</value>
+  </data>
+  <data name="ErrorExcelColumnEditablePermison" xml:space="preserve">
+    <value>There was an error allowing editing of columns</value>
+  </data>
+  <data name="ErrorExcelTableColorSetting" xml:space="preserve">
+    <value>There was an error setting the table colors</value>
+  </data>
+  <data name="ErrorExcelRowSubtotalColorSetting" xml:space="preserve">
+    <value>There was an error setting the color of the subtotal rows</value>
+  </data>
+  <data name="ErrorExcelFormulaSetting" xml:space="preserve">
+    <value>There was an error setting up Excel formulas</value>
+  </data>
+  <data name="ErrorExcelFormatColumnsSetting" xml:space="preserve">
+    <value>There was an error setting the column format.</value>
+  </data>
+  <data name="ErrorExcelFormatNumericColumnsSetting" xml:space="preserve">
+    <value>There was an error setting the number format in the columns</value>
+  </data>
+  <data name="ErrorExcelOnTableChangedStoreRange" xml:space="preserve">
+    <value>There was an error saving the range where the change was made</value>
+  </data>
+  <data name="ErrorExcelFormatCurrencyAndSubtotalSetting" xml:space="preserve">
+    <value>There was an error setting the currency and subtotals format</value>
+  </data>
+  <data name="ErrorExcelPaintRowsCA" xml:space="preserve">
+    <value>There was an error marking the rows from the approval cycle</value>
+  </data>
+  <data name="ErrorExcelAddOnChangeTable" xml:space="preserve">
+    <value>There was an error adding change detection to the table</value>
+  </data>
+  <data name="ErrorExcelAddOnChangeSheet" xml:space="preserve">
+    <value>There was an error adding change detection to the sheet</value>
+  </data>
+  <data name="ErrorExcelOnChangeTable" xml:space="preserve">
+    <value>There was an error detecting changes to the table</value>
+  </data>
+  <data name="ErrorPivotingData" xml:space="preserve">
+    <value>There was an error while pivoting the data</value>
+  </data>
+  <data name="ErrorUnpivotingData" xml:space="preserve">
+    <value>There was an error unpivoting the data</value>
+  </data>
+  <data name="ErrorHiddenFilters" xml:space="preserve">
+    <value>There is a problem with the form, it has internal/hidden filters set incorrectly.</value>
+  </data>
+  <data name="WarnExcelActiveSheet" xml:space="preserve">
+    <value>The active sheet is read-only. The worksheet is '{0}'</value>
+  </data>
+  <data name="InfoDataRuleProfileExecuted" xml:space="preserve">
+    <value>The data rule was executed successfully</value>
+  </data>
+  <data name="ErrorBpfStepNotFound" xml:space="preserve">
+    <value>Step not found</value>
+  </data>
+  <data name="InfoDataRuleExecAdmin" xml:space="preserve">
+    <value>You must be an administrator to execute the data rule</value>
+  </data>
+</root>
