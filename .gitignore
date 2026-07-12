@@ -18,6 +18,9 @@ appsettings.*.local.json
 # Datos locales de docker (volúmenes mapeados)
 .data/
 
+# Storage privado local de la API (archivos subidos en dev y artefactos de los tests de storage)
+backend/AcgFotos.Api/App_Data/storage/
+
 # Toolchain local (Node portátil para el front; ver frontend/README.md)
 .tools/
 
