@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +16,7 @@ using AcgFotos.Core.Logs;
 using AcgFotos.Core.Security;
 using AcgFotos.Base.Infrastructure.Data;
 using AcgFotos.Base.Controllers;
+using AcgFotos.Fotos.Controllers;
 using AcgFotos.Api.Helpers;
 
 namespace AcgFotos.Api
@@ -108,6 +109,7 @@ namespace AcgFotos.Api
         {
             builder.RegisterModule(new AutoMapperModule(AutoFacRegister.GetApplicationModules(_configuration)));
             builder.RegisterModule(new AutofacModuleBase());
+            builder.RegisterModule(new AutofacModuleFotos()); // Vertical Fotos (ADR-09)
         }
         private void RegisterConfigs(IServiceCollection services)
         {

@@ -50,6 +50,7 @@
     <ProjectReference Include="..\AcgFotos.Base.Controllers\AcgFotos.Base.Controllers.csproj" />
     <ProjectReference Include="..\AcgFotos.Base.Infrastructure\AcgFotos.Base.Infrastructure.csproj" />
     <ProjectReference Include="..\AcgFotos.Base.SqlMigrations\AcgFotos.Base.SqlMigrations.csproj" />
+    <ProjectReference Include="..\AcgFotos.Fotos.Controllers\AcgFotos.Fotos.Controllers.csproj" />
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>

@@ -9,12 +9,13 @@ Objetivo: plataforma portada del código base compilando y verificada, y el vert
 - [x] Documentación: visión, arquitectura, modelo de datos, decisiones, notas
 - [x] Backend portado de CodigoBase sin Budget, renombrado a `AcgFotos.*` (ADR-09), migración inicial regenerada, 419/419 tests de integración
 - [x] Frontend portado de CodigoBase (rama rxresource-adoption) sin Budget: build + 325/325 unit tests + lint verdes
-- [ ] Esqueleto del vertical Fotos: proyectos `AcgFotos.Fotos.{Domain,Application,Infrastructure,Controllers}`, módulo Autofac, alta en `AppModulesName`, test de arquitectura del DAG actualizado
-- [ ] Entidades del vertical (docs/02) con EF config (`fot_`) y migración
-- [ ] `IImageProcessor` (ImageSharp): thumb + preview con watermark, con test de humo sobre el `IStorageProvider` FileSystem
-- [ ] Levantar el sistema completo en dev (API :30000 + front :4200, login admin) y dejar el runbook en el README
+- [x] Esqueleto del vertical Fotos: proyectos `AcgFotos.Fotos.{Domain,Application,Infrastructure,Controllers}`, módulo Autofac, alta en `AppModulesName` (con tests de humo del cableado)
+- [x] Entidades del vertical (docs/02) con EF config (`fot_`, 8 tablas) y migración `VerticalFotos` aplicada
+- [x] `IImageProcessor` (ImageSharp): thumb + preview con watermark en diagonal, con tests de humo (dimensiones, no-upscale, watermark en los 4 cuadrantes, contenido inválido)
+- [x] API levantada en dev (:30000) con base `AcgFotos` migrada y seedeada; login de `root` verificado end-to-end; runbook en el README
+- [ ] Front (:4200) corriendo contra la API dev con login por navegador (queda como arranque de Fase 1)
 
-**Terminada cuando**: el sistema corre en dev de punta a punta y un test de humo procesa una foto (original → derivados con watermark en storage).
+**Terminada cuando**: el front dev loguea contra la API local (único pendiente; el pipeline de fotos y el vertical ya están verificados por tests).
 
 ## Fase 1 — MVP admin
 

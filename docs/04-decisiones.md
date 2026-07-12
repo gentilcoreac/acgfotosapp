@@ -42,7 +42,7 @@ Formato corto: contexto → decisión → consecuencias. Si una decisión se rev
 
 **Consecuencias**: operación y hosting simples y baratos. Si el procesamiento in-process molestara en cargas grandes, el salto natural es una cola — no antes.
 
-*(Actualizado por ADR-09: la base de datos es SQL Server, no PostgreSQL como decía la versión original de este ADR.)*
+*(Actualizado por ADR-09: la base de datos es SQL Server **de forma transitoria** mientras se construye sobre el código base; la decisión vigente acordada con Alberto es migrar a PostgreSQL más adelante — ver ADR-09 y el pendiente en notas abiertas.)*
 
 ## ADR-05 — Storage S3-compatible privado con URLs firmadas; R2 como proveedor
 
@@ -84,7 +84,7 @@ Formato corto: contexto → decisión → consecuencias. Si una decisión se rev
 
 **Consecuencias**:
 - Semanas de plataforma gratis, y patrones/convenciones ya documentados en el propio código.
-- **SQL Server** en lugar de PostgreSQL (el Core está clavado a `UseSqlServer`): en dev ya está; para prod evaluar SQL Server Express en VPS o SQL Azure. Actualiza ADR-04.
+- **SQL Server de forma transitoria** (el Core está clavado a `UseSqlServer` y en dev ya está instalado). **Decisión acordada: migrar a PostgreSQL antes del deploy productivo** (era la recomendación original por costo de hosting). La migración implica: proveedor configurable en `DatabaseFactory` (+ paquete Npgsql), regenerar migraciones, adaptar el SQL crudo (vistas), Respawn a PostgresAdapter y el sink de Serilog. Mientras tanto: no escribir SQL crudo con sintaxis exclusiva de SQL Server en el vertical Fotos.
 - Sin MinIO/Docker en dev: el Core trae `IStorageProvider` con FileSystem. Actualiza ADR-05.
 - Se hereda complejidad que AcgFotos no usa hoy (multi-tenant, licencias, grupos): se ACEPTA y no se poda — multi-tenant mapea al futuro "otros fotógrafos" y podar la plataforma rompería la posibilidad de traer fixes del código base.
 - Verificación del fork: suite de integración 419/419, Vitest 325/325, lint OK.

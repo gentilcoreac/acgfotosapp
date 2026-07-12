@@ -33,5 +33,18 @@ Plataforma de venta de fotos escolares. Reemplaza el proceso de ir casa por casa
 
 - .NET SDK 10, SQL Server local (la DB dev es `AcgFotos`; los tests usan `AcgFotos_Tests`)
 - Node ≥ 22.22.3 (portátil incluido en `.tools/`, ver frontend/README.md)
-- API dev: `dotnet run --project backend/AcgFotos.Api --launch-profile http` → http://localhost:30000
-- Front dev: `npm start` en `frontend/` → http://localhost:4200 (login dev: `root` / `Root@AcgFotos2026!`)
+
+**Setup inicial de la base dev** (una sola vez, desde `backend/`):
+
+```powershell
+dotnet ef database update --project AcgFotos.Base.SqlMigrations --startup-project AcgFotos.Api
+sqlcmd -S localhost -d AcgFotos -I -i AcgFotos.Api.IntegrationTests\Infrastructure\TestSeed.sql
+```
+
+(El `-I` es obligatorio: el seed necesita `QUOTED_IDENTIFIER ON`.)
+
+**Correr:**
+
+- API dev: `dotnet run --project backend/AcgFotos.Api --launch-profile http` → http://localhost:30000 (Swagger en `/swagger`)
+- Front dev: `npm start` en `frontend/` → http://localhost:4200
+- Login dev: `root` / `Root@AcgFotos2026!` (más datos en [docs/credenciales-dev.md](docs/credenciales-dev.md))

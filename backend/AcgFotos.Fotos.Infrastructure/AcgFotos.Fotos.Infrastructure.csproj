@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\AcgFotos.Core\AcgFotos.Core.csproj" />
+    <ProjectReference Include="..\AcgFotos.Fotos.Domain\AcgFotos.Fotos.Domain.csproj" />
+    <ProjectReference Include="..\AcgFotos.Fotos.Application\AcgFotos.Fotos.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Pipeline de derivados (ADR-01): resize + watermark. Drawing arrastra ImageSharp y Fonts. -->
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.6" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

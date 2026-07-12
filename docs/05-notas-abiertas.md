@@ -25,6 +25,7 @@ Preguntas sin responder y recordatorios para fases siguientes. Al resolver una, 
 - [ ] **(Fase 2)** EXIF: limpiar metadatos (GPS, equipo) de los derivados antes de servirlos. Son fotos de menores: minimizar datos.
 - [ ] **(Fase 3)** Webhook de Mercado Pago necesita URL pública: en dev usar túnel (ngrok/cloudflared) o simulador.
 - [ ] **(Fase 4)** Distribución de la app Capacitor: Play Store (USD 25 por única vez) vs APK por link directo. iOS requiere cuenta de developer (USD 99/año) — evaluar si se justifica o si iOS queda solo con la web. Mantener el Angular libre de dependencias solo-navegador para que el empaquetado no duela.
+- [ ] **(Deploy)** **Migrar de SQL Server a PostgreSQL** (decisión acordada, ver ADR-09): `DatabaseFactory` con proveedor configurable + Npgsql, regenerar migraciones, portar vistas SQL, Respawn Postgres, sink Serilog. Hasta entonces, evitar SQL con sintaxis exclusiva de SQL Server en el vertical Fotos.
 - [ ] **(Deploy)** Elegir hosting y dominio. Backups automáticos de PostgreSQL. Política de retención de fotos tras `FechaExpiracion` (¿borrar originales o archivarlos? — preguntarle: quizá quiera conservarlos para reventa).
 
 ## Consideraciones legales / sensibles (no ignorar)

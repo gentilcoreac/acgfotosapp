@@ -1,6 +1,6 @@
 # Modelo de datos
 
-Todas las PK son GUID (no secuenciales: forman parte de las claves de storage y no deben ser adivinables).
+Las PK son `long` autoincremental, heredando `MultiTenantEntityBase` de la plataforma (ADR-09: no pelear contra el patrón del código base). La no-adivinabilidad que este doc pedía originalmente con PKs GUID se logra donde importa: `Foto.StorageKey` (GUID único, lo único que aparece en las keys de storage — los Id internos jamás se usan en rutas de archivos) y los códigos de acceso con entropía propia. Implementado en `backend/AcgFotos.Fotos.Domain`.
 
 ```
 Evento 1──n Curso 1──n Album (alumno)
@@ -54,7 +54,7 @@ Catálogo por evento (los precios cambian entre eventos; los pedidos ya hechos g
 - `PrecioUnitarioSnapshot` (el precio vigente al confirmar; el catálogo puede cambiar después)
 
 ### UsuarioAdmin
-- `Id`, `Usuario`, `PasswordHash` (hash con algoritmo estándar de ASP.NET Identity o BCrypt). Un registro al inicio.
+Cubierto por la plataforma heredada (`gen_Usuarios` + roles/permisos, ASP.NET Identity): no existe como entidad del vertical.
 
 ## Reglas de negocio clave
 

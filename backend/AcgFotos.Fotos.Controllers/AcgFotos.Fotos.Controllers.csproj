@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\AcgFotos.Core\AcgFotos.Core.csproj" />
+    <ProjectReference Include="..\AcgFotos.Fotos.Domain\AcgFotos.Fotos.Domain.csproj" />
+    <ProjectReference Include="..\AcgFotos.Fotos.Application\AcgFotos.Fotos.Application.csproj" />
+    <ProjectReference Include="..\AcgFotos.Fotos.Infrastructure\AcgFotos.Fotos.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Controllers REST: necesita los tipos de ASP.NET Core (ControllerBase, etc.) -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>

@@ -14,6 +14,12 @@
     <Project Path="AcgFotos.Base.Infrastructure/AcgFotos.Base.Infrastructure.csproj" />
     <Project Path="AcgFotos.Base.SqlMigrations/AcgFotos.Base.SqlMigrations.csproj" />
   </Folder>
+  <Folder Name="/2 - Fotos/">
+    <Project Path="AcgFotos.Fotos.Application/AcgFotos.Fotos.Application.csproj" />
+    <Project Path="AcgFotos.Fotos.Controllers/AcgFotos.Fotos.Controllers.csproj" />
+    <Project Path="AcgFotos.Fotos.Domain/AcgFotos.Fotos.Domain.csproj" />
+    <Project Path="AcgFotos.Fotos.Infrastructure/AcgFotos.Fotos.Infrastructure.csproj" />
+  </Folder>
   <Project Path="AcgFotos.Api.IntegrationTests/AcgFotos.Api.IntegrationTests.csproj" />
   <Project Path="AcgFotos.Api/AcgFotos.Api.csproj" />
 </Solution>
