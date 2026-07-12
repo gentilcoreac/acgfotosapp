@@ -23,7 +23,7 @@ Objetivo: el fotógrafo puede dejar un evento listo para publicar.
 
 - [x] Login admin (JWT) — heredado de la plataforma, verificado
 - [x] CRUD Evento con catálogo TamanoPrecio como colección hija (API `api/fotos/eventos`, 10 tests de integración). Nota: el fotógrafo opera como usuario NO-root de su propio tenant (guard multi-tenant de la plataforma); root + header `SimulatedTenant` en dev/tests
-- [ ] CRUD Curso / Álbum (generación de código de acceso al crear álbum)
+- [x] CRUD Curso / Álbum (API `api/fotos/cursos`, álbumes como colección hija; al crear un álbum se le genera su código de acceso `XXXX-XXXX`, 11 tests de integración). Guards: el EventoId del input debe existir en el tenant, y no se borran cursos/álbumes con fotos
 - [ ] Upload masivo de fotos (multi-archivo, asignando a curso o álbum) con procesamiento automático (thumb + preview con watermark)
 - [ ] Vista de galería admin para verificar lo subido
 - [ ] Impresión/descarga de tarjetas con código y QR por álbum (para repartir a las familias)

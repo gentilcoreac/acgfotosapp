@@ -33,6 +33,10 @@ namespace AcgFotos.Fotos.Controllers
                 .As<IEventoRepository>()
                 .InstancePerLifetimeScope();
 
+            builder.RegisterType<CursoRepository>()
+                .As<ICursoRepository>()
+                .InstancePerLifetimeScope();
+
             base.Load(builder);
         }
     }
