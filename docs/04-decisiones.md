@@ -34,21 +34,23 @@ Formato corto: contexto → decisión → consecuencias. Si una decisión se rev
 
 **Consecuencias**: dos proyectos (API + SPA) en lugar de un full-stack único; se acepta.
 
-## ADR-04 — Monolito, PostgreSQL, sin colas
+## ADR-04 — Monolito modular, sin colas
 
 **Contexto**: volumen esperado: decenas de familias por evento, pocos eventos por mes, un admin.
 
-**Decisión**: un solo servicio ASP.NET Core, PostgreSQL, procesamiento de imágenes in-process (a lo sumo `BackgroundService` con canal en memoria para uploads masivos).
+**Decisión**: un solo servicio ASP.NET Core (monolito modular: plataforma Base + vertical Fotos, ver ADR-09), procesamiento de imágenes in-process (a lo sumo `BackgroundService` con canal en memoria para uploads masivos).
 
 **Consecuencias**: operación y hosting simples y baratos. Si el procesamiento in-process molestara en cargas grandes, el salto natural es una cola — no antes.
+
+*(Actualizado por ADR-09: la base de datos es SQL Server, no PostgreSQL como decía la versión original de este ADR.)*
 
 ## ADR-05 — Storage S3-compatible privado con URLs firmadas; R2 como proveedor
 
 **Contexto**: las fotos son casi todo el tráfico; el egreso de S3/Azure Blob se cobra. Guardar fotos en el disco del servidor ata el deploy y complica backups.
 
-**Decisión**: bucket privado S3-compatible, elección primaria **Cloudflare R2** (egreso gratis). Código contra la API S3 (`AWSSDK.S3`) ⇒ proveedor intercambiable. Lectura solo por URLs firmadas (~15 min). Desarrollo local con MinIO en Docker.
+**Decisión**: bucket privado S3-compatible, elección primaria **Cloudflare R2** (egreso gratis). Se implementa detrás de la abstracción `IStorageProvider` que el Core ya trae (config `Storage:Provider`); en **dev alcanza el provider FileSystem existente** — sin Docker ni MinIO. Lectura pública solo por URLs firmadas (~15 min).
 
-**Consecuencias**: hosting de la API desacoplado de las fotos; costo de tráfico ≈ 0; una pieza más en dev (docker compose lo resuelve).
+**Consecuencias**: hosting de la API desacoplado de las fotos; costo de tráfico ≈ 0; dev sin infraestructura extra; el provider S3 se escribe recién cuando llegue el deploy.
 
 ## ADR-06 — Separación estricta originals/ vs derived/
 
@@ -73,3 +75,16 @@ Formato corto: contexto → decisión → consecuencias. Si una decisión se rev
 **Decisión**: MVP sin pagos online (pedido = compromiso, se cobra al entregar). Fase 3 agrega Checkout Pro con webhook.
 
 **Consecuencias**: el MVP llega antes; el modelo de `Pedido` ya prevé los campos de pago para no migrar dolorosamente.
+
+## ADR-09 — Reutilizar el código base propio (CodigoBase) en lugar de arrancar de cero
+
+**Contexto**: existe un código base propio probado (`C:\PROYECTOS\CodigoBase`: API .NET 10 modular + cliente Angular 22) con toda la plataforma resuelta: auth JWT + refresh, usuarios/roles/permisos/grupos, menús dinámicos, multi-tenant, auditoría, rate limiting, theming, suite de tests de integración y e2e. Su vertical de negocio (Budget) no aplica acá.
+
+**Decisión**: fork del código base renombrado a `AcgFotos.*`, excluyendo el vertical Budget completo (proyectos, wiring, tests, migraciones regeneradas). El front parte de la rama `feature/rxresource-adoption` (mejoras con resources). AcgFotos se construye como el vertical **Fotos** siguiendo el mismo patrón modular que tenía Budget (`AcgFotos.Fotos.*` + módulo Autofac + `AppModulesName`; tablas `fot_`).
+
+**Consecuencias**:
+- Semanas de plataforma gratis, y patrones/convenciones ya documentados en el propio código.
+- **SQL Server** en lugar de PostgreSQL (el Core está clavado a `UseSqlServer`): en dev ya está; para prod evaluar SQL Server Express en VPS o SQL Azure. Actualiza ADR-04.
+- Sin MinIO/Docker en dev: el Core trae `IStorageProvider` con FileSystem. Actualiza ADR-05.
+- Se hereda complejidad que AcgFotos no usa hoy (multi-tenant, licencias, grupos): se ACEPTA y no se poda — multi-tenant mapea al futuro "otros fotógrafos" y podar la plataforma rompería la posibilidad de traer fixes del código base.
+- Verificación del fork: suite de integración 419/419, Vitest 325/325, lint OK.

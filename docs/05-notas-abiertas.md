@@ -17,6 +17,8 @@ Preguntas sin responder y recordatorios para fases siguientes. Al resolver una, 
 
 - [ ] **(Fase 0)** Diseño del watermark: texto/logo, opacidad, patrón repetido en diagonal. Conseguir el logo o nombre comercial del papá.
 - [ ] **(Fase 0)** ¿Formato de salida de previews JPEG o WebP? (WebP pesa menos; verificar que ImageSharp lo genere bien con watermark).
+- [ ] **(Fase 0)** Node global de la máquina es 22.14 y el shell Angular exige ≥22.22.3: por ahora se usa el Node portátil de `.tools/` — actualizar el Node global cuando sea cómodo y borrar `.tools/`.
+- [ ] **(Fase 1)** Revisar qué features de plataforma esconder del menú para el uso real (un solo admin no necesita ver grupos/licencias/tenants): son menús dinámicos por permisos (`gen_Menus`), no hace falta tocar código.
 - [ ] **(Fase 1)** Upload masivo desde el navegador: subida directa al bucket con URL firmada de escritura (mejor para archivos grandes) vs. pasar por la API (más simple, permite procesar en línea). Empezar por la API y medir.
 - [ ] **(Fase 1)** Auto-asignación de fotos a álbumes: el fotógrafo saca por orden de lista o por carpetas por alumno. Si nombra carpetas por alumno, el upload puede mapear carpeta → álbum automáticamente. Preguntarle cómo organiza hoy.
 - [ ] **(Fase 2)** Rate-limiting y lockout en el canje de códigos (fuerza bruta). Ver `AspNetCore.RateLimiting` nativo.

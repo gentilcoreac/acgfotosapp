@@ -4,28 +4,30 @@ App de venta de fotos escolares (graduaciones). Un fotógrafo (admin) sube fotos
 
 **Antes de trabajar, leer los docs**: [docs/03-fases.md](docs/03-fases.md) dice en qué fase estamos y qué sigue; [docs/04-decisiones.md](docs/04-decisiones.md) tiene las decisiones tomadas (no re-discutirlas sin motivo nuevo); [docs/05-notas-abiertas.md](docs/05-notas-abiertas.md) tiene los pendientes.
 
+## Origen del código (ADR-09)
+
+Fork del código base propio `C:\PROYECTOS\CodigoBase` (API + Cliente), renombrado `TechBI → AcgFotos`, sin el vertical Budget. La plataforma (auth, usuarios/roles/permisos, menús, multi-tenant, auditoría) ya viene resuelta; **AcgFotos se construye como el vertical Fotos** con el mismo patrón modular que tenía Budget. Los patrones obligatorios del backend (capas, multi-tenant, FluentValidation, repos) están resumidos en [docs/01-arquitectura.md](docs/01-arquitectura.md); el frontend tiene su propia guía en [frontend/CLAUDE.md](frontend/CLAUDE.md).
+
 ## Reglas del proyecto
 
-- **Idioma**: documentación, UI y mensajes en **español**. Código (clases, variables) en inglés o español consistente con lo existente; nombres de entidades del dominio en español (Evento, Album, Pedido...) como en docs/02-modelo-datos.md.
-- **Premisa de seguridad de imágenes**: los originales NUNCA se sirven por endpoints públicos; todo lo visible por familias lleva watermark y baja resolución; lectura del bucket solo con URLs firmadas. Ver ADR-01 y ADR-06.
-- **Simplicidad ante todo**: monolito, sin colas ni servicios extra (ADR-04). Si una feature pide infraestructura nueva, cuestionarlo primero.
-- **Al tomar una decisión de diseño relevante**, agregarla como ADR en docs/04-decisiones.md. Al completar ítems de fase, tildar en docs/03-fases.md.
-- Mantener docs/05-notas-abiertas.md al día: resolver ⇒ mover la respuesta al doc correspondiente.
+- **Idioma**: documentación, UI, comentarios y mensajes de commit en **español** (commits en minúscula, estilo `feat:`/`fix:`). Código en el estilo del código base: clases/métodos en inglés, entidades de dominio en español (`Evento`, `Album`, `Pedido`...).
+- **Premisa de seguridad de imágenes**: los originales NUNCA se sirven por endpoints públicos; todo lo visible por familias lleva watermark y baja resolución; storage privado. Ver ADR-01 y ADR-06.
+- **Vertical Fotos**: proyectos `AcgFotos.Fotos.*`, tablas con prefijo `fot_`, módulo Autofac propio + alta en `AppModulesName`. `Base` nunca referencia al vertical (hay test de arquitectura).
+- **Tests parte del alcance**: la suite de integración (419 tests) y la unit del front (325) quedan verdes en cada cambio. Migraciones EF: el SQL crudo (vistas) se mantiene a mano.
+- **Al tomar una decisión de diseño relevante**, agregar ADR en docs/04-decisiones.md. Al completar ítems, tildar en docs/03-fases.md. Mantener docs/05-notas-abiertas.md al día.
 
-## Stack
+## Comandos
 
-.NET 10 (ASP.NET Core, EF Core, ImageSharp) · Angular · PostgreSQL · storage S3-compatible (R2 en prod, MinIO en dev vía Docker Compose) · Mercado Pago (fase 3).
+- **Backend** (`backend/`): `dotnet build AcgFotos.slnx` · `dotnet test AcgFotos.Api.IntegrationTests` (necesita SQL Server localhost; usa/crea `AcgFotos_Tests`) · host: `dotnet run --project AcgFotos.Api --launch-profile http` (→ :30000, env Development, DB `AcgFotos`).
+- **Migraciones**: `dotnet ef migrations add <Nombre> --project AcgFotos.Base.SqlMigrations --startup-project AcgFotos.Api`.
+- **Frontend** (`frontend/`): Node ≥22.22.3 — si el global es menor: `$env:Path = "c:\PROYECTOS\AcgFotosApp\.tools\node-v22.22.3-win-x64;$env:Path"`. Luego `npm start` (:4200) · `npm test` · `npm run lint`.
+- **Creds dev**: `root` / `Root@AcgFotos2026!` (la clave dev del seed; hash regenerado en TestSeed.sql y seeds e2e).
 
 ## Estructura
 
 ```
-backend/   → solución .NET (Api / Domain / Infrastructure / Tests)
-frontend/  → Angular SPA (/admin y zona pública /a/:codigo)
-docs/      → fuente de verdad del plan
+backend/   → AcgFotos.Core + AcgFotos.Base.* (plataforma) + AcgFotos.Api (host) + tests
+frontend/  → Angular 22 (zoneless, signal forms); ver frontend/CLAUDE.md
+docs/      → fuente de verdad del plan (visión, arquitectura, modelo, fases, ADRs, notas)
+.tools/    → Node portátil 22.22.3 (gitignored)
 ```
-
-## Comandos (completar cuando exista el esqueleto)
-
-- Backend: `dotnet build` / `dotnet test` desde `backend/`
-- Frontend: `npm start` / `ng build` desde `frontend/`
-- Infra dev: `docker compose up -d` (PostgreSQL + MinIO)

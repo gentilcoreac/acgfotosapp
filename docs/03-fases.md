@@ -4,16 +4,17 @@ Cada fase termina en algo usable. No empezar una fase sin cerrar la anterior.
 
 ## Fase 0 — Fundaciones (actual)
 
-Objetivo: repo con esqueleto compilando y las decisiones documentadas.
+Objetivo: plataforma portada del código base compilando y verificada, y el vertical Fotos con su esqueleto.
 
 - [x] Documentación: visión, arquitectura, modelo de datos, decisiones, notas
-- [ ] Solución .NET: proyectos Api / Domain / Infrastructure / Tests, compilando
-- [ ] App Angular creada, compilando, con routing base (`/admin`, `/a/:codigo`)
-- [ ] Docker Compose de desarrollo: PostgreSQL + MinIO
-- [ ] EF Core con el modelo de datos completo y migración inicial
-- [ ] Abstracciones `IPhotoStorage` (S3/MinIO) e `IImageProcessor` (ImageSharp) con implementación básica
+- [x] Backend portado de CodigoBase sin Budget, renombrado a `AcgFotos.*` (ADR-09), migración inicial regenerada, 419/419 tests de integración
+- [x] Frontend portado de CodigoBase (rama rxresource-adoption) sin Budget: build + 325/325 unit tests + lint verdes
+- [ ] Esqueleto del vertical Fotos: proyectos `AcgFotos.Fotos.{Domain,Application,Infrastructure,Controllers}`, módulo Autofac, alta en `AppModulesName`, test de arquitectura del DAG actualizado
+- [ ] Entidades del vertical (docs/02) con EF config (`fot_`) y migración
+- [ ] `IImageProcessor` (ImageSharp): thumb + preview con watermark, con test de humo sobre el `IStorageProvider` FileSystem
+- [ ] Levantar el sistema completo en dev (API :30000 + front :4200, login admin) y dejar el runbook en el README
 
-**Terminada cuando**: `dotnet build` y `ng build` pasan, la migración crea el esquema, y un test de humo sube un archivo a MinIO y genera un derivado con watermark.
+**Terminada cuando**: el sistema corre en dev de punta a punta y un test de humo procesa una foto (original → derivados con watermark en storage).
 
 ## Fase 1 — MVP admin
 

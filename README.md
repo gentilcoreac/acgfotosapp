@@ -15,22 +15,23 @@ Plataforma de venta de fotos escolares. Reemplaza el proceso de ir casa por casa
 
 ## Stack (resumen)
 
-- **Backend**: ASP.NET Core (monolito) + EF Core + PostgreSQL
-- **Frontend**: Angular (SPA, mobile-first)
-- **Storage de fotos**: bucket S3-compatible privado (Cloudflare R2), URLs firmadas
+- **Backend**: ASP.NET Core .NET 10, monolito modular (plataforma Base heredada del código base propio + vertical Fotos) + EF Core + **SQL Server** — ver ADR-09
+- **Frontend**: Angular 22 (zoneless, signal forms), shell de administración heredado + zona de familias mobile-first (a construir)
+- **Storage de fotos**: `IStorageProvider` — FileSystem en dev, S3-compatible privado (Cloudflare R2) con URLs firmadas en prod
 - **Imágenes**: ImageSharp (thumbnails + marca de agua en el upload)
-- **Pagos** (fase 2): Mercado Pago Checkout Pro
+- **Pagos** (fase 3): Mercado Pago Checkout Pro
 
-## Estructura prevista del repo
+## Estructura del repo
 
 ```
-/backend    → solución ASP.NET Core (API + dominio + infraestructura)
-/frontend   → app Angular
+/backend    → solución AcgFotos.slnx (Core + Base.* + Api + tests de integración)
+/frontend   → app Angular 22 (ver frontend/README.md)
 /docs       → documentación del proyecto
 ```
 
-## Entorno de desarrollo verificado
+## Entorno de desarrollo
 
-- .NET SDK 10.0.300
-- Node v22.14.0
-- Angular CLI instalado
+- .NET SDK 10, SQL Server local (la DB dev es `AcgFotos`; los tests usan `AcgFotos_Tests`)
+- Node ≥ 22.22.3 (portátil incluido en `.tools/`, ver frontend/README.md)
+- API dev: `dotnet run --project backend/AcgFotos.Api --launch-profile http` → http://localhost:30000
+- Front dev: `npm start` en `frontend/` → http://localhost:4200 (login dev: `root` / `Root@AcgFotos2026!`)
