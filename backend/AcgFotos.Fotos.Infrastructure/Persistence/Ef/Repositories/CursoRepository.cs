@@ -49,6 +49,12 @@ public class CursoRepository : EntityBaseRepository<Curso>, ICursoRepository
     public Task<List<Curso>> GetAllWithAlbumesReadOnlyAsync() =>
         this.ReadQuery().Include(c => c.Albumes).ToListAsync();
 
+    public Task<Curso?> GetByIdParaTarjetasAsync(long id) =>
+        this.ReadQuery()
+            .Include(c => c.Evento)
+            .Include(c => c.Albumes).ThenInclude(a => a.CodigosAcceso)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
     public Task<bool> ExisteEventoAsync(long eventoId) =>
         this.DbContext.Set<Evento>().AsNoTracking().AnyAsync(e => e.Id == eventoId);
 

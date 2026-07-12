@@ -11,4 +11,7 @@ public interface ICursoAppService : IExtendedEntityAppServiceBase<Curso,
                                                                   CursoHeaderDto,
                                                                   CursoCriteria>
 {
+    /// <summary>Tarjetas imprimibles del curso (una por alumno, con código y QR de canje);
+    /// null si el curso no existe en el tenant.</summary>
+    Task<TarjetasCursoDto?> GetTarjetasAsync(long cursoId);
 }

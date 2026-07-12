@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <!-- Pipeline de derivados (ADR-01): resize + watermark. Drawing arrastra ImageSharp y Fonts. -->
+    <PackageReference Include="QRCoder" Version="1.8.0" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.6" />
   </ItemGroup>
 

@@ -25,8 +25,8 @@ Objetivo: el fotógrafo puede dejar un evento listo para publicar.
 - [x] CRUD Evento con catálogo TamanoPrecio como colección hija (API `api/fotos/eventos`, 10 tests de integración). Nota: el fotógrafo opera como usuario NO-root de su propio tenant (guard multi-tenant de la plataforma); root + header `SimulatedTenant` en dev/tests
 - [x] CRUD Curso / Álbum (API `api/fotos/cursos`, álbumes como colección hija; al crear un álbum se le genera su código de acceso `XXXX-XXXX`, 11 tests de integración). Guards: el EventoId del input debe existir en el tenant, y no se borran cursos/álbumes con fotos
 - [x] Upload masivo de fotos (multi-archivo a curso o álbum: `POST api/fotos/fotos/upload`) con procesamiento en background (cola en memoria + `FotoProcesamientoWorker`, `Pendiente → Lista/Error`): originales al storage privado, thumb + preview con watermark; 8 tests de integración. Config del watermark en `Fotos:TextoWatermark`
-- [ ] Vista de galería admin para verificar lo subido
-- [ ] Impresión/descarga de tarjetas con código y QR por álbum (para repartir a las familias)
+- [x] Galería admin (API): entrega de thumb/preview con watermark (`GET api/fotos/fotos/{id}/thumb|preview`, 404 hasta estar Lista), descarga del original limpio (`{id}/original`, único camino al original — ADR-06) y borrado completo de foto (fila + storage); 5 tests de integración
+- [x] Tarjetas con código y QR por álbum (API): `GET api/fotos/cursos/{id}/tarjetas` devuelve una tarjeta por alumno con código activo, URL de canje (molde `Fotos:UrlCanjeTemplate`) y QR PNG en base64 (QRCoder); el front las renderiza e imprime; 2 tests de integración
 
 **Terminada cuando**: tu papá (o vos simulándolo) puede crear un evento real completo sin tocar la base de datos.
 

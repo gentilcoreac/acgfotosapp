@@ -5,11 +5,13 @@ using AcgFotos.Core.AutoFac;
 using AcgFotos.Fotos.Application.Imaging;
 using AcgFotos.Fotos.Application.Procesamiento;
 using AcgFotos.Fotos.Application.Storage;
+using AcgFotos.Fotos.Application.Tarjetas;
 using AcgFotos.Fotos.Controllers.Background;
 using AcgFotos.Fotos.Domain.Repositories;
 using AcgFotos.Fotos.Infrastructure.Imaging;
 using AcgFotos.Fotos.Infrastructure.Persistence.Ef.Repositories;
 using AcgFotos.Fotos.Infrastructure.Storage;
+using AcgFotos.Fotos.Infrastructure.Tarjetas;
 
 namespace AcgFotos.Fotos.Controllers
 {
@@ -50,6 +52,10 @@ namespace AcgFotos.Fotos.Controllers
             builder.RegisterType<FotoStorage>()
                 .As<IFotoStorage>()
                 .InstancePerLifetimeScope(); // envuelve al IStorageProvider registrado por la base
+
+            builder.RegisterType<QrCoderGeneradorQr>()
+                .As<IGeneradorQr>()
+                .SingleInstance(); // sin estado
 
             // Pipeline de procesamiento en background (ADR-04): cola singleton + worker hosted.
             // El host resuelve IEnumerable<IHostedService> del container, así el vertical suma

@@ -7,6 +7,8 @@ using AcgFotos.Fotos.Application.Criterias;
 using AcgFotos.Fotos.Application.Dtos;
 using AcgFotos.Fotos.Application.IServices;
 using AcgFotos.Fotos.Application.Mappers.Mapperly;
+using AcgFotos.Fotos.Application.Procesamiento;
+using AcgFotos.Fotos.Application.Tarjetas;
 using AcgFotos.Fotos.Domain.Entities;
 using AcgFotos.Fotos.Domain.Repositories;
 using AcgFotos.Fotos.Domain.Services;
@@ -21,6 +23,8 @@ public class CursoAppService : ExtendedEntityAppServiceBase<Curso,
 {
     private readonly ICursoRepository _cursoRepository;
     private readonly CursoMapper _cursoMapper;
+    private readonly IGeneradorQr _generadorQr;
+    private readonly OpcionesFotos _opciones;
 
     public CursoAppService(
         IUnitOfWork unitOfWork,
@@ -28,10 +32,47 @@ public class CursoAppService : ExtendedEntityAppServiceBase<Curso,
         ICursoRepository cursoRepository,
         IAppContext appContext,
         IMapper mapper,
-        CursoMapper cursoMapper) : base(unitOfWork, entityRepository, appContext, mapper)
+        CursoMapper cursoMapper,
+        IGeneradorQr generadorQr,
+        OpcionesFotos opciones) : base(unitOfWork, entityRepository, appContext, mapper)
     {
         _cursoRepository = cursoRepository;
         _cursoMapper = cursoMapper;
+        _generadorQr = generadorQr;
+        _opciones = opciones;
+    }
+
+    public async Task<TarjetasCursoDto?> GetTarjetasAsync(long cursoId)
+    {
+        var curso = await _cursoRepository.GetByIdParaTarjetasAsync(cursoId);
+        if (curso == null)
+        {
+            return null;
+        }
+
+        var tarjetas = curso.Albumes.OrderBy(a => a.NombreAlumno).Select(album =>
+        {
+            // El mapper ya resuelve cuál es el código vigente del álbum.
+            var codigo = _cursoMapper.ToDto(album).CodigoAcceso;
+            var url = codigo == null ? null : _opciones.UrlCanjeTemplate.Replace("{codigo}", codigo);
+
+            return new TarjetaAlbumDto
+            {
+                AlbumId = album.Id,
+                NombreAlumno = album.NombreAlumno,
+                Codigo = codigo,
+                UrlCanje = url,
+                QrPngBase64 = url == null ? null : Convert.ToBase64String(_generadorQr.GenerarPng(url)),
+            };
+        }).ToList();
+
+        return new TarjetasCursoDto
+        {
+            CursoId = curso.Id,
+            NombreCurso = curso.Nombre,
+            NombreEvento = curso.Evento.Nombre,
+            Tarjetas = tarjetas,
+        };
     }
 
     public override async Task<PaginationSet<CursoHeaderDto>> SearchAsync(CursoCriteria criteria)

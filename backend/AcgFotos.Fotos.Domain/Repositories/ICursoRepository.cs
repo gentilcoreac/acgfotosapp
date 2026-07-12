@@ -18,6 +18,9 @@ public interface ICursoRepository : IEntityBaseRepository<Curso>
     /// <summary>GetAll con los álbumes cargados (el header expone la cantidad).</summary>
     Task<List<Curso>> GetAllWithAlbumesReadOnlyAsync();
 
+    /// <summary>Para las tarjetas: curso + evento + álbumes con sus códigos (read-only).</summary>
+    Task<Curso?> GetByIdParaTarjetasAsync(long id);
+
     /// <summary>El evento existe para el tenant actual (guard: el EventoId viene del input).</summary>
     Task<bool> ExisteEventoAsync(long eventoId);
 

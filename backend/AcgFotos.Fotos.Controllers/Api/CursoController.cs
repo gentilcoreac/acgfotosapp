@@ -19,5 +19,14 @@ namespace AcgFotos.Fotos.Controllers.Api
         public CursoController(ICursoAppService cursoAppService) : base(cursoAppService)
         {
         }
+
+        /// <summary>Tarjetas imprimibles del curso: una por alumno con código y QR de canje.</summary>
+        [HttpGet]
+        [Route("{id:long}/tarjetas")]
+        public async Task<ActionResult<TarjetasCursoDto>> GetTarjetas(long id)
+        {
+            var tarjetas = await this.AppService.GetTarjetasAsync(id);
+            return tarjetas == null ? this.NotFound() : this.Ok(tarjetas);
+        }
     }
 }

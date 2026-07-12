@@ -7,4 +7,10 @@ namespace AcgFotos.Fotos.Application.Procesamiento;
 public class OpcionesFotos
 {
     public string TextoWatermark { get; set; } = "ACG Fotos";
+
+    /// <summary>
+    /// Molde de la URL que codifican los QR de las tarjetas ({codigo} se reemplaza por el código
+    /// del álbum). La ruta de canje se implementa en Fase 2; el dominio real se define al deploy.
+    /// </summary>
+    public string UrlCanjeTemplate { get; set; } = "http://localhost:4200/canje/{codigo}";
 }
