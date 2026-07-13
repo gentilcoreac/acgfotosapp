@@ -39,9 +39,14 @@ Plataforma de venta de fotos escolares. Reemplaza el proceso de ir casa por casa
 ```powershell
 dotnet ef database update --project AcgFotos.Base.SqlMigrations --startup-project AcgFotos.Api
 sqlcmd -S localhost -d AcgFotos -I -i AcgFotos.Api.IntegrationTests\Infrastructure\TestSeed.sql
+sqlcmd -S localhost -d AcgFotos -I -i scripts\dev-alta-fotografo.sql
 ```
 
 (El `-I` es obligatorio: el seed necesita `QUOTED_IDENTIFIER ON`.)
+
+El segundo script (idempotente) crea el usuario **`fotografo`** (no-root, tenant 2, misma clave dev):
+root administra la plataforma pero el guard multi-tenant le impide cargar datos de negocio en su
+propio tenant — los ABMs del vertical Fotos se prueban logueado como `fotografo` (o impersonándolo).
 
 **Correr:**
 
