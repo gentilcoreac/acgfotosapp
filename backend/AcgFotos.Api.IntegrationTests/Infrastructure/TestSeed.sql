@@ -108,3 +108,36 @@ VALUES
     (17, 1, 1, 3, N'Fwk.Email.SSL',              N'GenParamsSSL',               N'true'),
     (18, 1, 1, 3, N'Fwk.Email.EmailEnabled',     N'GenParamsEmailEnabled',      N'false');
 SET IDENTITY_INSERT [dbo].[gen_Parametros] OFF;
+
+-- Menus (catalogo global; los RoutePath calzan con app.routes.ts del front) ------------------
+-- Todos con PermisoId=1 (PermisoRoot): en dev/tests se opera como root, que arma su menu por ese
+-- permiso. El menu curado del fotografo NO-root se define en el alta real del negocio (para verlo,
+-- su rol debe recibir el permiso de estos menus, o re-apuntarse los menus a un permiso propio —
+-- ver notas abiertas). Ids fijos 100+ para el arbol padre-hijo; los tests que insertan menus
+-- propios no fuerzan Id, asi que no hay colision de identity.
+SET IDENTITY_INSERT [dbo].[gen_Menus] ON;
+INSERT INTO [dbo].[gen_Menus]
+    ([Id], [Nombre], [Codigo], [Estado], [ImagenWeb], [Orden], [MenuPadreId], [PermisoId], [AplicacionId], [VisibleSideMenu], [VisibleDash], [RoutePath])
+VALUES
+    -- Vertical Fotos (el negocio, primero)
+    (100, N'Fotos',                 N'Fotos',                 1, N'photo_camera',          1, NULL, 1, 1, 1, 0, NULL),
+    (101, N'Eventos',               N'FotosEventos',          1, N'event',                 1, 100,  1, 1, 1, 1, N'/fotos/eventos'),
+    (102, N'Cursos',                N'FotosCursos',           1, N'school',                2, 100,  1, 1, 1, 1, N'/fotos/cursos'),
+    -- Administracion (usuarios/tenants/roles/licencias: lo que pide el alta real del negocio)
+    (110, N'Administración',        N'Administracion',        1, N'settings',              2, NULL, 1, 1, 1, 0, NULL),
+    (111, N'Usuarios',              N'Usuarios',              1, N'group',                 1, 110,  1, 1, 1, 1, N'/usuarios'),
+    (112, N'Grupos',                N'Grupos',                1, N'groups',                2, 110,  1, 1, 1, 0, N'/grupos'),
+    (113, N'Tenants',               N'Tenants',               1, N'other_houses',          3, 110,  1, 1, 1, 0, N'/tenants'),
+    (114, N'Roles',                 N'Roles',                 1, N'verified_user',         4, 110,  1, 1, 1, 0, N'/roles'),
+    (115, N'Tipos de licencia',     N'TiposLicencias',        1, N'perm_contact_calendar', 5, 110,  1, 1, 1, 0, N'/tipos-licencias'),
+    -- Plataforma (configuracion avanzada del framework)
+    (120, N'Plataforma',            N'Plataforma',            1, N'settings_applications', 3, NULL, 1, 1, 1, 0, NULL),
+    (121, N'Menús',                 N'Menus',                 1, N'view_list',             1, 120,  1, 1, 1, 0, N'/menus'),
+    (122, N'Permisos',              N'Permisos',              1, N'security',              2, 120,  1, 1, 1, 0, N'/permisos'),
+    (123, N'Aplicaciones',          N'Aplicaciones',          1, N'web',                   3, 120,  1, 1, 1, 0, N'/aplicaciones'),
+    (124, N'Endpoints',             N'Endpoints',             1, N'send',                  4, 120,  1, 1, 1, 0, N'/endpoints'),
+    (125, N'Parámetros',            N'Parametros',            1, N'tune',                  5, 120,  1, 1, 1, 0, N'/parametros'),
+    (126, N'Parámetros por tenant', N'ParametroValorTenant',  1, N'tune',                  6, 120,  1, 1, 1, 0, N'/parametros-valor-tenant'),
+    (127, N'Logs',                  N'LogInfos',              1, N'list',                  7, 120,  1, 1, 1, 0, N'/logs'),
+    (128, N'Auditoría',             N'Auditoria',             1, N'transfer_within_a_station', 8, 120, 1, 1, 1, 0, N'/auditoria');
+SET IDENTITY_INSERT [dbo].[gen_Menus] OFF;
