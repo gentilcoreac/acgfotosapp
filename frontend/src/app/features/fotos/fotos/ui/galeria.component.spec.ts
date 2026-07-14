@@ -12,6 +12,10 @@ import { FotosService } from '../data/fotos.service';
 import { EstadoProcesamientoFoto, Foto } from '../domain/foto.model';
 import { GaleriaComponent } from './galeria.component';
 
+function archivo(nombre: string, tamano = 1000): File {
+  return new File([new Uint8Array(tamano)], nombre, { type: 'image/jpeg' });
+}
+
 function foto(parcial: Partial<Foto>): Foto {
   return {
     id: 1,
@@ -32,6 +36,7 @@ function foto(parcial: Partial<Foto>): Foto {
 describe('GaleriaComponent', () => {
   let fixture: ComponentFixture<GaleriaComponent>;
   let listar: Mock;
+  let subir: Mock;
   let borrar: Mock;
   let descargarOriginal: Mock;
   let confirm: Mock;
@@ -58,6 +63,12 @@ describe('GaleriaComponent', () => {
       revokeObjectURL: vi.fn(),
     });
     listar = vi.fn().mockName('fotos.listar').mockReturnValue(of(fotos));
+    subir = vi
+      .fn()
+      .mockName('fotos.subir')
+      .mockImplementation((_cursoId: number, _albumId: number | null, archivos: File[]) =>
+        of(archivos.map((a, i) => foto({ id: 100 + i, nombreArchivoOriginal: a.name }))),
+      );
     borrar = vi.fn().mockName('fotos.borrar').mockReturnValue(of(undefined));
     descargarOriginal = vi
       .fn()
@@ -108,6 +119,7 @@ describe('GaleriaComponent', () => {
           provide: FotosService,
           useValue: {
             listar,
+            subir,
             borrar,
             descargarOriginal,
             derivado: vi.fn().mockReturnValue(of(new Blob(['jpg']))),
@@ -184,6 +196,64 @@ describe('GaleriaComponent', () => {
 
     fixture.componentInstance['verPreview'](fotos[0]); // Lista
     expect(dialogOpen).toHaveBeenCalledTimes(1);
+  });
+
+  it('con "Todas las fotos" no hay destino: no se puede subir', async () => {
+    await setup();
+    seleccionarCurso();
+
+    fixture.componentInstance['archivos'].set([archivo('a.jpg')]);
+    expect(fixture.componentInstance['destinoElegido']()).toBe(false);
+    expect(fixture.componentInstance['puedeSubir']()).toBe(false);
+
+    fixture.componentInstance['subir']();
+    expect(subir).not.toHaveBeenCalled();
+  });
+
+  it('subir a grupales manda albumId null, notifica, limpia y recarga', async () => {
+    await setup();
+    seleccionarCurso();
+    fixture.componentInstance['albumFiltro'].set(0); // Grupales del curso
+    const llamadasPrevias = listar.mock.calls.length;
+
+    fixture.componentInstance['archivos'].set([archivo('a.jpg'), archivo('b.jpg')]);
+    fixture.componentInstance['subir']();
+    fixture.detectChanges(); // el reload() del resource corre en el próximo flush de efectos
+
+    expect(subir).toHaveBeenCalledTimes(1);
+    const [cursoId, albumId, archivos] = subir.mock.calls[0] as [number, number | null, File[]];
+    expect(cursoId).toBe(3);
+    expect(albumId).toBeNull();
+    expect(archivos.map((a) => a.name)).toEqual(['a.jpg', 'b.jpg']);
+    expect(notify.success).toHaveBeenCalledWith(expect.stringContaining('2 foto(s) subidas'));
+    expect(fixture.componentInstance['archivos']()).toEqual([]);
+    expect(listar.mock.calls.length).toBeGreaterThan(llamadasPrevias); // reload
+  });
+
+  it('con un álbum elegido, su id viaja en la subida; más de 10 archivos van en tandas', async () => {
+    await setup();
+    seleccionarCurso();
+    fixture.componentInstance['albumFiltro'].set(21); // Álbum de Ana
+
+    const muchos = Array.from({ length: 23 }, (_, i) => archivo(`f${i}.jpg`));
+    fixture.componentInstance['archivos'].set(muchos);
+    fixture.componentInstance['subir']();
+
+    expect(subir).toHaveBeenCalledTimes(3); // 10 + 10 + 3
+    expect(subir.mock.calls.map((c) => (c[2] as File[]).length)).toEqual([10, 10, 3]);
+    expect(subir.mock.calls.every((c) => c[1] === 21)).toBe(true);
+  });
+
+  it('los archivos repetidos (mismo nombre y tamaño) no se duplican en la selección', async () => {
+    await setup();
+    seleccionarCurso();
+
+    fixture.componentInstance['archivos'].set([archivo('a.jpg')]);
+    // jsdom no permite setear input.files: se simula el shape mínimo que lee el handler.
+    const evento = { target: { files: [archivo('a.jpg'), archivo('b.jpg')], value: '' } };
+    fixture.componentInstance['agregarArchivos'](evento as unknown as Event);
+
+    expect(fixture.componentInstance['archivos']().map((f) => f.name)).toEqual(['a.jpg', 'b.jpg']);
   });
 
   it('descargar original delega en el servicio', async () => {

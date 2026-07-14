@@ -49,15 +49,8 @@ export const routes: Routes = [
           ),
       },
       {
-        // Upload masivo a un curso/álbum; el procesamiento (watermark) corre en la API.
-        path: 'fotos/subir',
-        loadComponent: () =>
-          import('./features/fotos/fotos/ui/subir-fotos.component').then(
-            (m) => m.SubirFotosComponent,
-          ),
-      },
-      {
-        // Verificación de lo subido: grilla de thumbs, preview, descarga del original y borrado.
+        // Pantalla única de fotos: subida masiva a curso/álbum + grilla de verificación
+        // (thumbs con watermark, preview, descarga del original, borrado).
         path: 'fotos/galeria',
         loadComponent: () =>
           import('./features/fotos/fotos/ui/galeria.component').then((m) => m.GaleriaComponent),

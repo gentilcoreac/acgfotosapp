@@ -1,6 +1,6 @@
 <section class="list">
   <header class="list__header">
-    <h1>Galería</h1>
+    <h1>Fotos</h1>
   </header>
 
   <div class="filtros">
@@ -40,62 +40,134 @@
   </div>
 
   @if (cursoId() === null) {
-    <p class="hint">Elegí el evento y el curso para ver sus fotos.</p>
-  } @else if (fotos().length === 0) {
-    <p class="hint">No hay fotos para este filtro. Se suben desde "Subir fotos".</p>
+    <p class="hint">Elegí el evento y el curso para ver y subir fotos.</p>
   } @else {
-    <div class="grilla">
-      @for (foto of fotos(); track foto.id) {
-        <figure class="tarjeta">
-          @if (esLista(foto)) {
-            <button
-              class="tarjeta__thumb tarjeta__thumb--boton"
-              type="button"
-              (click)="verPreview(foto)"
-              [attr.aria-label]="'Ver ' + foto.nombreArchivoOriginal"
-            >
-              <tbi-foto-img [fotoId]="foto.id" [alt]="foto.nombreArchivoOriginal" />
-            </button>
-          } @else {
-            <div
-              class="tarjeta__thumb tarjeta__estado"
-              [class.tarjeta__estado--error]="esError(foto)"
-              [title]="foto.errorProcesamiento"
-            >
-              <mat-icon>{{ esError(foto) ? 'error' : 'hourglass_top' }}</mat-icon>
-              <span>{{ esError(foto) ? 'Error' : 'Procesando…' }}</span>
-            </div>
-          }
+    <!-- Subida: el destino es lo elegido en "Álbum" (grupales o un alumno) -->
+    <div class="upload-card">
+      <div class="upload-card__actions">
+        <button
+          matButton="tonal"
+          (click)="fileInput.click()"
+          [disabled]="subiendo() || !destinoElegido()"
+        >
+          <mat-icon>add_photo_alternate</mat-icon>
+          Agregar fotos…
+        </button>
+        <input
+          #fileInput
+          type="file"
+          hidden
+          multiple
+          accept="image/*"
+          (change)="agregarArchivos($event)"
+        />
 
-          <figcaption class="tarjeta__pie">
-            <div class="tarjeta__datos">
-              <span class="tarjeta__nombre" [title]="foto.nombreArchivoOriginal">
-                {{ foto.nombreArchivoOriginal }}
-              </span>
-              <span class="tarjeta__album">{{ nombreAlbum(foto) }}</span>
-            </div>
-            <div class="tarjeta__acciones">
+        @if (archivos().length > 0) {
+          <button matButton="filled" [disabled]="!puedeSubir()" (click)="subir()">
+            <mat-icon>cloud_upload</mat-icon>
+            Subir {{ archivos().length }} foto(s)
+          </button>
+          <button matButton (click)="limpiarArchivos()" [disabled]="subiendo()">Limpiar</button>
+        }
+
+        @if (!destinoElegido()) {
+          <span class="upload-card__hint">
+            Para subir, elegí "Grupales del curso" o el álbum de un alumno.
+          </span>
+        } @else if (archivos().length === 0 && !subiendo()) {
+          <span class="upload-card__hint">
+            Las fotos van a {{ nombreDestino() }}; la marca de agua se genera sola.
+          </span>
+        }
+      </div>
+
+      @if (subiendo()) {
+        <div class="upload-card__progress">
+          <mat-progress-bar
+            mode="determinate"
+            [value]="totalTandas() ? (tandaActual() / totalTandas()) * 100 : 0"
+          />
+          <span>Subiendo tanda {{ tandaActual() + 1 }} de {{ totalTandas() }}…</span>
+        </div>
+      }
+
+      @if (archivos().length > 0) {
+        <ul class="upload-card__files">
+          @for (archivo of archivos(); track archivo.name + archivo.size) {
+            <li>
+              <span class="upload-card__file-name">{{ archivo.name }}</span>
+              <span class="upload-card__file-size">{{ tamanoLegible(archivo.size) }}</span>
               <button
                 matIconButton
-                aria-label="Descargar original"
-                title="Descargar original"
-                (click)="descargarOriginal(foto)"
+                aria-label="Quitar archivo"
+                (click)="quitarArchivo(archivo)"
+                [disabled]="subiendo()"
               >
-                <mat-icon>download</mat-icon>
+                <mat-icon>close</mat-icon>
               </button>
-              <button
-                matIconButton
-                aria-label="Eliminar"
-                title="Eliminar"
-                class="tarjeta__borrar"
-                (click)="borrar(foto)"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </figcaption>
-        </figure>
+            </li>
+          }
+        </ul>
       }
     </div>
+
+    <!-- Grilla -->
+    @if (fotos().length === 0) {
+      <p class="hint">No hay fotos para este filtro.</p>
+    } @else {
+      <div class="grilla">
+        @for (foto of fotos(); track foto.id) {
+          <figure class="tarjeta">
+            @if (esLista(foto)) {
+              <button
+                class="tarjeta__thumb tarjeta__thumb--boton"
+                type="button"
+                (click)="verPreview(foto)"
+                [attr.aria-label]="'Ver ' + foto.nombreArchivoOriginal"
+              >
+                <tbi-foto-img [fotoId]="foto.id" [alt]="foto.nombreArchivoOriginal" />
+              </button>
+            } @else {
+              <div
+                class="tarjeta__thumb tarjeta__estado"
+                [class.tarjeta__estado--error]="esError(foto)"
+                [title]="foto.errorProcesamiento"
+              >
+                <mat-icon>{{ esError(foto) ? 'error' : 'hourglass_top' }}</mat-icon>
+                <span>{{ esError(foto) ? 'Error' : 'Procesando…' }}</span>
+              </div>
+            }
+
+            <figcaption class="tarjeta__pie">
+              <div class="tarjeta__datos">
+                <span class="tarjeta__nombre" [title]="foto.nombreArchivoOriginal">
+                  {{ foto.nombreArchivoOriginal }}
+                </span>
+                <span class="tarjeta__album">{{ nombreAlbum(foto) }}</span>
+              </div>
+              <div class="tarjeta__acciones">
+                <button
+                  matIconButton
+                  aria-label="Descargar original"
+                  title="Descargar original"
+                  (click)="descargarOriginal(foto)"
+                >
+                  <mat-icon>download</mat-icon>
+                </button>
+                <button
+                  matIconButton
+                  aria-label="Eliminar"
+                  title="Eliminar"
+                  class="tarjeta__borrar"
+                  (click)="borrar(foto)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </figcaption>
+          </figure>
+        }
+      </div>
+    }
   }
 </section>

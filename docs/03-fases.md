@@ -2,6 +2,23 @@
 
 Cada fase termina en algo usable. No empezar una fase sin cerrar la anterior.
 
+> **Este documento ES el roadmap vivo del proyecto**: al completar un ítem se tilda acá; esta
+> sección de estado se actualiza al cerrar cada bloque de trabajo.
+
+## Estado (2026-07-14) y próximos pasos
+
+**Dónde estamos**: Fase 0 cerrada. Fase 1 casi cerrada — API completa (468 tests) y front admin
+operativo: ABMs de Eventos y Cursos/Álbumes, y pantalla única de Fotos (`/fotos/galeria`: subida
+masiva + grilla con preview/descarga/borrado). Se prueba en :4200 como `fotografo` (clave dev).
+
+**Próximos pasos, en orden**:
+
+1. **Tarjetas imprimibles** (front; la API `GET api/fotos/cursos/{id}/tarjetas` ya está) → cierra el desarrollo de Fase 1.
+2. **Alta real del negocio**: tenant + usuario definitivos del fotógrafo desde los ABMs (ensayo dev hecho: `backend/scripts/dev-alta-fotografo.sql`).
+3. **Responder las preguntas al fotógrafo** (docs/05: tamaños/precios reales, cómo imprime, cómo organiza carpetas) y cargar el evento piloto → **Fase 1 TERMINADA**.
+4. Arrancar **Fase 2** (familias): canje de código → sesión de álbum, galería mobile-first con anti-copia, carrito y pedidos, lista de impresión.
+5. Al final de Fase 2: decisiones de **deploy** (PostgreSQL, hosting, R2, dominio).
+
 ## Fase 0 — Fundaciones (actual)
 
 Objetivo: plataforma portada del código base compilando y verificada, y el vertical Fotos con su esqueleto.
@@ -24,8 +41,8 @@ Objetivo: el fotógrafo puede dejar un evento listo para publicar.
 - [x] Login admin (JWT) — heredado de la plataforma, verificado
 - [x] CRUD Evento con catálogo TamanoPrecio como colección hija (API `api/fotos/eventos`, 10 tests de integración). Nota: el fotógrafo opera como usuario NO-root de su propio tenant (guard multi-tenant de la plataforma); root + header `SimulatedTenant` en dev/tests. **ABM admin en el front** (`/fotos/eventos`: listado + edit-dialog con la grilla de tamaños; requiere seed de menú, ver docs/05)
 - [x] CRUD Curso / Álbum (API `api/fotos/cursos`, álbumes como colección hija; al crear un álbum se le genera su código de acceso `XXXX-XXXX`, 11 tests de integración). Guards: el EventoId del input debe existir en el tenant, y no se borran cursos/álbumes con fotos. **ABM admin en el front** (`/fotos/cursos`: listado con filtro por evento + edit-dialog con la grilla de álbumes y su código)
-- [x] Upload masivo de fotos (multi-archivo a curso o álbum: `POST api/fotos/fotos/upload`) con procesamiento en background (cola en memoria + `FotoProcesamientoWorker`, `Pendiente → Lista/Error`): originales al storage privado, thumb + preview con watermark; 8 tests de integración. Config del watermark en `Fotos:TextoWatermark`. **Pantalla en el front** (`/fotos/subir`: cascada evento→curso→grupales/álbum, subida por tandas de 10 con progreso, tabla de estado con auto-refresco mientras procesa)
-- [x] Galería admin (API): entrega de thumb/preview con watermark (`GET api/fotos/fotos/{id}/thumb|preview`, 404 hasta estar Lista), descarga del original limpio (`{id}/original`, único camino al original — ADR-06) y borrado completo de foto (fila + storage); 5 tests de integración. **Pantalla en el front** (`/fotos/galeria`: grilla de thumbs por curso con filtro por álbum, preview ampliado en diálogo, descarga del original y borrado con confirmación; las imágenes van por blob autenticado — `tbi-foto-img`)
+- [x] Upload masivo de fotos (multi-archivo a curso o álbum: `POST api/fotos/fotos/upload`) con procesamiento en background (cola en memoria + `FotoProcesamientoWorker`, `Pendiente → Lista/Error`): originales al storage privado, thumb + preview con watermark; 8 tests de integración. Config del watermark en `Fotos:TextoWatermark`. **Front**: integrado en la pantalla única `/fotos/galeria` (subida por tandas de 10 con progreso, al destino del selector de álbum)
+- [x] Galería admin (API): entrega de thumb/preview con watermark (`GET api/fotos/fotos/{id}/thumb|preview`, 404 hasta estar Lista), descarga del original limpio (`{id}/original`, único camino al original — ADR-06) y borrado completo de foto (fila + storage); 5 tests de integración. **Pantalla en el front** (`/fotos/galeria`, pantalla ÚNICA de fotos — unificada con la subida el 2026-07-14: grilla de thumbs por curso con filtro por álbum que es a la vez destino de subida, preview ampliado en diálogo, descarga del original y borrado con confirmación; las imágenes van por blob autenticado — `tbi-foto-img`)
 - [x] Tarjetas con código y QR por álbum (API): `GET api/fotos/cursos/{id}/tarjetas` devuelve una tarjeta por alumno con código activo, URL de canje (molde `Fotos:UrlCanjeTemplate`) y QR PNG en base64 (QRCoder); el front las renderiza e imprime; 2 tests de integración
 
 **Terminada cuando**: tu papá (o vos simulándolo) puede crear un evento real completo sin tocar la base de datos.

@@ -26,6 +26,73 @@
   margin: 0.5rem 0;
 }
 
+.upload-card {
+  border: 1px dashed var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.upload-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.upload-card__hint {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
+
+.upload-card__progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+
+  mat-progress-bar {
+    flex: 1;
+  }
+
+  span {
+    white-space: nowrap;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.upload-card__files {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.125rem 0;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.upload-card__file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-card__file-size {
+  color: var(--mat-sys-on-surface-variant);
+  white-space: nowrap;
+}
+
 .grilla {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
