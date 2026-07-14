@@ -54,7 +54,7 @@ Objetivo: una familia real puede hacer un pedido de punta a punta. **Con esto ya
 ## Fase 4 — Mejoras según uso real (backlog, priorizar con feedback)
 
 - **App móvil híbrida (Capacitor sobre el mismo Angular)** con `FLAG_SECURE` en Android (capturas de pantalla en negro) y detección de captura en iOS — capa 3 de ADR-01. **Prioridad alta del backlog**; adelantable a Fase 3 si el bloqueo de capturas pesa más que el pago online
-- **Eventos genéricos, no solo colegios** (pedido 2026-07-13): cumpleaños, deportes, bautismos, etc. El modelo ya casi lo banca (`Colegio` es opcional); revisar naming en UI y modelo — `Colegio` → algo como "Lugar/Organización", y si `Curso`/`Álbum (alumno)` deberían mostrarse como "Grupo"/"Participante" según el tipo de evento
+- **Eventos genéricos, no solo colegios** (pedido 2026-07-13): cumpleaños, deportes, bautismos, etc. El modelo ya casi lo banca (`Colegio` es opcional). Naming acordado (2026-07-14): `Colegio` → **"Lugar/Organización"**, `Curso` → **"Grupo"**, `Álbum (alumno)` → **"Participante"** — el cambio es de UI/etiquetas (y quizá columnas); las entidades del dominio pueden conservar su nombre interno si renombrar tablas no paga
 - Paquetes/promos (ej. "2× 13x18 + 4× 10x15 a $X")
 - Venta de foto digital (entrega del archivo limpio tras el pago — reabre la conversación de protección)
 - Selección de favoritas / comparar fotos
