@@ -57,6 +57,12 @@ export const routes: Routes = [
           ),
       },
       {
+        // Verificación de lo subido: grilla de thumbs, preview, descarga del original y borrado.
+        path: 'fotos/galeria',
+        loadComponent: () =>
+          import('./features/fotos/fotos/ui/galeria.component').then((m) => m.GaleriaComponent),
+      },
+      {
         path: 'tipos-licencias',
         loadComponent: () =>
           import('./features/tipos-licencias/ui/tipos-licencias-list.component').then(

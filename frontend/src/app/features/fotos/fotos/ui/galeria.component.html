@@ -1,0 +1,101 @@
+<section class="list">
+  <header class="list__header">
+    <h1>Galería</h1>
+  </header>
+
+  <div class="filtros">
+    <tbi-select
+      class="filtros__select"
+      label="Evento"
+      [options]="eventoOptions()"
+      [(value)]="eventoId"
+    />
+    <tbi-select
+      class="filtros__select"
+      label="Curso"
+      [options]="cursoOptions()"
+      [disabled]="eventoId() === null"
+      [(value)]="cursoId"
+    />
+    <tbi-select
+      class="filtros__select filtros__select--album"
+      label="Álbum"
+      [options]="albumOptions()"
+      [disabled]="cursoId() === null"
+      [(value)]="albumFiltro"
+    />
+    @if (cursoId() !== null) {
+      <button
+        matIconButton
+        aria-label="Actualizar"
+        (click)="fotosResource.reload()"
+        [disabled]="fotosResource.isLoading()"
+      >
+        <mat-icon>refresh</mat-icon>
+      </button>
+      @if (cantidadPendientes() > 0) {
+        <span class="filtros__procesando">{{ cantidadPendientes() }} procesando…</span>
+      }
+    }
+  </div>
+
+  @if (cursoId() === null) {
+    <p class="hint">Elegí el evento y el curso para ver sus fotos.</p>
+  } @else if (fotos().length === 0) {
+    <p class="hint">No hay fotos para este filtro. Se suben desde "Subir fotos".</p>
+  } @else {
+    <div class="grilla">
+      @for (foto of fotos(); track foto.id) {
+        <figure class="tarjeta">
+          @if (esLista(foto)) {
+            <button
+              class="tarjeta__thumb tarjeta__thumb--boton"
+              type="button"
+              (click)="verPreview(foto)"
+              [attr.aria-label]="'Ver ' + foto.nombreArchivoOriginal"
+            >
+              <tbi-foto-img [fotoId]="foto.id" [alt]="foto.nombreArchivoOriginal" />
+            </button>
+          } @else {
+            <div
+              class="tarjeta__thumb tarjeta__estado"
+              [class.tarjeta__estado--error]="esError(foto)"
+              [title]="foto.errorProcesamiento"
+            >
+              <mat-icon>{{ esError(foto) ? 'error' : 'hourglass_top' }}</mat-icon>
+              <span>{{ esError(foto) ? 'Error' : 'Procesando…' }}</span>
+            </div>
+          }
+
+          <figcaption class="tarjeta__pie">
+            <div class="tarjeta__datos">
+              <span class="tarjeta__nombre" [title]="foto.nombreArchivoOriginal">
+                {{ foto.nombreArchivoOriginal }}
+              </span>
+              <span class="tarjeta__album">{{ nombreAlbum(foto) }}</span>
+            </div>
+            <div class="tarjeta__acciones">
+              <button
+                matIconButton
+                aria-label="Descargar original"
+                title="Descargar original"
+                (click)="descargarOriginal(foto)"
+              >
+                <mat-icon>download</mat-icon>
+              </button>
+              <button
+                matIconButton
+                aria-label="Eliminar"
+                title="Eliminar"
+                class="tarjeta__borrar"
+                (click)="borrar(foto)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </figcaption>
+        </figure>
+      }
+    </div>
+  }
+</section>

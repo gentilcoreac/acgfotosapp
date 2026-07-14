@@ -1,8 +1,12 @@
+import { HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { ApiClient } from '../../../../core/http';
 import { QueryParams } from '../../../../core/models/query-params.model';
 import { Foto } from '../domain/foto.model';
+
+/** Derivados con watermark que sirve la API (`{id}/thumb` para la grilla, `{id}/preview` ampliado). */
+export type VarianteDerivado = 'thumb' | 'preview';
 
 /**
  * Fotos del vertical (`api/fotos/fotos`). No es un CRUD Extended: la foto se sube (multipart) y se
@@ -36,5 +40,26 @@ export class FotosService {
       formData.append('archivos', archivo, archivo.name);
     }
     return this.api.postMultipart<Foto[]>('fotos/fotos/upload', formData);
+  }
+
+  /**
+   * Bytes de un derivado con watermark. Los endpoints de imagen requieren el bearer, así que un
+   * `<img src>` directo no sirve: se baja el blob y el caller arma un object URL (`tbi-foto-img`).
+   * 404 mientras la foto no esté Lista.
+   */
+  derivado(fotoId: number, variante: VarianteDerivado): Observable<Blob> {
+    return this.api
+      .getBlob(`fotos/fotos/${fotoId}/${variante}`)
+      .pipe(map((response) => response.body!));
+  }
+
+  /** El ORIGINAL limpio para imprimir (solo admin). El nombre viaja en `Content-Disposition`. */
+  descargarOriginal(fotoId: number): Observable<HttpResponse<Blob>> {
+    return this.api.getBlob(`fotos/fotos/${fotoId}/original`);
+  }
+
+  /** Borra la foto completa (fila + original + derivados en el storage). */
+  borrar(fotoId: number): Observable<void> {
+    return this.api.delete<void>(`fotos/fotos/${fotoId}`);
   }
 }
