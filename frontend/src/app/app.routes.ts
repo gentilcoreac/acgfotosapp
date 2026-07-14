@@ -49,6 +49,14 @@ export const routes: Routes = [
           ),
       },
       {
+        // Upload masivo a un curso/álbum; el procesamiento (watermark) corre en la API.
+        path: 'fotos/subir',
+        loadComponent: () =>
+          import('./features/fotos/fotos/ui/subir-fotos.component').then(
+            (m) => m.SubirFotosComponent,
+          ),
+      },
+      {
         path: 'tipos-licencias',
         loadComponent: () =>
           import('./features/tipos-licencias/ui/tipos-licencias-list.component').then(

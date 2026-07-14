@@ -123,6 +123,7 @@ VALUES
     (100, N'Fotos',                 N'Fotos',                 1, N'photo_camera',          1, NULL, 1, 1, 1, 0, NULL),
     (101, N'Eventos',               N'FotosEventos',          1, N'event',                 1, 100,  1, 1, 1, 1, N'/fotos/eventos'),
     (102, N'Cursos',                N'FotosCursos',           1, N'school',                2, 100,  1, 1, 1, 1, N'/fotos/cursos'),
+    (103, N'Subir fotos',           N'FotosSubir',            1, N'add_photo_alternate',   3, 100,  1, 1, 1, 1, N'/fotos/subir'),
     -- Administracion (usuarios/tenants/roles/licencias: lo que pide el alta real del negocio)
     (110, N'Administración',        N'Administracion',        1, N'settings',              2, NULL, 1, 1, 1, 0, NULL),
     (111, N'Usuarios',              N'Usuarios',              1, N'group',                 1, 110,  1, 1, 1, 1, N'/usuarios'),
