@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
-import { injectCrudClient } from '../../../../core/http';
-import { Curso } from '../domain/curso.model';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { ApiClient, injectCrudClient } from '../../../../core/http';
+import { Curso, TarjetasCurso } from '../domain/curso.model';
 
 /**
  * Servicio de datos de Cursos del vertical Fotos. El CRUD base (`api/fotos/cursos`) cubre todo el
@@ -10,5 +11,12 @@ import { Curso } from '../domain/curso.model';
  */
 @Injectable({ providedIn: 'root' })
 export class CursosService {
+  private readonly api = inject(ApiClient);
+
   readonly crud = injectCrudClient<Curso>('cursos', 'fotos');
+
+  /** Tarjetas imprimibles del curso (una por alumno, con código y QR ya generado por la API). */
+  getTarjetas(cursoId: number): Observable<TarjetasCurso> {
+    return this.api.get<TarjetasCurso>(`fotos/cursos/${cursoId}/tarjetas`);
+  }
 }

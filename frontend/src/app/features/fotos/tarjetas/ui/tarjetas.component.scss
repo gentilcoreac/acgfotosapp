@@ -1,0 +1,89 @@
+// Usa el scaffold global `.list` (styles/_page.scss).
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.filtros__select {
+  min-width: 220px;
+}
+
+.hint {
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0.5rem 0;
+}
+
+.aviso {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--mat-sys-on-error-container);
+  background: var(--mat-sys-error-container);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  width: fit-content;
+}
+
+.grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1rem;
+}
+
+.tarjeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px dashed var(--mat-sys-outline);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  background: var(--mat-sys-surface);
+}
+
+.tarjeta--sin-codigo {
+  opacity: 0.6;
+}
+
+.tarjeta__datos {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tarjeta__evento {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.75rem;
+}
+
+.tarjeta__alumno {
+  font-weight: 600;
+  margin-top: 0.15rem;
+}
+
+.tarjeta__codigo {
+  font-family: Consolas, monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-top: 0.35rem;
+}
+
+.tarjeta__ayuda {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.tarjeta__qr {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  // El QR generado es negro sobre blanco: en dark mode necesita fondo propio.
+  background: #fff;
+  padding: 2px;
+}

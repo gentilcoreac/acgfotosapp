@@ -13,6 +13,28 @@ export interface Album {
 }
 
 /**
+ * Tarjeta imprimible de un álbum (`TarjetaAlbumDto` de `GET api/fotos/cursos/{id}/tarjetas`):
+ * el código activo, la URL de canje que codifica el QR y el QR ya generado como PNG base64
+ * (listo para `<img src="data:image/png;base64,...">`). Campos null si el álbum no tiene
+ * ningún código activo.
+ */
+export interface TarjetaAlbum {
+  albumId: number;
+  nombreAlumno: string;
+  codigo: string | null;
+  urlCanje: string | null;
+  qrPngBase64: string | null;
+}
+
+/** Tarjetas de un curso completo (una por alumno) con los nombres para el encabezado. */
+export interface TarjetasCurso {
+  cursoId: number;
+  nombreCurso: string;
+  nombreEvento: string;
+  tarjetas: TarjetaAlbum[];
+}
+
+/**
  * Curso (ABM de `api/fotos/cursos`). El listado (`CursoHeaderDto`) trae la cabecera con
  * `cantidadAlbumes`; el detalle (`getById`) trae `albumes` con el código activo de cada uno.
  * El evento al que pertenece debe existir en el tenant (guard de la API).

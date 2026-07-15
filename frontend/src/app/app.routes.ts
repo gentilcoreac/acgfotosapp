@@ -56,6 +56,14 @@ export const routes: Routes = [
           import('./features/fotos/fotos/ui/galeria.component').then((m) => m.GaleriaComponent),
       },
       {
+        // Tarjetas de acceso por curso (código + QR por alumno), con impresión.
+        path: 'fotos/tarjetas',
+        loadComponent: () =>
+          import('./features/fotos/tarjetas/ui/tarjetas.component').then(
+            (m) => m.TarjetasComponent,
+          ),
+      },
+      {
         path: 'tipos-licencias',
         loadComponent: () =>
           import('./features/tipos-licencias/ui/tipos-licencias-list.component').then(
