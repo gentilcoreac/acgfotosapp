@@ -9,15 +9,15 @@ export enum EstadoProcesamientoFoto {
 }
 
 /**
- * Foto del admin (`FotoDto`): respuesta del upload y del listado por curso. Los bytes NUNCA viajan
+ * Foto del admin (`FotoDto`): respuesta del upload y del listado por grupo. Los bytes NUNCA viajan
  * en el DTO — thumb/preview/original se piden por endpoints propios (galería, próxima pantalla).
  */
 export interface Foto {
   id: number;
   eventoId: number;
-  cursoId: number;
-  /** Null ⇒ foto grupal del curso (visible para todos los álbumes). */
-  albumId: number | null;
+  grupoId: number;
+  /** Null ⇒ foto grupal del grupo (visible para todos los participantes). */
+  participanteId: number | null;
   nombreArchivoOriginal: string;
   ancho: number;
   alto: number;

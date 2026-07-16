@@ -7,7 +7,7 @@ namespace AcgFotos.Fotos.Infrastructure.Persistence.Ef.Configurations;
 /// <summary>
 /// <c>fot_Fotos</c>. Todas las FKs en Restrict, por dos motivos: (1) borrar en cascada una foto
 /// dejaría archivos huérfanos en el storage (originals/derived) — el borrado debe ser un flujo
-/// explícito que limpie ambos; (2) Evento→Foto y Evento→Curso→Foto serían rutas de cascada
+/// explícito que limpie ambos; (2) Evento→Foto y Evento→Grupo→Foto serían rutas de cascada
 /// múltiples que SQL Server rechaza.
 /// </summary>
 public class FotoConfig : IEntityTypeConfiguration<Foto>
@@ -27,9 +27,9 @@ public class FotoConfig : IEntityTypeConfiguration<Foto>
 
         builder.HasOne(x => x.Evento).WithMany()
                .HasForeignKey(x => x.EventoId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(x => x.Curso).WithMany()
-               .HasForeignKey(x => x.CursoId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(x => x.Album).WithMany()
-               .HasForeignKey(x => x.AlbumId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(x => x.Grupo).WithMany()
+               .HasForeignKey(x => x.GrupoId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(x => x.Participante).WithMany()
+               .HasForeignKey(x => x.ParticipanteId).OnDelete(DeleteBehavior.Restrict);
     }
 }

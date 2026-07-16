@@ -25,12 +25,12 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             return client;
         }
 
-        private static object Input(string nombre, long id = 0, string? colegio = null,
+        private static object Input(string nombre, long id = 0, string? lugarOrganizacion = null,
             EstadoEvento estado = EstadoEvento.Borrador, object[]? tamanos = null) => new
         {
             id,
             nombre,
-            colegio,
+            lugarOrganizacion,
             estado = (int)estado,
             tamanosPrecios = tamanos ?? Array.Empty<object>(),
         };
@@ -39,10 +39,10 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             new { id, nombre, precioUnitario = precio, orden, activo };
 
         private async Task<long> CreateEventoAsync(HttpClient client, string nombre, object[]? tamanos = null,
-            string? colegio = null)
+            string? lugarOrganizacion = null)
         {
             var resp = await client.PostAsJsonAsync("/api/fotos/eventos/update",
-                Input(nombre, colegio: colegio, tamanos: tamanos));
+                Input(nombre, lugarOrganizacion: lugarOrganizacion, tamanos: tamanos));
             await resp.ShouldBeOk();
             var dto = await resp.Content.ReadFromJsonAsync<EventoDto>();
             return dto!.Id;
@@ -53,7 +53,7 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
         {
             using var client = await CreateTenantClientAsync(); // tenant 2
 
-            var id = await CreateEventoAsync(client, "Egresados 2026", colegio: "San José",
+            var id = await CreateEventoAsync(client, "Egresados 2026", lugarOrganizacion: "San José",
                 tamanos: new[] { Tamano("10x15", 1500), Tamano("13x18", 2500, orden: 1) });
 
             Assert.Equal(1, await CountAsync($"SELECT COUNT(*) FROM fot_Eventos WHERE Id = {id} AND TenantId = 2"));
@@ -87,12 +87,12 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             await resp.ShouldBeStatus(HttpStatusCode.NotFound);
         }
 
-        [Fact] // EVT-04 — listado: searchText filtra por nombre o colegio
-        public async Task Listado_filtra_por_nombre_o_colegio()
+        [Fact] // EVT-04 — listado: searchText filtra por nombre o lugarOrganizacion
+        public async Task Listado_filtra_por_nombre_o_lugarOrganizacion()
         {
             using var client = await CreateTenantClientAsync();
-            await CreateEventoAsync(client, "Egresados Primaria", colegio: "San Martín");
-            await CreateEventoAsync(client, "Jardín 2026", colegio: "Belgrano");
+            await CreateEventoAsync(client, "Egresados Primaria", lugarOrganizacion: "San Martín");
+            await CreateEventoAsync(client, "Jardín 2026", lugarOrganizacion: "Belgrano");
 
             var resp = await client.GetAsync("/api/fotos/eventos?searchText=Martín");
             await resp.ShouldBeOk();

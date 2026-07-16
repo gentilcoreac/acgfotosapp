@@ -12,19 +12,19 @@
     />
     <tbi-select
       class="filtros__select"
-      label="Curso"
-      [options]="cursoOptions()"
+      label="Grupo"
+      [options]="grupoOptions()"
       [disabled]="eventoId() === null"
-      [(value)]="cursoId"
+      [(value)]="grupoId"
     />
     <tbi-select
-      class="filtros__select filtros__select--album"
-      label="Álbum"
-      [options]="albumOptions()"
-      [disabled]="cursoId() === null"
-      [(value)]="albumFiltro"
+      class="filtros__select filtros__select--participante"
+      label="Participante"
+      [options]="participanteOptions()"
+      [disabled]="grupoId() === null"
+      [(value)]="participanteFiltro"
     />
-    @if (cursoId() !== null) {
+    @if (grupoId() !== null) {
       <button
         matIconButton
         aria-label="Actualizar"
@@ -39,10 +39,10 @@
     }
   </div>
 
-  @if (cursoId() === null) {
-    <p class="hint">Elegí el evento y el curso para ver y subir fotos.</p>
+  @if (grupoId() === null) {
+    <p class="hint">Elegí el evento y el grupo para ver y subir fotos.</p>
   } @else {
-    <!-- Subida: el destino es lo elegido en "Álbum" (grupales o un alumno) -->
+    <!-- Subida: el destino es lo elegido en "Participante" (grupales o un participante) -->
     <div class="upload-card">
       <div class="upload-card__actions">
         <button
@@ -72,7 +72,7 @@
 
         @if (!destinoElegido()) {
           <span class="upload-card__hint">
-            Para subir, elegí "Grupales del curso" o el álbum de un alumno.
+            Para subir, elegí "Grupales del grupo" o un participante.
           </span>
         } @else if (archivos().length === 0 && !subiendo()) {
           <span class="upload-card__hint">
@@ -143,7 +143,7 @@
                 <span class="tarjeta__nombre" [title]="foto.nombreArchivoOriginal">
                   {{ foto.nombreArchivoOriginal }}
                 </span>
-                <span class="tarjeta__album">{{ nombreAlbum(foto) }}</span>
+                <span class="tarjeta__participante">{{ nombreParticipante(foto) }}</span>
               </div>
               <div class="tarjeta__acciones">
                 <button

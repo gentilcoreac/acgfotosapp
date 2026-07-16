@@ -9,12 +9,12 @@ public partial class EventoMapper
 {
     // Detalle (getById / respuesta del update): incluye el catálogo. TenantId no viaja al DTO.
     [MapperIgnoreSource(nameof(Evento.TenantId))]
-    [MapperIgnoreSource(nameof(Evento.Cursos))]
+    [MapperIgnoreSource(nameof(Evento.Grupos))]
     public partial EventoDto ToDto(Evento entity);
 
     // Listado: solo escalares.
     [MapperIgnoreSource(nameof(Evento.TenantId))]
-    [MapperIgnoreSource(nameof(Evento.Cursos))]
+    [MapperIgnoreSource(nameof(Evento.Grupos))]
     [MapperIgnoreSource(nameof(Evento.TamanosPrecios))]
     public partial EventoHeaderDto ToHeaderDto(Evento entity);
 

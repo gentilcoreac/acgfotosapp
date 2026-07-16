@@ -10,31 +10,31 @@ export type VarianteDerivado = 'thumb' | 'preview';
 
 /**
  * Fotos del vertical (`api/fotos/fotos`). No es un CRUD Extended: la foto se sube (multipart) y se
- * procesa en background (`Pendiente → Lista/Error`); el listado es por curso (opcionalmente por
- * álbum) y sin paginar.
+ * procesa en background (`Pendiente → Lista/Error`); el listado es por grupo (opcionalmente por
+ * participante) y sin paginar.
  */
 @Injectable({ providedIn: 'root' })
 export class FotosService {
   private readonly api = inject(ApiClient);
 
-  listar(cursoId: number, albumId?: number | null): Observable<Foto[]> {
-    const query: QueryParams = { cursoId };
-    if (albumId != null) {
-      query['albumId'] = albumId;
+  listar(grupoId: number, participanteId?: number | null): Observable<Foto[]> {
+    const query: QueryParams = { grupoId };
+    if (participanteId != null) {
+      query['participanteId'] = participanteId;
     }
     return this.api.get<Foto[]>('fotos/fotos', query);
   }
 
   /**
-   * Sube una tanda de archivos al curso (grupales) o a un álbum puntual. La respuesta trae las
+   * Sube una tanda de archivos al grupo (grupales) o a un participante puntual. La respuesta trae las
    * fotos creadas en `Pendiente`; el estado final se consulta con `listar`. El tandeo (no mandar
    * cientos de archivos en un request) es responsabilidad del caller.
    */
-  subir(cursoId: number, albumId: number | null, archivos: File[]): Observable<Foto[]> {
+  subir(grupoId: number, participanteId: number | null, archivos: File[]): Observable<Foto[]> {
     const formData = new FormData();
-    formData.append('cursoId', String(cursoId));
-    if (albumId != null) {
-      formData.append('albumId', String(albumId));
+    formData.append('grupoId', String(grupoId));
+    if (participanteId != null) {
+      formData.append('participanteId', String(participanteId));
     }
     for (const archivo of archivos) {
       formData.append('archivos', archivo, archivo.name);

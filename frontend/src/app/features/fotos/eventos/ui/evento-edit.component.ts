@@ -40,7 +40,7 @@ interface TamanoPrecioRow {
 
 interface EventoFormModel {
   nombre: string;
-  colegio: string;
+  lugarOrganizacion: string;
   /** `yyyy-MM-dd` (shape de `tbi-date-picker`); vacío = sin fecha. */
   fecha: string;
   fechaExpiracion: string;
@@ -85,7 +85,7 @@ export class EventoEditComponent extends EditComponentBase<Evento, EventoFormMod
 
   protected readonly model = signal<EventoFormModel>({
     nombre: '',
-    colegio: '',
+    lugarOrganizacion: '',
     fecha: '',
     fechaExpiracion: '',
     estado: 0,
@@ -97,7 +97,7 @@ export class EventoEditComponent extends EditComponentBase<Evento, EventoFormMod
   protected readonly form = form(this.model, (path) => {
     required(path.nombre, { message: 'Requerido' });
     maxLength(path.nombre, 200, { message: 'Máximo 200 caracteres' });
-    maxLength(path.colegio, 200, { message: 'Máximo 200 caracteres' });
+    maxLength(path.lugarOrganizacion, 200, { message: 'Máximo 200 caracteres' });
     applyEach(path.tamanos, (tamano) => {
       required(tamano.nombre, { message: 'Requerido' });
       maxLength(tamano.nombre, 50, { message: 'Máximo 50 caracteres' });
@@ -146,7 +146,7 @@ export class EventoEditComponent extends EditComponentBase<Evento, EventoFormMod
     return {
       ...this.loaded,
       nombre: value.nombre.trim(),
-      colegio: value.colegio.trim() || null,
+      lugarOrganizacion: value.lugarOrganizacion.trim() || null,
       fecha: value.fecha || null,
       fechaExpiracion: value.fechaExpiracion || null,
       estado: value.estado,
@@ -164,7 +164,7 @@ export class EventoEditComponent extends EditComponentBase<Evento, EventoFormMod
     this.loaded = entity;
     this.model.set({
       nombre: entity.nombre,
-      colegio: entity.colegio ?? '',
+      lugarOrganizacion: entity.lugarOrganizacion ?? '',
       fecha: entity.fecha?.split('T')[0] ?? '',
       fechaExpiracion: entity.fechaExpiracion?.split('T')[0] ?? '',
       estado: entity.estado,

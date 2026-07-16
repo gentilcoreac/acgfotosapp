@@ -10,7 +10,7 @@ Fork del código base propio `C:\PROYECTOS\CodigoBase` (API + Cliente), renombra
 
 ## Reglas del proyecto
 
-- **Idioma**: documentación, UI, comentarios y mensajes de commit en **español** (commits en minúscula, estilo `feat:`/`fix:`). Código en el estilo del código base: clases/métodos en inglés, entidades de dominio en español (`Evento`, `Album`, `Pedido`...).
+- **Idioma**: documentación, UI, comentarios y mensajes de commit en **español** (commits en minúscula, estilo `feat:`/`fix:`). Código en el estilo del código base: clases/métodos en inglés, entidades de dominio en español (`Evento`, `Grupo`, `Participante`, `Pedido`... — naming genérico del ADR-10).
 - **Premisa de seguridad de imágenes**: los originales NUNCA se sirven por endpoints públicos; todo lo visible por familias lleva watermark y baja resolución; storage privado. Ver ADR-01 y ADR-06.
 - **Vertical Fotos**: proyectos `AcgFotos.Fotos.*`, tablas con prefijo `fot_`, módulo Autofac propio + alta en `AppModulesName`. `Base` nunca referencia al vertical (hay test de arquitectura).
 - **Tests parte del alcance**: la suite de integración (419 tests) y la unit del front (325) quedan verdes en cada cambio. Migraciones EF: el SQL crudo (vistas) se mantiene a mano.

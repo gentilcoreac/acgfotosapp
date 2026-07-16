@@ -30,17 +30,17 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             return client;
         }
 
-        private static async Task<long> CrearCursoAsync(HttpClient client)
+        private static async Task<long> CrearGrupoAsync(HttpClient client)
         {
             var evento = await client.PostAsJsonAsync("/api/fotos/eventos/update",
                 new { id = 0, nombre = "Egresados 2026", estado = 0, tamanosPrecios = Array.Empty<object>() });
             await evento.ShouldBeOk();
             var eventoId = (await evento.Content.ReadFromJsonAsync<EventoDto>())!.Id;
 
-            var curso = await client.PostAsJsonAsync("/api/fotos/cursos/update",
-                new { id = 0, eventoId, nombre = "7ºA", albumes = Array.Empty<object>() });
-            await curso.ShouldBeOk();
-            return (await curso.Content.ReadFromJsonAsync<CursoDto>())!.Id;
+            var grupo = await client.PostAsJsonAsync("/api/fotos/grupos/update",
+                new { id = 0, eventoId, nombre = "7ºA", participantes = Array.Empty<object>() });
+            await grupo.ShouldBeOk();
+            return (await grupo.Content.ReadFromJsonAsync<GrupoDto>())!.Id;
         }
 
         private static byte[] CrearJpeg(int ancho = 1600, int alto = 1200)
@@ -51,13 +51,13 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             return ms.ToArray();
         }
 
-        /// <summary>Sube UN archivo grupal al curso y devuelve el FotoDto.</summary>
-        private static async Task<FotoDto> SubirAsync(HttpClient client, long cursoId, byte[] contenido,
+        /// <summary>Sube UN archivo grupal al grupo y devuelve el FotoDto.</summary>
+        private static async Task<FotoDto> SubirAsync(HttpClient client, long grupoId, byte[] contenido,
             string nombre = "foto.jpg")
         {
             var multipart = new MultipartFormDataContent
             {
-                { new StringContent(cursoId.ToString()), "cursoId" },
+                { new StringContent(grupoId.ToString()), "grupoId" },
             };
             var archivo = new ByteArrayContent(contenido);
             archivo.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
@@ -97,36 +97,42 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
 
         private static bool EsJpeg(byte[] bytes) => bytes.Length > 2 && bytes[0] == 0xFF && bytes[1] == 0xD8;
 
+        /// <summary>Firma RIFF....WEBP de un archivo WebP.</summary>
+        private static bool EsWebp(byte[] bytes) =>
+            bytes.Length > 12
+            && bytes[0] == (byte)'R' && bytes[1] == (byte)'I' && bytes[2] == (byte)'F' && bytes[3] == (byte)'F'
+            && bytes[8] == (byte)'W' && bytes[9] == (byte)'E' && bytes[10] == (byte)'B' && bytes[11] == (byte)'P';
+
         #endregion
 
-        [Fact] // GAL-01 — foto Lista: thumb y preview 200 image/jpeg (y el preview pesa más que el thumb)
+        [Fact] // GAL-01 — foto Lista: thumb y preview 200 image/webp (y el preview pesa más que el thumb)
         public async Task Thumb_y_preview_se_sirven_cuando_la_foto_esta_lista()
         {
             using var client = await CreateTenantClientAsync();
-            var cursoId = await CrearCursoAsync(client);
-            var foto = await SubirAsync(client, cursoId, CrearJpeg());
+            var grupoId = await CrearGrupoAsync(client);
+            var foto = await SubirAsync(client, grupoId, CrearJpeg());
             await EsperarProcesamientoAsync(foto.Id);
 
             var thumb = await client.GetAsync($"/api/fotos/fotos/{foto.Id}/thumb");
             await thumb.ShouldBeOk();
-            Assert.Equal("image/jpeg", thumb.Content.Headers.ContentType!.MediaType);
+            Assert.Equal("image/webp", thumb.Content.Headers.ContentType!.MediaType);
             var thumbBytes = await thumb.Content.ReadAsByteArrayAsync();
-            Assert.True(EsJpeg(thumbBytes), "el thumb no es un JPEG");
+            Assert.True(EsWebp(thumbBytes), "el thumb no es un WebP");
 
             var preview = await client.GetAsync($"/api/fotos/fotos/{foto.Id}/preview");
             await preview.ShouldBeOk();
             var previewBytes = await preview.Content.ReadAsByteArrayAsync();
-            Assert.True(EsJpeg(previewBytes), "el preview no es un JPEG");
+            Assert.True(EsWebp(previewBytes), "el preview no es un WebP");
             Assert.True(previewBytes.Length > thumbBytes.Length,
-                "el preview (1200px) debería pesar más que el thumb (300px)");
+                "el preview (900px) debería pesar más que el thumb (300px)");
         }
 
         [Fact] // GAL-02 — sin derivados (foto en Error): thumb/preview 404, pero el original sigue descargable
         public async Task Sin_derivados_no_hay_thumb_pero_si_original()
         {
             using var client = await CreateTenantClientAsync();
-            var cursoId = await CrearCursoAsync(client);
-            var foto = await SubirAsync(client, cursoId, "esto no es un jpg"u8.ToArray(), "malo.jpg");
+            var grupoId = await CrearGrupoAsync(client);
+            var foto = await SubirAsync(client, grupoId, "esto no es un jpg"u8.ToArray(), "malo.jpg");
             await EsperarProcesamientoAsync(foto.Id); // queda en Error
 
             await (await client.GetAsync($"/api/fotos/fotos/{foto.Id}/thumb"))
@@ -143,9 +149,9 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
         public async Task Original_baja_intacto_y_con_su_nombre()
         {
             using var client = await CreateTenantClientAsync();
-            var cursoId = await CrearCursoAsync(client);
+            var grupoId = await CrearGrupoAsync(client);
             var subido = CrearJpeg(800, 600);
-            var foto = await SubirAsync(client, cursoId, subido, "para-imprimir.jpg");
+            var foto = await SubirAsync(client, grupoId, subido, "para-imprimir.jpg");
 
             var resp = await client.GetAsync($"/api/fotos/fotos/{foto.Id}/original");
             await resp.ShouldBeOk();
@@ -160,8 +166,8 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
         public async Task Foto_de_otro_tenant_es_invisible()
         {
             using var tenant2 = await CreateTenantClientAsync(2);
-            var cursoId = await CrearCursoAsync(tenant2);
-            var foto = await SubirAsync(tenant2, cursoId, CrearJpeg());
+            var grupoId = await CrearGrupoAsync(tenant2);
+            var foto = await SubirAsync(tenant2, grupoId, CrearJpeg());
             await EsperarProcesamientoAsync(foto.Id);
 
             using var tenant3 = await CreateTenantClientAsync(3);
@@ -179,8 +185,8 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
         public async Task Delete_borra_fila_y_archivos()
         {
             using var client = await CreateTenantClientAsync();
-            var cursoId = await CrearCursoAsync(client);
-            var foto = await SubirAsync(client, cursoId, CrearJpeg());
+            var grupoId = await CrearGrupoAsync(client);
+            var foto = await SubirAsync(client, grupoId, CrearJpeg());
             await EsperarProcesamientoAsync(foto.Id);
 
             var rutaOriginal = await RutaOriginalAsync(foto.Id);
@@ -192,7 +198,7 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             Assert.Equal(0, await CountAsync($"SELECT COUNT(*) FROM fot_Fotos WHERE Id = {foto.Id}"));
             Assert.False(File.Exists(rutaOriginal), "el original debía borrarse del storage");
             Assert.False(File.Exists(rutaOriginal.Replace(
-                Path.Combine("originals"), Path.Combine("derived")).Replace(".jpg", "_thumb.jpg")),
+                Path.Combine("originals"), Path.Combine("derived")).Replace(".jpg", "_thumb.webp")),
                 "el thumb debía borrarse del storage");
 
             await (await client.DeleteAsync($"/api/fotos/fotos/{foto.Id}"))

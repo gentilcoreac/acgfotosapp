@@ -1093,34 +1093,6 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     b.ToTable("gen_UsuariosActivosMensuales", (string)null);
                 });
 
-            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Album", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("CursoId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("NombreAlumno")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CursoId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("fot_Albumes", (string)null);
-                });
-
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.CodigoAcceso", b =>
                 {
                     b.Property<long>("Id")
@@ -1132,9 +1104,6 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
 
-                    b.Property<long>("AlbumId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Codigo")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1143,45 +1112,20 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     b.Property<DateTime>("CreadoEn")
                         .HasColumnType("datetime2");
 
+                    b.Property<long>("ParticipanteId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AlbumId");
+                    b.HasIndex("ParticipanteId");
 
                     b.HasIndex("TenantId", "Codigo")
                         .IsUnique();
 
                     b.ToTable("fot_CodigosAcceso", (string)null);
-                });
-
-            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Curso", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("EventoId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventoId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("fot_Cursos", (string)null);
                 });
 
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Evento", b =>
@@ -1192,10 +1136,6 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Colegio")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
                     b.Property<int>("Estado")
                         .HasColumnType("int");
 
@@ -1204,6 +1144,10 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
 
                     b.Property<DateTime?>("FechaExpiracion")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("LugarOrganizacion")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -1228,9 +1172,6 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("AlbumId")
-                        .HasColumnType("bigint");
-
                     b.Property<int>("Alto")
                         .HasColumnType("int");
 
@@ -1239,9 +1180,6 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
 
                     b.Property<DateTime>("CreadoEn")
                         .HasColumnType("datetime2");
-
-                    b.Property<long>("CursoId")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("ErrorProcesamiento")
                         .HasMaxLength(1000)
@@ -1253,10 +1191,16 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     b.Property<long>("EventoId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("GrupoId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("NombreArchivoOriginal")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<long?>("ParticipanteId")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("StorageKey")
                         .HasColumnType("uniqueidentifier");
@@ -1269,11 +1213,11 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AlbumId");
-
-                    b.HasIndex("CursoId");
-
                     b.HasIndex("EventoId");
+
+                    b.HasIndex("GrupoId");
+
+                    b.HasIndex("ParticipanteId");
 
                     b.HasIndex("StorageKey")
                         .IsUnique();
@@ -1283,7 +1227,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     b.ToTable("fot_Fotos", (string)null);
                 });
 
-            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Pedido", b =>
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Grupo", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -1291,8 +1235,61 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("AlbumId")
+                    b.Property<long>("EventoId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventoId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("fot_Grupos", (string)null);
+                });
+
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Participante", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("GrupoId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GrupoId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("fot_Participantes", (string)null);
+                });
+
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Pedido", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreadoEn")
                         .HasColumnType("datetime2");
@@ -1315,6 +1312,9 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     b.Property<DateTime?>("PagadoEn")
                         .HasColumnType("datetime2");
 
+                    b.Property<long>("ParticipanteId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("TelefonoContacto")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1329,7 +1329,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AlbumId");
+                    b.HasIndex("ParticipanteId");
 
                     b.HasIndex("TenantId");
 
@@ -1833,74 +1833,74 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Album", b =>
-                {
-                    b.HasOne("AcgFotos.Fotos.Domain.Entities.Curso", "Curso")
-                        .WithMany("Albumes")
-                        .HasForeignKey("CursoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Curso");
-                });
-
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.CodigoAcceso", b =>
                 {
-                    b.HasOne("AcgFotos.Fotos.Domain.Entities.Album", "Album")
+                    b.HasOne("AcgFotos.Fotos.Domain.Entities.Participante", "Participante")
                         .WithMany("CodigosAcceso")
-                        .HasForeignKey("AlbumId")
+                        .HasForeignKey("ParticipanteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Album");
-                });
-
-            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Curso", b =>
-                {
-                    b.HasOne("AcgFotos.Fotos.Domain.Entities.Evento", "Evento")
-                        .WithMany("Cursos")
-                        .HasForeignKey("EventoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Evento");
+                    b.Navigation("Participante");
                 });
 
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Foto", b =>
                 {
-                    b.HasOne("AcgFotos.Fotos.Domain.Entities.Album", "Album")
-                        .WithMany()
-                        .HasForeignKey("AlbumId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("AcgFotos.Fotos.Domain.Entities.Curso", "Curso")
-                        .WithMany()
-                        .HasForeignKey("CursoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("AcgFotos.Fotos.Domain.Entities.Evento", "Evento")
                         .WithMany()
                         .HasForeignKey("EventoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Album");
+                    b.HasOne("AcgFotos.Fotos.Domain.Entities.Grupo", "Grupo")
+                        .WithMany()
+                        .HasForeignKey("GrupoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Navigation("Curso");
+                    b.HasOne("AcgFotos.Fotos.Domain.Entities.Participante", "Participante")
+                        .WithMany()
+                        .HasForeignKey("ParticipanteId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Evento");
+
+                    b.Navigation("Grupo");
+
+                    b.Navigation("Participante");
+                });
+
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Grupo", b =>
+                {
+                    b.HasOne("AcgFotos.Fotos.Domain.Entities.Evento", "Evento")
+                        .WithMany("Grupos")
+                        .HasForeignKey("EventoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Evento");
                 });
 
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Participante", b =>
+                {
+                    b.HasOne("AcgFotos.Fotos.Domain.Entities.Grupo", "Grupo")
+                        .WithMany("Participantes")
+                        .HasForeignKey("GrupoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Grupo");
+                });
+
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Pedido", b =>
                 {
-                    b.HasOne("AcgFotos.Fotos.Domain.Entities.Album", "Album")
+                    b.HasOne("AcgFotos.Fotos.Domain.Entities.Participante", "Participante")
                         .WithMany()
-                        .HasForeignKey("AlbumId")
+                        .HasForeignKey("ParticipanteId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Album");
+                    b.Navigation("Participante");
                 });
 
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.PedidoItem", b =>
@@ -2052,21 +2052,21 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     b.Navigation("UsuarioGrupos");
                 });
 
-            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Album", b =>
-                {
-                    b.Navigation("CodigosAcceso");
-                });
-
-            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Curso", b =>
-                {
-                    b.Navigation("Albumes");
-                });
-
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Evento", b =>
                 {
-                    b.Navigation("Cursos");
+                    b.Navigation("Grupos");
 
                     b.Navigation("TamanosPrecios");
+                });
+
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Grupo", b =>
+                {
+                    b.Navigation("Participantes");
+                });
+
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Participante", b =>
+                {
+                    b.Navigation("CodigosAcceso");
                 });
 
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Pedido", b =>

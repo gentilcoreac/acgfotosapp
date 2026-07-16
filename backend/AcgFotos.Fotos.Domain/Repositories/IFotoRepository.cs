@@ -6,17 +6,17 @@ namespace AcgFotos.Fotos.Domain.Repositories;
 
 public interface IFotoRepository : IEntityBaseRepository<Foto>
 {
-    /// <summary>El curso del upload, dentro del tenant (define el EventoId de las fotos).</summary>
-    Task<Curso?> GetCursoAsync(long cursoId);
+    /// <summary>El grupo del upload, dentro del tenant (define el EventoId de las fotos).</summary>
+    Task<Grupo?> GetGrupoAsync(long grupoId);
 
-    /// <summary>El álbum destino existe y pertenece al curso (guard del upload).</summary>
-    Task<bool> AlbumPerteneceAlCursoAsync(long albumId, long cursoId);
+    /// <summary>El participante destino existe y pertenece al grupo (guard del upload).</summary>
+    Task<bool> ParticipantePerteneceAlGrupoAsync(long participanteId, long grupoId);
 
     /// <summary>Foto tracked para que el worker actualice estado/dimensiones.</summary>
     Task<Foto?> GetByIdTrackedAsync(long id);
 
-    /// <summary>Listado admin: fotos del curso, opcionalmente de un álbum puntual.</summary>
-    Task<List<Foto>> ListarAsync(long cursoId, long? albumId);
+    /// <summary>Listado admin: fotos del grupo, opcionalmente de un participante puntual.</summary>
+    Task<List<Foto>> ListarAsync(long grupoId, long? participanteId);
 
     /// <summary>
     /// Fotos en Pendiente de TODOS los tenants (IgnoreQueryFilters): SOLO para el barrido de

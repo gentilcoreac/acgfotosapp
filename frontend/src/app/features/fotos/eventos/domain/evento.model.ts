@@ -39,7 +39,7 @@ export interface TamanoPrecio {
 export interface Evento extends EditableEntity {
   id?: number;
   nombre: string;
-  colegio?: string | null;
+  lugarOrganizacion?: string | null;
   fecha?: string | null;
   fechaExpiracion?: string | null;
   estado: EstadoEvento;

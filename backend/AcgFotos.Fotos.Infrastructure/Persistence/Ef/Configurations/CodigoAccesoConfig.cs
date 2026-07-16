@@ -14,10 +14,10 @@ public class CodigoAccesoConfig : IEntityTypeConfiguration<CodigoAcceso>
 
         builder.Property(x => x.Codigo).HasMaxLength(20).IsRequired();
 
-        // El canje busca por código dentro del tenant; único para que un código abra UN álbum.
+        // El canje busca por código dentro del tenant; único para que un código abra UN participante.
         builder.HasIndex(x => new { x.TenantId, x.Codigo }).IsUnique();
 
-        builder.HasOne(x => x.Album).WithMany(a => a.CodigosAcceso)
-               .HasForeignKey(x => x.AlbumId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.Participante).WithMany(a => a.CodigosAcceso)
+               .HasForeignKey(x => x.ParticipanteId).OnDelete(DeleteBehavior.Cascade);
     }
 }

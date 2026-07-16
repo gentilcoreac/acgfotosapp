@@ -10,10 +10,10 @@ namespace AcgFotos.Fotos.Application.Dtos;
 public class FotoDto : DtoBase
 {
     public long EventoId { get; set; }
-    public long CursoId { get; set; }
+    public long GrupoId { get; set; }
 
-    /// <summary>Null ⇒ foto grupal del curso.</summary>
-    public long? AlbumId { get; set; }
+    /// <summary>Null ⇒ foto grupal del grupo.</summary>
+    public long? ParticipanteId { get; set; }
 
     public string NombreArchivoOriginal { get; set; } = string.Empty;
     public int Ancho { get; set; }

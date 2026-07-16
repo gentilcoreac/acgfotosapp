@@ -10,8 +10,8 @@ public interface IFotoAppService
     /// </summary>
     Task<List<FotoDto>> SubirAsync(SubirFotosInput input);
 
-    /// <summary>Fotos de un curso (o de un álbum puntual) para la galería admin.</summary>
-    Task<List<FotoDto>> ListarAsync(long cursoId, long? albumId);
+    /// <summary>Fotos de un grupo (o de un participante puntual) para la galería admin.</summary>
+    Task<List<FotoDto>> ListarAsync(long grupoId, long? participanteId);
 
     /// <summary>Bytes del thumb con watermark; null si la foto no existe o aún no está Lista.</summary>
     Task<byte[]?> ObtenerThumbAsync(long fotoId);

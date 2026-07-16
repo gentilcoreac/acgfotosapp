@@ -1,0 +1,71 @@
+.edit {
+  min-width: 0;
+}
+
+.edit__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+}
+
+.edit__participantes {
+  margin-top: 1.25rem;
+}
+
+.edit__participantes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h3 {
+    margin: 0;
+    font: var(--mat-sys-title-small);
+  }
+}
+
+.edit__participantes-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.edit__participantes-cabecera {
+  font: var(--mat-sys-label-medium);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// El código lo genera el sistema: se muestra monoespaciado para leerlo/dictarlo fácil.
+.edit__participantes-codigo {
+  font-family: monospace;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.edit__participantes-acciones {
+  white-space: nowrap;
+}
+
+// El campo inválido se resalta con las clases de estado que sincroniza [formField].
+tbi-cell-input.ng-invalid.ng-touched ::ng-deep .tbi-cell-input__field {
+  border-color: var(--mat-sys-error);
+}
+
+.edit__hint {
+  margin: 0.75rem 0 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.edit__empty {
+  margin: 0.75rem 0 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.edit__errors {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--mat-sys-error);
+  font-size: 0.8125rem;
+}

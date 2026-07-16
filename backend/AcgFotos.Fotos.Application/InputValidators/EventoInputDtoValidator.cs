@@ -17,8 +17,8 @@ public class EventoInputDtoValidator : AbstractValidator<EventoInputDto>
             .NotEmpty().WithMessage(string.Format(MessagesAPI.ErrorFieldIsRequired, "Nombre"))
             .MaximumLength(200).WithMessage(string.Format(MessagesAPI.WarnFieldMaxLength, "Nombre", 200));
 
-        this.RuleFor(x => x.Colegio)
-            .MaximumLength(200).WithMessage(string.Format(MessagesAPI.WarnFieldMaxLength, "Colegio", 200));
+        this.RuleFor(x => x.LugarOrganizacion)
+            .MaximumLength(200).WithMessage(string.Format(MessagesAPI.WarnFieldMaxLength, "Lugar/Organización", 200));
 
         this.RuleForEach(x => x.TamanosPrecios).ChildRules(tamano =>
         {

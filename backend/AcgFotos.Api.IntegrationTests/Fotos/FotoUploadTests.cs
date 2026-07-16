@@ -32,25 +32,25 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             return client;
         }
 
-        /// <summary>Arma evento + curso (+ álbum "Ana") y devuelve (cursoId, albumId).</summary>
-        private static async Task<(long CursoId, long AlbumId)> CrearCursoConAlbumAsync(HttpClient client)
+        /// <summary>Arma evento + grupo (+ participante "Ana") y devuelve (grupoId, participanteId).</summary>
+        private static async Task<(long GrupoId, long ParticipanteId)> CrearGrupoConParticipanteAsync(HttpClient client)
         {
             var evento = await client.PostAsJsonAsync("/api/fotos/eventos/update",
                 new { id = 0, nombre = "Egresados 2026", estado = 0, tamanosPrecios = Array.Empty<object>() });
             await evento.ShouldBeOk();
             var eventoId = (await evento.Content.ReadFromJsonAsync<EventoDto>())!.Id;
 
-            var curso = await client.PostAsJsonAsync("/api/fotos/cursos/update", new
+            var grupo = await client.PostAsJsonAsync("/api/fotos/grupos/update", new
             {
                 id = 0,
                 eventoId,
                 nombre = "7ºA",
-                albumes = new[] { new { id = 0, nombreAlumno = "Ana" } },
+                participantes = new[] { new { id = 0, nombre = "Ana" } },
             });
-            await curso.ShouldBeOk();
-            var cursoDto = (await curso.Content.ReadFromJsonAsync<CursoDto>())!;
+            await grupo.ShouldBeOk();
+            var grupoDto = (await grupo.Content.ReadFromJsonAsync<GrupoDto>())!;
 
-            return (cursoDto.Id, cursoDto.Albumes.Single().Id);
+            return (grupoDto.Id, grupoDto.Participantes.Single().Id);
         }
 
         private static byte[] CrearJpeg(int ancho = 1600, int alto = 1200)
@@ -61,16 +61,16 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             return ms.ToArray();
         }
 
-        private static MultipartFormDataContent Multipart(long cursoId, long? albumId,
+        private static MultipartFormDataContent Multipart(long grupoId, long? participanteId,
             params (string Nombre, byte[] Contenido)[] archivos)
         {
             var content = new MultipartFormDataContent
             {
-                { new StringContent(cursoId.ToString()), "cursoId" },
+                { new StringContent(grupoId.ToString()), "grupoId" },
             };
-            if (albumId is not null)
+            if (participanteId is not null)
             {
-                content.Add(new StringContent(albumId.ToString()!), "albumId");
+                content.Add(new StringContent(participanteId.ToString()!), "participanteId");
             }
 
             foreach (var (nombre, bytes) in archivos)
@@ -111,22 +111,22 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
 
         #endregion
 
-        [Fact] // FUP-01 — happy: sube 2 al álbum, quedan Pendiente y el worker las deja Lista con derivados
-        public async Task Upload_a_album_procesa_y_deja_derivados()
+        [Fact] // FUP-01 — happy: sube 2 al participante, quedan Pendiente y el worker las deja Lista con derivados
+        public async Task Upload_a_participante_procesa_y_deja_derivados()
         {
             using var client = await CreateTenantClientAsync(); // tenant 2
-            var (cursoId, albumId) = await CrearCursoConAlbumAsync(client);
+            var (grupoId, participanteId) = await CrearGrupoConParticipanteAsync(client);
 
             var resp = await client.PostAsync("/api/fotos/fotos/upload",
-                Multipart(cursoId, albumId, ("ana-01.jpg", CrearJpeg()), ("ana-02.jpg", CrearJpeg(800, 600))));
+                Multipart(grupoId, participanteId, ("ana-01.jpg", CrearJpeg()), ("ana-02.jpg", CrearJpeg(800, 600))));
             await resp.ShouldBeOk();
 
             var dtos = (await resp.Content.ReadFromJsonAsync<List<FotoDto>>())!;
             Assert.Equal(2, dtos.Count);
-            Assert.All(dtos, f => Assert.Equal(albumId, f.AlbumId));
+            Assert.All(dtos, f => Assert.Equal(participanteId, f.ParticipanteId));
 
             Assert.Equal(2, await CountAsync(
-                $"SELECT COUNT(*) FROM fot_Fotos WHERE CursoId = {cursoId} AND TenantId = 2"));
+                $"SELECT COUNT(*) FROM fot_Fotos WHERE GrupoId = {grupoId} AND TenantId = 2"));
 
             foreach (var dto in dtos)
             {
@@ -143,34 +143,34 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
                 $"SELECT StorageKey FROM fot_Fotos WHERE Id = {chica.Id}");
             var eventoId = await CountAsync($"SELECT EventoId FROM fot_Fotos WHERE Id = {chica.Id}");
             Assert.True(File.Exists(RutaStorage($"fotos/originals/{eventoId}/{storageKey:N}.jpg")), "falta el original");
-            Assert.True(File.Exists(RutaStorage($"fotos/derived/{eventoId}/{storageKey:N}_thumb.jpg")), "falta el thumb");
-            Assert.True(File.Exists(RutaStorage($"fotos/derived/{eventoId}/{storageKey:N}_preview.jpg")), "falta el preview");
+            Assert.True(File.Exists(RutaStorage($"fotos/derived/{eventoId}/{storageKey:N}_thumb.webp")), "falta el thumb");
+            Assert.True(File.Exists(RutaStorage($"fotos/derived/{eventoId}/{storageKey:N}_preview.webp")), "falta el preview");
         }
 
-        [Fact] // FUP-02 — upload sin albumId: foto GRUPAL del curso (AlbumId null)
-        public async Task Upload_sin_album_es_grupal()
+        [Fact] // FUP-02 — upload sin participanteId: foto GRUPAL del grupo (ParticipanteId null)
+        public async Task Upload_sin_participante_es_grupal()
         {
             using var client = await CreateTenantClientAsync();
-            var (cursoId, _) = await CrearCursoConAlbumAsync(client);
+            var (grupoId, _) = await CrearGrupoConParticipanteAsync(client);
 
             var resp = await client.PostAsync("/api/fotos/fotos/upload",
-                Multipart(cursoId, albumId: null, ("grupal.jpg", CrearJpeg())));
+                Multipart(grupoId, participanteId: null, ("grupal.jpg", CrearJpeg())));
             await resp.ShouldBeOk();
 
             var dto = (await resp.Content.ReadFromJsonAsync<List<FotoDto>>())!.Single();
-            Assert.Null(dto.AlbumId);
+            Assert.Null(dto.ParticipanteId);
             Assert.Equal(1, await CountAsync(
-                $"SELECT COUNT(*) FROM fot_Fotos WHERE Id = {dto.Id} AND AlbumId IS NULL"));
+                $"SELECT COUNT(*) FROM fot_Fotos WHERE Id = {dto.Id} AND ParticipanteId IS NULL"));
         }
 
         [Fact] // FUP-03 — contenido que no es imagen: la fila queda en Error con detalle, sin tirar el worker
         public async Task Contenido_invalido_queda_en_error()
         {
             using var client = await CreateTenantClientAsync();
-            var (cursoId, albumId) = await CrearCursoConAlbumAsync(client);
+            var (grupoId, participanteId) = await CrearGrupoConParticipanteAsync(client);
 
             var resp = await client.PostAsync("/api/fotos/fotos/upload",
-                Multipart(cursoId, albumId, ("no-es-foto.jpg", "esto no es un jpg"u8.ToArray())));
+                Multipart(grupoId, participanteId, ("no-es-foto.jpg", "esto no es un jpg"u8.ToArray())));
             await resp.ShouldBeOk(); // el upload acepta; la validación real la hace el pipeline
 
             var dto = (await resp.Content.ReadFromJsonAsync<List<FotoDto>>())!.Single();
@@ -181,8 +181,8 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             Assert.False(string.IsNullOrEmpty(error));
         }
 
-        [Fact] // FUP-04 — curso inexistente (o de otro tenant, es lo mismo por el filtro) → 400 sin filas
-        public async Task Curso_inexistente_da_400()
+        [Fact] // FUP-04 — grupo inexistente (o de otro tenant, es lo mismo por el filtro) → 400 sin filas
+        public async Task Grupo_inexistente_da_400()
         {
             using var client = await CreateTenantClientAsync();
 
@@ -193,29 +193,29 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             Assert.Equal(0, await CountAsync("SELECT COUNT(*) FROM fot_Fotos"));
         }
 
-        [Fact] // FUP-05 — el curso de OTRO tenant no existe para este (aislamiento en el upload)
-        public async Task Curso_de_otro_tenant_da_400()
+        [Fact] // FUP-05 — el grupo de OTRO tenant no existe para este (aislamiento en el upload)
+        public async Task Grupo_de_otro_tenant_da_400()
         {
             using var tenant3 = await CreateTenantClientAsync(3);
-            var (cursoAjeno, _) = await CrearCursoConAlbumAsync(tenant3);
+            var (grupoAjeno, _) = await CrearGrupoConParticipanteAsync(tenant3);
 
             using var tenant2 = await CreateTenantClientAsync(2);
             var resp = await tenant2.PostAsync("/api/fotos/fotos/upload",
-                Multipart(cursoAjeno, null, ("a.jpg", CrearJpeg())));
+                Multipart(grupoAjeno, null, ("a.jpg", CrearJpeg())));
 
             await resp.ShouldBeStatus(HttpStatusCode.BadRequest);
             Assert.Equal(0, await CountAsync("SELECT COUNT(*) FROM fot_Fotos"));
         }
 
-        [Fact] // FUP-06 — albumId que no pertenece al curso → 400
-        public async Task Album_de_otro_curso_da_400()
+        [Fact] // FUP-06 — participanteId que no pertenece al grupo → 400
+        public async Task Participante_de_otro_grupo_da_400()
         {
             using var client = await CreateTenantClientAsync();
-            var (cursoA, _) = await CrearCursoConAlbumAsync(client);
-            var (_, albumDeOtroCurso) = await CrearCursoConAlbumAsync(client);
+            var (grupoA, _) = await CrearGrupoConParticipanteAsync(client);
+            var (_, participanteDeOtroGrupo) = await CrearGrupoConParticipanteAsync(client);
 
             var resp = await client.PostAsync("/api/fotos/fotos/upload",
-                Multipart(cursoA, albumDeOtroCurso, ("a.jpg", CrearJpeg())));
+                Multipart(grupoA, participanteDeOtroGrupo, ("a.jpg", CrearJpeg())));
 
             await resp.ShouldBeStatus(HttpStatusCode.BadRequest);
             Assert.Equal(0, await CountAsync("SELECT COUNT(*) FROM fot_Fotos"));
@@ -225,31 +225,31 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
         public async Task Sin_archivos_da_400()
         {
             using var client = await CreateTenantClientAsync();
-            var (cursoId, _) = await CrearCursoConAlbumAsync(client);
+            var (grupoId, _) = await CrearGrupoConParticipanteAsync(client);
 
-            var resp = await client.PostAsync("/api/fotos/fotos/upload", Multipart(cursoId, null));
+            var resp = await client.PostAsync("/api/fotos/fotos/upload", Multipart(grupoId, null));
 
             await resp.ShouldBeStatus(HttpStatusCode.BadRequest);
         }
 
-        [Fact] // FUP-08 — listado admin: por curso trae todo; por álbum solo las del álbum
-        public async Task Listado_filtra_por_curso_y_album()
+        [Fact] // FUP-08 — listado admin: por grupo trae todo; por participante solo las del participante
+        public async Task Listado_filtra_por_grupo_y_participante()
         {
             using var client = await CreateTenantClientAsync();
-            var (cursoId, albumId) = await CrearCursoConAlbumAsync(client);
+            var (grupoId, participanteId) = await CrearGrupoConParticipanteAsync(client);
 
             await (await client.PostAsync("/api/fotos/fotos/upload",
-                Multipart(cursoId, albumId, ("individual.jpg", CrearJpeg())))).ShouldBeOk();
+                Multipart(grupoId, participanteId, ("individual.jpg", CrearJpeg())))).ShouldBeOk();
             await (await client.PostAsync("/api/fotos/fotos/upload",
-                Multipart(cursoId, null, ("grupal.jpg", CrearJpeg())))).ShouldBeOk();
+                Multipart(grupoId, null, ("grupal.jpg", CrearJpeg())))).ShouldBeOk();
 
-            var delCurso = await (await client.GetAsync($"/api/fotos/fotos?cursoId={cursoId}"))
+            var delGrupo = await (await client.GetAsync($"/api/fotos/fotos?grupoId={grupoId}"))
                 .Content.ReadFromJsonAsync<List<FotoDto>>();
-            Assert.Equal(2, delCurso!.Count);
+            Assert.Equal(2, delGrupo!.Count);
 
-            var delAlbum = await (await client.GetAsync($"/api/fotos/fotos?cursoId={cursoId}&albumId={albumId}"))
+            var delParticipante = await (await client.GetAsync($"/api/fotos/fotos?grupoId={grupoId}&participanteId={participanteId}"))
                 .Content.ReadFromJsonAsync<List<FotoDto>>();
-            var unica = Assert.Single(delAlbum!);
+            var unica = Assert.Single(delParticipante!);
             Assert.Equal("individual.jpg", unica.NombreArchivoOriginal);
         }
     }

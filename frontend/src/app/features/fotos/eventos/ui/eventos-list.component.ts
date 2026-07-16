@@ -59,7 +59,7 @@ export class EventosListComponent {
   protected readonly columns: TbiColumn<Evento>[] = [
     { key: 'id', header: 'Id', sortable: true },
     { key: 'nombre', header: 'Nombre', sortable: true },
-    { key: 'colegio', header: 'Colegio', sortable: true, cell: (row) => row.colegio ?? '—' },
+    { key: 'lugarOrganizacion', header: 'Lugar/Organización', sortable: true, cell: (row) => row.lugarOrganizacion ?? '—' },
     { key: 'fecha', header: 'Fecha', sortable: true, cell: (row) => displayFecha(row.fecha) },
     {
       key: 'estado',

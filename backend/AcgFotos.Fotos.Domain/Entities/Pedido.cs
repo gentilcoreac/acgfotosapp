@@ -9,8 +9,8 @@ namespace AcgFotos.Fotos.Domain.Entities;
 /// </summary>
 public class Pedido : MultiTenantEntityBase
 {
-    public long AlbumId { get; set; }
-    public Album Album { get; set; } = null!;
+    public long ParticipanteId { get; set; }
+    public Participante Participante { get; set; } = null!;
 
     public string NombreContacto { get; set; } = null!;
     public string TelefonoContacto { get; set; } = null!;

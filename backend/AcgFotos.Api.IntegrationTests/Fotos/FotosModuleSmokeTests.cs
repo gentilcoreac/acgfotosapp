@@ -26,8 +26,8 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
 
         [Theory] // El AcgFotosDbContext descubre las EF configs del módulo ⇒ la migración creó las tablas.
         [InlineData("fot_Eventos")]
-        [InlineData("fot_Cursos")]
-        [InlineData("fot_Albumes")]
+        [InlineData("fot_Grupos")]
+        [InlineData("fot_Participantes")]
         [InlineData("fot_Fotos")]
         [InlineData("fot_CodigosAcceso")]
         [InlineData("fot_TamanosPrecios")]

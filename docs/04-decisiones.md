@@ -88,3 +88,16 @@ Formato corto: contexto → decisión → consecuencias. Si una decisión se rev
 - Sin MinIO/Docker en dev: el Core trae `IStorageProvider` con FileSystem. Actualiza ADR-05.
 - Se hereda complejidad que AcgFotos no usa hoy (multi-tenant, licencias, grupos): se ACEPTA y no se poda — multi-tenant mapea al futuro "otros fotógrafos" y podar la plataforma rompería la posibilidad de traer fixes del código base.
 - Verificación del fork: suite de integración 419/419, Vitest 325/325, lint OK.
+
+## ADR-10 — Naming genérico de punta a punta: Grupo / Participante / LugarOrganizacion
+
+**Contexto**: el negocio se abre a eventos no escolares (cumpleaños, deportes, bautismos — pedido 2026-07-13). Naming acordado (2026-07-14): `Curso` → **Grupo**, `Álbum (alumno)` → **Participante**, `Colegio` → **Lugar/Organización**. Se aplicó antes del alta real del negocio para que el fotógrafo opere desde el día uno con los nombres definitivos, y ANTES de Fase 2 para que el código de familias ya nazca con el naming correcto. Pedido explícito de Alberto: renombrar también las entidades del dominio, no solo etiquetas (hacerlo ahora, pre-producción y sin datos reales, es lo más barato que va a ser jamás).
+
+**Decisión**: rename de punta a punta, sin capa de traducción UI ↔ dominio:
+
+- **Dominio/DB**: entidades `Grupo` y `Participante` (`Participante.Nombre`, ex `NombreAlumno`), `Evento.LugarOrganizacion`; tablas `fot_Grupos` y `fot_Participantes`; FKs `GrupoId`/`ParticipanteId` en `fot_Fotos`, `fot_CodigosAcceso` y `fot_Pedidos`. Migración `RenombrarGrupoParticipante` escrita a mano como RENAMEs (el scaffold de EF proponía drop/create y perdía datos).
+- **API**: rutas `api/fotos/grupos`, DTOs `Grupo*`/`Participante*`/`TarjetasGrupoDto`, parámetros `grupoId`/`participanteId`.
+- **Front**: feature `features/fotos/grupos`, ruta `/fotos/grupos`, menú "Grupos" (código `FotosGrupos`, ícono `people`), modelos/servicios renombrados.
+- Los conceptos que no son entidades conservan su vocabulario natural en la UI ("las fotos van al álbum de Ana" como frase es válido; la entidad es Participante).
+
+**Consecuencias**: en el sidenav de root conviven "Grupos" (vertical Fotos) y "Grupos" de plataforma (grupos de usuarios, sección Gestión) — se distinguen por sección e ícono, y el fotógrafo real no verá los menús de plataforma; en el backend conviven `AcgFotos.Fotos.Domain.Entities.Grupo` y el `Grupo` de la plataforma (namespaces distintos — cuidado con los `using` al tocar ambos). Docs/02 queda como fuente del naming. La migración de renombre es reversible (Down completo).

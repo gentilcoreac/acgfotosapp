@@ -7,8 +7,8 @@ using Xunit;
 namespace AcgFotos.Api.IntegrationTests.Fotos
 {
     /// <summary>
-    /// Tarjetas de acceso por curso (Fase 1: para imprimir y repartir a las familias): una por
-    /// alumno con su código activo, la URL de canje (molde <c>Fotos:UrlCanjeTemplate</c>) y el QR
+    /// Tarjetas de acceso por grupo (Fase 1: para imprimir y repartir a las familias): una por
+    /// participante con su código activo, la URL de canje (molde <c>Fotos:UrlCanjeTemplate</c>) y el QR
     /// como PNG base64 listo para renderizar.
     /// </summary>
     public class TarjetaTests : IntegrationTestBase
@@ -22,44 +22,44 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             return client;
         }
 
-        private static async Task<CursoDto> CrearCursoConAlumnosAsync(HttpClient client, params string[] alumnos)
+        private static async Task<GrupoDto> CrearGrupoConParticipantesAsync(HttpClient client, params string[] participantes)
         {
             var evento = await client.PostAsJsonAsync("/api/fotos/eventos/update",
                 new { id = 0, nombre = "Egresados 2026", estado = 0, tamanosPrecios = Array.Empty<object>() });
             await evento.ShouldBeOk();
             var eventoId = (await evento.Content.ReadFromJsonAsync<EventoDto>())!.Id;
 
-            var curso = await client.PostAsJsonAsync("/api/fotos/cursos/update", new
+            var grupo = await client.PostAsJsonAsync("/api/fotos/grupos/update", new
             {
                 id = 0,
                 eventoId,
                 nombre = "7ºB",
-                albumes = alumnos.Select(a => new { id = 0, nombreAlumno = a }).ToArray(),
+                participantes = participantes.Select(a => new { id = 0, nombre = a }).ToArray(),
             });
-            await curso.ShouldBeOk();
-            return (await curso.Content.ReadFromJsonAsync<CursoDto>())!;
+            await grupo.ShouldBeOk();
+            return (await grupo.Content.ReadFromJsonAsync<GrupoDto>())!;
         }
 
-        [Fact] // TAR-01 — una tarjeta por alumno: código del álbum, URL de canje y QR PNG válido
-        public async Task Tarjetas_traen_codigo_url_y_qr_por_alumno()
+        [Fact] // TAR-01 — una tarjeta por participante: código del participante, URL de canje y QR PNG válido
+        public async Task Tarjetas_traen_codigo_url_y_qr_por_participante()
         {
             using var client = await CreateTenantClientAsync();
-            var curso = await CrearCursoConAlumnosAsync(client, "Zoe Vega", "Ana Pérez");
+            var grupo = await CrearGrupoConParticipantesAsync(client, "Zoe Vega", "Ana Pérez");
 
-            var resp = await client.GetAsync($"/api/fotos/cursos/{curso.Id}/tarjetas");
+            var resp = await client.GetAsync($"/api/fotos/grupos/{grupo.Id}/tarjetas");
             await resp.ShouldBeOk();
 
-            var dto = (await resp.Content.ReadFromJsonAsync<TarjetasCursoDto>())!;
-            Assert.Equal(curso.Id, dto.CursoId);
-            Assert.Equal("7ºB", dto.NombreCurso);
+            var dto = (await resp.Content.ReadFromJsonAsync<TarjetasGrupoDto>())!;
+            Assert.Equal(grupo.Id, dto.GrupoId);
+            Assert.Equal("7ºB", dto.NombreGrupo);
             Assert.Equal("Egresados 2026", dto.NombreEvento);
-            Assert.Equal(new[] { "Ana Pérez", "Zoe Vega" }, dto.Tarjetas.Select(t => t.NombreAlumno));
+            Assert.Equal(new[] { "Ana Pérez", "Zoe Vega" }, dto.Tarjetas.Select(t => t.Nombre));
 
             foreach (var tarjeta in dto.Tarjetas)
             {
-                // El código de la tarjeta es EL del álbum (mismo que devuelve el detalle del curso).
-                var album = curso.Albumes.Single(a => a.Id == tarjeta.AlbumId);
-                Assert.Equal(album.CodigoAcceso, tarjeta.Codigo);
+                // El código de la tarjeta es EL del participante (mismo que devuelve el detalle del grupo).
+                var participante = grupo.Participantes.Single(a => a.Id == tarjeta.ParticipanteId);
+                Assert.Equal(participante.CodigoAcceso, tarjeta.Codigo);
 
                 Assert.Contains(tarjeta.Codigo!, tarjeta.UrlCanje);
 
@@ -70,17 +70,17 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             }
         }
 
-        [Fact] // TAR-02 — curso inexistente o de otro tenant → 404
-        public async Task Curso_inexistente_o_ajeno_da_404()
+        [Fact] // TAR-02 — grupo inexistente o de otro tenant → 404
+        public async Task Grupo_inexistente_o_ajeno_da_404()
         {
             using var tenant2 = await CreateTenantClientAsync(2);
-            await (await tenant2.GetAsync("/api/fotos/cursos/999999/tarjetas"))
+            await (await tenant2.GetAsync("/api/fotos/grupos/999999/tarjetas"))
                 .ShouldBeStatus(HttpStatusCode.NotFound);
 
-            var cursoDeTenant2 = await CrearCursoConAlumnosAsync(tenant2, "Ana");
+            var grupoDeTenant2 = await CrearGrupoConParticipantesAsync(tenant2, "Ana");
 
             using var tenant3 = await CreateTenantClientAsync(3);
-            await (await tenant3.GetAsync($"/api/fotos/cursos/{cursoDeTenant2.Id}/tarjetas"))
+            await (await tenant3.GetAsync($"/api/fotos/grupos/{grupoDeTenant2.Id}/tarjetas"))
                 .ShouldBeStatus(HttpStatusCode.NotFound);
         }
     }

@@ -60,21 +60,21 @@ public class FotoAppService : IFotoAppService
             throw new BusinessValidationException($"El archivo '{vacio.NombreArchivo}' está vacío.");
         }
 
-        // El curso se busca dentro del tenant (filtro global): un CursoId ajeno da "no existe".
-        var curso = await _fotoRepository.GetCursoAsync(input.CursoId)
-            ?? throw new BusinessValidationException("El curso indicado no existe.");
+        // El grupo se busca dentro del tenant (filtro global): un GrupoId ajeno da "no existe".
+        var grupo = await _fotoRepository.GetGrupoAsync(input.GrupoId)
+            ?? throw new BusinessValidationException("El grupo indicado no existe.");
 
-        if (input.AlbumId is long albumId
-            && !await _fotoRepository.AlbumPerteneceAlCursoAsync(albumId, curso.Id))
+        if (input.ParticipanteId is long participanteId
+            && !await _fotoRepository.ParticipantePerteneceAlGrupoAsync(participanteId, grupo.Id))
         {
-            throw new BusinessValidationException("El álbum indicado no existe en el curso.");
+            throw new BusinessValidationException("El participante indicado no existe en el grupo.");
         }
 
         var fotos = input.Archivos.Select(archivo => new Foto
         {
-            EventoId = curso.EventoId,
-            CursoId = curso.Id,
-            AlbumId = input.AlbumId,
+            EventoId = grupo.EventoId,
+            GrupoId = grupo.Id,
+            ParticipanteId = input.ParticipanteId,
             StorageKey = Guid.NewGuid(),
             NombreArchivoOriginal = NormalizarNombre(archivo.NombreArchivo),
             TamanoBytes = archivo.Contenido.LongLength,
@@ -105,9 +105,9 @@ public class FotoAppService : IFotoAppService
         return fotos.Select(_fotoMapper.ToDto).ToList();
     }
 
-    public async Task<List<FotoDto>> ListarAsync(long cursoId, long? albumId)
+    public async Task<List<FotoDto>> ListarAsync(long grupoId, long? participanteId)
     {
-        var fotos = await _fotoRepository.ListarAsync(cursoId, albumId);
+        var fotos = await _fotoRepository.ListarAsync(grupoId, participanteId);
         return fotos.Select(_fotoMapper.ToDto).ToList();
     }
 

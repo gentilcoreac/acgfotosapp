@@ -32,8 +32,8 @@ namespace AcgFotos.Fotos.Controllers.Api
         [RequestSizeLimit(MaxRequestBytes)]
         [RequestFormLimits(MultipartBodyLengthLimit = MaxRequestBytes)]
         public async Task<ActionResult<List<FotoDto>>> Upload(
-            [FromForm] long cursoId,
-            [FromForm] long? albumId,
+            [FromForm] long grupoId,
+            [FromForm] long? participanteId,
             List<IFormFile> archivos)
         {
             if (archivos == null || archivos.Count == 0)
@@ -42,7 +42,7 @@ namespace AcgFotos.Fotos.Controllers.Api
                     new List<string> { "No se recibió ningún archivo." });
             }
 
-            var input = new SubirFotosInput { CursoId = cursoId, AlbumId = albumId };
+            var input = new SubirFotosInput { GrupoId = grupoId, ParticipanteId = participanteId };
             foreach (var archivo in archivos)
             {
                 using var ms = new MemoryStream();
@@ -55,9 +55,9 @@ namespace AcgFotos.Fotos.Controllers.Api
 
         [HttpGet]
         [Route("")]
-        public async Task<ActionResult<List<FotoDto>>> Get([FromQuery] long cursoId, [FromQuery] long? albumId)
+        public async Task<ActionResult<List<FotoDto>>> Get([FromQuery] long grupoId, [FromQuery] long? participanteId)
         {
-            return this.Ok(await _fotoAppService.ListarAsync(cursoId, albumId));
+            return this.Ok(await _fotoAppService.ListarAsync(grupoId, participanteId));
         }
 
         // Derivados con watermark para la galería admin (404 hasta que el worker deje la foto
@@ -67,7 +67,7 @@ namespace AcgFotos.Fotos.Controllers.Api
         public async Task<IActionResult> GetThumb(long id)
         {
             var bytes = await _fotoAppService.ObtenerThumbAsync(id);
-            return bytes == null ? this.NotFound() : this.File(bytes, "image/jpeg");
+            return bytes == null ? this.NotFound() : this.File(bytes, "image/webp");
         }
 
         [HttpGet]
@@ -75,7 +75,7 @@ namespace AcgFotos.Fotos.Controllers.Api
         public async Task<IActionResult> GetPreview(long id)
         {
             var bytes = await _fotoAppService.ObtenerPreviewAsync(id);
-            return bytes == null ? this.NotFound() : this.File(bytes, "image/jpeg");
+            return bytes == null ? this.NotFound() : this.File(bytes, "image/webp");
         }
 
         /// <summary>El original limpio, SOLO admin (ADR-06): es lo que va al laboratorio a imprimir.</summary>

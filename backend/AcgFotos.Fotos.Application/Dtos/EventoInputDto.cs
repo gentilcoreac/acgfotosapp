@@ -11,7 +11,7 @@ namespace AcgFotos.Fotos.Application.Dtos;
 public class EventoInputDto : DtoBase
 {
     public string Nombre { get; set; } = string.Empty;
-    public string? Colegio { get; set; }
+    public string? LugarOrganizacion { get; set; }
     public DateTime? Fecha { get; set; }
     public DateTime? FechaExpiracion { get; set; }
     public EstadoEvento Estado { get; set; } = EstadoEvento.Borrador;

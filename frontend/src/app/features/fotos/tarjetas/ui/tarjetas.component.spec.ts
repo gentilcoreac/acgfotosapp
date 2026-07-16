@@ -3,26 +3,26 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { NotificationService } from '../../../../shared/feedback/notification.service';
-import { CursosService } from '../../cursos/data/cursos.service';
-import { TarjetasCurso } from '../../cursos/domain/curso.model';
+import { GruposService } from '../../grupos/data/grupos.service';
+import { TarjetasGrupo } from '../../grupos/domain/grupo.model';
 import { EventosService } from '../../eventos/data/eventos.service';
 import { TarjetasComponent } from './tarjetas.component';
 
-const TARJETAS: TarjetasCurso = {
-  cursoId: 3,
-  nombreCurso: '7ºA',
+const TARJETAS: TarjetasGrupo = {
+  grupoId: 3,
+  nombreGrupo: '7ºA',
   nombreEvento: 'Graduación 2026',
   tarjetas: [
     {
-      albumId: 21,
-      nombreAlumno: 'Ana Pérez',
+      participanteId: 21,
+      nombre: 'Ana Pérez',
       codigo: 'K7F3-9QMD',
       urlCanje: 'http://localhost:4200/canje/K7F3-9QMD',
       qrPngBase64: 'aWNvbm8=',
     },
     {
-      albumId: 22,
-      nombreAlumno: 'Bruno Díaz',
+      participanteId: 22,
+      nombre: 'Bruno Díaz',
       codigo: null,
       urlCanje: null,
       qrPngBase64: null,
@@ -55,7 +55,7 @@ describe('TarjetasComponent', () => {
           },
         },
         {
-          provide: CursosService,
+          provide: GruposService,
           useValue: {
             crud: {
               getAllByCriteria: vi
@@ -72,19 +72,19 @@ describe('TarjetasComponent', () => {
     fixture.detectChanges();
   }
 
-  function seleccionarCurso(): void {
+  function seleccionarGrupo(): void {
     fixture.componentInstance['eventoId'].set(7);
     fixture.detectChanges();
-    fixture.componentInstance['cursoId'].set(3);
+    fixture.componentInstance['grupoId'].set(3);
     fixture.detectChanges();
     fixture.detectChanges(); // ciclo extra: resources disparados por señal seteada directo del test
   }
 
-  it('sin curso no pide tarjetas; al elegirlo las trae y renderiza código y QR', async () => {
+  it('sin grupo no pide tarjetas; al elegirlo las trae y renderiza código y QR', async () => {
     await setup();
     expect(getTarjetas).not.toHaveBeenCalled();
 
-    seleccionarCurso();
+    seleccionarGrupo();
 
     expect(getTarjetas).toHaveBeenCalledWith(3);
     const html = fixture.nativeElement as HTMLElement;
@@ -94,21 +94,21 @@ describe('TarjetasComponent', () => {
     expect(qr.src).toContain('data:image/png;base64,aWNvbm8=');
   });
 
-  it('avisa cuántos álbumes quedan fuera por no tener código activo', async () => {
+  it('avisa cuántos participantes quedan fuera por no tener código activo', async () => {
     await setup();
-    seleccionarCurso();
+    seleccionarGrupo();
 
-    expect(fixture.componentInstance['sinCodigo']().map((t) => t.nombreAlumno)).toEqual([
+    expect(fixture.componentInstance['sinCodigo']().map((t) => t.nombre)).toEqual([
       'Bruno Díaz',
     ]);
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      '1 álbum(es) sin código activo',
+      '1 participante(s) sin código activo',
     );
   });
 
   it('imprimir abre una ventana con las tarjetas (solo las que tienen código) y llama print', async () => {
     await setup();
-    seleccionarCurso();
+    seleccionarGrupo();
 
     const write = vi.fn();
     const ventana = { document: { write, close: vi.fn() }, focus: vi.fn(), print: vi.fn() };
@@ -130,7 +130,7 @@ describe('TarjetasComponent', () => {
 
   it('si el popup está bloqueado avisa con un error', async () => {
     await setup();
-    seleccionarCurso();
+    seleccionarGrupo();
 
     const open = vi.spyOn(window, 'open').mockReturnValue(null);
     try {

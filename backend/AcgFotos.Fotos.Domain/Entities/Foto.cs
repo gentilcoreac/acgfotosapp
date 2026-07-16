@@ -5,20 +5,20 @@ namespace AcgFotos.Fotos.Domain.Entities;
 /// <summary>
 /// Una foto subida por el fotógrafo. El original vive en el storage privado bajo
 /// <c>fotos/originals/{EventoId}/{StorageKey}.jpg</c> y NUNCA se sirve a las familias; al subir se
-/// generan los derivados con watermark (<c>fotos/derived/{EventoId}/{StorageKey}_thumb.jpg</c> y
-/// <c>_preview.jpg</c>), que son lo único visible públicamente (ADR-01/ADR-06).
+/// generan los derivados WebP con watermark (<c>fotos/derived/{EventoId}/{StorageKey}_thumb.webp</c>
+/// y <c>_preview.webp</c>), que son lo único visible públicamente (ADR-01/ADR-06).
 /// </summary>
 public class Foto : MultiTenantEntityBase
 {
     public long EventoId { get; set; }
     public Evento Evento { get; set; } = null!;
 
-    public long CursoId { get; set; }
-    public Curso Curso { get; set; } = null!;
+    public long GrupoId { get; set; }
+    public Grupo Grupo { get; set; } = null!;
 
-    /// <summary>Null ⇒ foto GRUPAL del curso (visible para todos los álbumes del curso).</summary>
-    public long? AlbumId { get; set; }
-    public Album? Album { get; set; }
+    /// <summary>Null ⇒ foto GRUPAL del grupo (visible para todos los participantes del grupo).</summary>
+    public long? ParticipanteId { get; set; }
+    public Participante? Participante { get; set; }
 
     /// <summary>
     /// Identificador NO adivinable con el que se arma la key de storage (los Id long son

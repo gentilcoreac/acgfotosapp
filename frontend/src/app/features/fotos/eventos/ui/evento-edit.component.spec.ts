@@ -44,7 +44,7 @@ describe('EventoEditComponent', () => {
   /** Modelo del form del componente (espeja el `EventoFormModel` privado). */
   interface FormModel {
     nombre: string;
-    colegio: string;
+    lugarOrganizacion: string;
     fecha: string;
     fechaExpiracion: string;
     estado: number;
@@ -71,7 +71,7 @@ describe('EventoEditComponent', () => {
     await setup();
     setModel({
       nombre: 'Graduación 2026',
-      colegio: '',
+      lugarOrganizacion: '',
       fecha: '2026-11-20',
       fechaExpiracion: '',
       estado: 0,
@@ -85,7 +85,7 @@ describe('EventoEditComponent', () => {
     expect(save).toHaveBeenCalled();
     const payload = vi.mocked(save).mock.lastCall![0] as Evento;
     expect(payload.nombre).toBe('Graduación 2026');
-    expect(payload.colegio).toBeNull();
+    expect(payload.lugarOrganizacion).toBeNull();
     expect(payload.fecha).toBe('2026-11-20');
     expect(payload.fechaExpiracion).toBeNull();
     expect(payload.tamanosPrecios).toEqual([
@@ -99,7 +99,7 @@ describe('EventoEditComponent', () => {
     await setup();
     setModel({
       nombre: 'Graduación 2026',
-      colegio: '',
+      lugarOrganizacion: '',
       fecha: '',
       fechaExpiracion: '',
       estado: 0,
@@ -131,7 +131,7 @@ describe('EventoEditComponent', () => {
     const evento: Evento = {
       id: 5,
       nombre: 'Egresados',
-      colegio: 'Belgrano',
+      lugarOrganizacion: 'Belgrano',
       fecha: '2026-11-20T00:00:00',
       fechaExpiracion: null,
       estado: 1,

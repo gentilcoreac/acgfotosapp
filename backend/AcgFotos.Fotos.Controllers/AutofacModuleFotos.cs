@@ -41,8 +41,8 @@ namespace AcgFotos.Fotos.Controllers
                 .As<IEventoRepository>()
                 .InstancePerLifetimeScope();
 
-            builder.RegisterType<CursoRepository>()
-                .As<ICursoRepository>()
+            builder.RegisterType<GrupoRepository>()
+                .As<IGrupoRepository>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<FotoRepository>()

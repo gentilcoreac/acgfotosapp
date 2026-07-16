@@ -24,7 +24,7 @@ describe('EventosListComponent', () => {
             {
               id: 1,
               nombre: 'Graduación 2026',
-              colegio: 'San Martín',
+              lugarOrganizacion: 'San Martín',
               fecha: '2026-11-20T00:00:00',
               estado: 1,
             },

@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 namespace AcgFotos.Fotos.Domain.Services;
 
 /// <summary>
-/// Genera los códigos que las familias canjean para entrar a su álbum (ADR-02): cortos y legibles
+/// Genera los códigos que las familias canjean para entrar a su participante (ADR-02): cortos y legibles
 /// porque se reparten impresos en una tarjeta, pero con entropía suficiente (31^8 ≈ 2^40 dentro
 /// del tenant; el canje además se rate-limitea en Fase 2). La unicidad la garantiza el índice
 /// único (TenantId, Codigo): con este espacio la colisión es despreciable y, si ocurriera, el

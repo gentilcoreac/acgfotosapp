@@ -15,22 +15,22 @@ public class FotoRepository : EntityBaseRepository<Foto>, IFotoRepository
     {
     }
 
-    public Task<Curso?> GetCursoAsync(long cursoId) =>
-        this.DbContext.Set<Curso>().AsNoTracking().FirstOrDefaultAsync(c => c.Id == cursoId);
+    public Task<Grupo?> GetGrupoAsync(long grupoId) =>
+        this.DbContext.Set<Grupo>().AsNoTracking().FirstOrDefaultAsync(c => c.Id == grupoId);
 
-    public Task<bool> AlbumPerteneceAlCursoAsync(long albumId, long cursoId) =>
-        this.DbContext.Set<Album>().AsNoTracking().AnyAsync(a => a.Id == albumId && a.CursoId == cursoId);
+    public Task<bool> ParticipantePerteneceAlGrupoAsync(long participanteId, long grupoId) =>
+        this.DbContext.Set<Participante>().AsNoTracking().AnyAsync(a => a.Id == participanteId && a.GrupoId == grupoId);
 
     public Task<Foto?> GetByIdTrackedAsync(long id) =>
         this.DbContext.Set<Foto>().FirstOrDefaultAsync(f => f.Id == id);
 
-    public Task<List<Foto>> ListarAsync(long cursoId, long? albumId)
+    public Task<List<Foto>> ListarAsync(long grupoId, long? participanteId)
     {
-        var query = this.DbContext.Set<Foto>().AsNoTracking().Where(f => f.CursoId == cursoId);
+        var query = this.DbContext.Set<Foto>().AsNoTracking().Where(f => f.GrupoId == grupoId);
 
-        if (albumId is not null)
+        if (participanteId is not null)
         {
-            query = query.Where(f => f.AlbumId == albumId);
+            query = query.Where(f => f.ParticipanteId == participanteId);
         }
 
         return query.OrderBy(f => f.Id).ToListAsync();

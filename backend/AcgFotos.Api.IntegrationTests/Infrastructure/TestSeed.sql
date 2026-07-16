@@ -122,7 +122,7 @@ VALUES
     -- Vertical Fotos (el negocio, primero)
     (100, N'Fotos',                 N'Fotos',                 1, N'photo_camera',          1, NULL, 1, 1, 1, 0, NULL),
     (101, N'Eventos',               N'FotosEventos',          1, N'event',                 1, 100,  1, 1, 1, 1, N'/fotos/eventos'),
-    (102, N'Cursos',                N'FotosCursos',           1, N'school',                2, 100,  1, 1, 1, 1, N'/fotos/cursos'),
+    (102, N'Grupos',                N'FotosGrupos',           1, N'people',                2, 100,  1, 1, 1, 1, N'/fotos/grupos'),
     (104, N'Galería',               N'FotosGaleria',          1, N'photo_library',         3, 100,  1, 1, 1, 1, N'/fotos/galeria'),
     (105, N'Tarjetas',              N'FotosTarjetas',         1, N'qr_code_2',             4, 100,  1, 1, 1, 1, N'/fotos/tarjetas'),
     -- Administracion (usuarios/tenants/roles/licencias: lo que pide el alta real del negocio)

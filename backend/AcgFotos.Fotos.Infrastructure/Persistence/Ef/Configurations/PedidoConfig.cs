@@ -5,7 +5,7 @@ using AcgFotos.Fotos.Domain.Entities;
 namespace AcgFotos.Fotos.Infrastructure.Persistence.Ef.Configurations;
 
 /// <summary>
-/// <c>fot_Pedidos</c>. FK al álbum en Restrict: un álbum con pedidos es historial comercial,
+/// <c>fot_Pedidos</c>. FK al participante en Restrict: un participante con pedidos es historial comercial,
 /// no se borra en cascada.
 /// </summary>
 public class PedidoConfig : IEntityTypeConfiguration<Pedido>
@@ -23,7 +23,7 @@ public class PedidoConfig : IEntityTypeConfiguration<Pedido>
 
         builder.HasIndex(x => x.TenantId);
 
-        builder.HasOne(x => x.Album).WithMany()
-               .HasForeignKey(x => x.AlbumId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(x => x.Participante).WithMany()
+               .HasForeignKey(x => x.ParticipanteId).OnDelete(DeleteBehavior.Restrict);
     }
 }

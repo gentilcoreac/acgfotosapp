@@ -1,0 +1,70 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar grupo' : 'Nuevo grupo' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <div class="edit__form">
+      <tbi-select [formField]="form.eventoId" label="Evento" [options]="eventoOptions()" />
+      <tbi-text-field [formField]="form.nombre" label="Nombre del grupo" />
+    </div>
+
+    <section class="edit__participantes">
+      <header class="edit__participantes-header">
+        <h3>Participantes</h3>
+        <button matButton type="button" (click)="agregarParticipante()">
+          <mat-icon>add</mat-icon>
+          Agregar participante
+        </button>
+      </header>
+
+      @if (model().participantes.length > 0) {
+        <div class="edit__participantes-grid">
+          <span class="edit__participantes-cabecera">Participante</span>
+          <span class="edit__participantes-cabecera">Código de acceso</span>
+          <span class="edit__participantes-cabecera"></span>
+
+          @for (participanteField of form.participantes; track $index; let i = $index) {
+            <tbi-cell-input [formField]="participanteField.nombre" ariaLabel="Nombre del participante" />
+            <span class="edit__participantes-codigo">
+              {{ model().participantes[i].codigoAcceso ?? 'Se genera al guardar' }}
+            </span>
+            <span class="edit__participantes-acciones">
+              <button
+                matIconButton
+                type="button"
+                matTooltip="Quitar"
+                aria-label="Quitar"
+                (click)="quitarParticipante(i)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </span>
+          }
+        </div>
+        <p class="edit__hint">
+          Cada participante recibe su código de acceso al guardarse; con ese código la familia
+          entra a ver sus fotos. Un participante con fotos no se puede quitar.
+        </p>
+      } @else {
+        <p class="edit__empty">
+          Sin participantes todavía. Agregá un participante por cada persona del grupo (p. ej., un
+          participante del grupo).
+        </p>
+      }
+    </section>
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

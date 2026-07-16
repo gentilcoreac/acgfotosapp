@@ -20,36 +20,36 @@
     />
     <tbi-select
       class="filtros__select"
-      label="Curso"
-      [options]="cursoOptions()"
+      label="Grupo"
+      [options]="grupoOptions()"
       [disabled]="eventoId() === null"
-      [(value)]="cursoId"
+      [(value)]="grupoId"
     />
   </div>
 
-  @if (cursoId() === null) {
+  @if (grupoId() === null) {
     <p class="hint">
-      Elegí el evento y el curso: se arma una tarjeta por alumno con su código y QR, lista para
-      imprimir y repartir a las familias.
+      Elegí el evento y el grupo: se arma una tarjeta por participante con su código y QR, lista
+      para imprimir y repartir a las familias.
     </p>
   } @else if (tarjetas().length === 0) {
-    <p class="hint">Este curso no tiene álbumes; agregá los alumnos desde el ABM de Cursos.</p>
+    <p class="hint">Este grupo no tiene participantes; agregalos desde el ABM de Grupos.</p>
   } @else {
     @if (sinCodigo().length > 0) {
       <p class="aviso">
         <mat-icon>warning</mat-icon>
-        {{ sinCodigo().length }} álbum(es) sin código activo quedan fuera de la impresión.
+        {{ sinCodigo().length }} participante(s) sin código activo quedan fuera de la impresión.
       </p>
     }
 
     <div class="grilla">
-      @for (tarjeta of tarjetas(); track tarjeta.albumId) {
+      @for (tarjeta of tarjetas(); track tarjeta.participanteId) {
         <div class="tarjeta" [class.tarjeta--sin-codigo]="!tarjeta.codigo">
           <div class="tarjeta__datos">
             <span class="tarjeta__evento">
-              {{ tarjetasCurso()?.nombreEvento }} — {{ tarjetasCurso()?.nombreCurso }}
+              {{ tarjetasGrupo()?.nombreEvento }} — {{ tarjetasGrupo()?.nombreGrupo }}
             </span>
-            <span class="tarjeta__alumno">{{ tarjeta.nombreAlumno }}</span>
+            <span class="tarjeta__participante">{{ tarjeta.nombre }}</span>
             @if (tarjeta.codigo) {
               <span class="tarjeta__codigo">{{ tarjeta.codigo }}</span>
               <span class="tarjeta__ayuda">Escaneá el QR o ingresá el código para ver las fotos.</span>

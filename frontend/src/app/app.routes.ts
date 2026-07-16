@@ -42,21 +42,21 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'fotos/cursos',
+        path: 'fotos/grupos',
         loadComponent: () =>
-          import('./features/fotos/cursos/ui/cursos-list.component').then(
-            (m) => m.CursosListComponent,
+          import('./features/fotos/grupos/ui/grupos-list.component').then(
+            (m) => m.GruposListComponent,
           ),
       },
       {
-        // Pantalla única de fotos: subida masiva a curso/álbum + grilla de verificación
+        // Pantalla única de fotos: subida masiva a grupo/participante + grilla de verificación
         // (thumbs con watermark, preview, descarga del original, borrado).
         path: 'fotos/galeria',
         loadComponent: () =>
           import('./features/fotos/fotos/ui/galeria.component').then((m) => m.GaleriaComponent),
       },
       {
-        // Tarjetas de acceso por curso (código + QR por alumno), con impresión.
+        // Tarjetas de acceso por grupo (código + QR por participante), con impresión.
         path: 'fotos/tarjetas',
         loadComponent: () =>
           import('./features/fotos/tarjetas/ui/tarjetas.component').then(

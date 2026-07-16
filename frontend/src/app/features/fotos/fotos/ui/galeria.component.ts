@@ -19,7 +19,7 @@ import {
   TbiSelectComponent,
   TbiSelectOption,
 } from '../../../../shared/ui/tbi-select/tbi-select.component';
-import { CursosService } from '../../cursos/data/cursos.service';
+import { GruposService } from '../../grupos/data/grupos.service';
 import { EventosService } from '../../eventos/data/eventos.service';
 import { Evento } from '../../eventos/domain/evento.model';
 import { FotosService } from '../data/fotos.service';
@@ -27,9 +27,9 @@ import { EstadoProcesamientoFoto, Foto } from '../domain/foto.model';
 import { FotoImgComponent } from './foto-img.component';
 import { FotoPreviewDialogComponent } from './foto-preview-dialog.component';
 
-/** Filtro de álbum: todas las fotos del curso (solo para MIRAR: no es un destino de subida). */
+/** Filtro de participante: todas las fotos del grupo (solo para MIRAR: no es un destino de subida). */
 const TODAS = -1;
-/** Filtro/destino: fotos grupales del curso (albumId null). */
+/** Filtro/destino: fotos grupales del grupo (participanteId null). */
 const GRUPALES = 0;
 
 /**
@@ -43,8 +43,8 @@ const POLL_MS = 3000;
 
 /**
  * Pantalla única de fotos del admin (unifica "Subir fotos" + "Galería", pedido 2026-07-14): el
- * fotógrafo elige evento → curso → álbum, sube ahí mismo y VE aparecer las fotos en la grilla
- * (thumbs con watermark, preview ampliado, descarga del original y borrado). El selector de álbum
+ * fotógrafo elige evento → grupo → participante, sube ahí mismo y VE aparecer las fotos en la grilla
+ * (thumbs con watermark, preview ampliado, descarga del original y borrado). El selector de participante
  * es a la vez filtro de la grilla y destino de la subida; con "Todas las fotos" solo se mira.
  */
 // TODO (Fase 4 - i18n): textos en español por ahora.
@@ -63,13 +63,13 @@ const POLL_MS = 3000;
 })
 export class GaleriaComponent {
   private readonly fotosService = inject(FotosService);
-  private readonly cursosService = inject(CursosService);
+  private readonly gruposService = inject(GruposService);
   private readonly eventosService = inject(EventosService);
   private readonly notify = inject(NotificationService);
   private readonly confirmService = inject(ConfirmService);
   private readonly dialog = inject(MatDialog);
 
-  // ── Cascada evento → curso + selector de álbum (filtro de la grilla Y destino de subida) ─────
+  // ── Cascada evento → grupo + selector de participante (filtro de la grilla Y destino de subida) ─────
 
   private readonly eventosResource = rxResource({
     stream: () =>
@@ -84,60 +84,60 @@ export class GaleriaComponent {
   );
   protected readonly eventoId = signal<number | null>(null);
 
-  protected readonly cursoId = linkedSignal<number | null, number | null>({
+  protected readonly grupoId = linkedSignal<number | null, number | null>({
     source: this.eventoId,
     computation: () => null,
   });
 
-  private readonly cursosResource = rxResource({
+  private readonly gruposResource = rxResource({
     params: () => this.eventoId() ?? undefined,
     stream: ({ params: eventoId }) =>
-      this.cursosService.crud
+      this.gruposService.crud
         .getAllByCriteria({ eventoId, page: 0, pageSize: 500 })
         .pipe(map((result) => result.items)),
   });
-  protected readonly cursoOptions = computed<TbiSelectOption<number>[]>(
-    () => this.cursosResource.value()?.map((c) => ({ value: c.id ?? 0, label: c.nombre })) ?? [],
+  protected readonly grupoOptions = computed<TbiSelectOption<number>[]>(
+    () => this.gruposResource.value()?.map((c) => ({ value: c.id ?? 0, label: c.nombre })) ?? [],
   );
 
-  protected readonly albumFiltro = linkedSignal<number | null, number>({
-    source: this.cursoId,
+  protected readonly participanteFiltro = linkedSignal<number | null, number>({
+    source: this.grupoId,
     computation: () => TODAS,
   });
 
-  private readonly cursoDetalleResource = rxResource({
-    params: () => this.cursoId() ?? undefined,
-    stream: ({ params: cursoId }) => this.cursosService.crud.getById(cursoId),
+  private readonly grupoDetalleResource = rxResource({
+    params: () => this.grupoId() ?? undefined,
+    stream: ({ params: grupoId }) => this.gruposService.crud.getById(grupoId),
   });
-  private readonly albumes = computed(() => this.cursoDetalleResource.value()?.albumes ?? []);
+  private readonly participantes = computed(() => this.grupoDetalleResource.value()?.participantes ?? []);
 
-  protected readonly albumOptions = computed<TbiSelectOption<number>[]>(() => [
+  protected readonly participanteOptions = computed<TbiSelectOption<number>[]>(() => [
     { value: TODAS, label: 'Todas las fotos' },
-    { value: GRUPALES, label: 'Grupales del curso' },
-    ...this.albumes().map((a) => ({ value: a.id, label: `Álbum: ${a.nombreAlumno}` })),
+    { value: GRUPALES, label: 'Grupales del grupo' },
+    ...this.participantes().map((a) => ({ value: a.id, label: a.nombre })),
   ]);
-  private readonly albumPorId = computed(
-    () => new Map(this.albumes().map((a) => [a.id, a.nombreAlumno])),
+  private readonly participantePorId = computed(
+    () => new Map(this.participantes().map((a) => [a.id, a.nombre])),
   );
 
-  // ── Fotos del curso (el filtro por álbum se aplica en memoria: son pocas por curso) ──────────
+  // ── Fotos del grupo (el filtro por participante se aplica en memoria: son pocas por grupo) ──────────
 
   protected readonly fotosResource = rxResource({
-    params: () => this.cursoId() ?? undefined,
-    stream: ({ params: cursoId }) =>
-      this.fotosService.listar(cursoId).pipe(catchError(() => of<Foto[]>([]))),
+    params: () => this.grupoId() ?? undefined,
+    stream: ({ params: grupoId }) =>
+      this.fotosService.listar(grupoId).pipe(catchError(() => of<Foto[]>([]))),
   });
 
   protected readonly fotos = computed(() => {
-    const filtro = this.albumFiltro();
+    const filtro = this.participanteFiltro();
     const fotos = this.fotosResource.value() ?? [];
     if (filtro === TODAS) {
       return fotos;
     }
     if (filtro === GRUPALES) {
-      return fotos.filter((f) => f.albumId == null);
+      return fotos.filter((f) => f.participanteId == null);
     }
-    return fotos.filter((f) => f.albumId === filtro);
+    return fotos.filter((f) => f.participanteId === filtro);
   });
 
   protected readonly cantidadPendientes = computed(
@@ -158,18 +158,18 @@ export class GaleriaComponent {
       });
   }
 
-  // ── Subida (al destino del selector de álbum; con "Todas" no hay destino → no se sube) ───────
+  // ── Subida (al destino del selector de participante; con "Todas" no hay destino → no se sube) ───────
 
   protected readonly archivos = signal<File[]>([]);
   protected readonly subiendo = signal(false);
   protected readonly tandaActual = signal(0);
   protected readonly totalTandas = signal(0);
 
-  /** Con "Todas las fotos" no hay destino de subida: hay que elegir grupales o un álbum. */
-  protected readonly destinoElegido = computed(() => this.albumFiltro() !== TODAS);
+  /** Con "Todas las fotos" no hay destino de subida: hay que elegir grupales o un participante. */
+  protected readonly destinoElegido = computed(() => this.participanteFiltro() !== TODAS);
   protected readonly puedeSubir = computed(
     () =>
-      this.cursoId() != null &&
+      this.grupoId() != null &&
       this.destinoElegido() &&
       this.archivos().length > 0 &&
       !this.subiendo(),
@@ -199,11 +199,11 @@ export class GaleriaComponent {
   }
 
   protected subir(): void {
-    const cursoId = this.cursoId();
-    if (cursoId == null || !this.puedeSubir()) {
+    const grupoId = this.grupoId();
+    if (grupoId == null || !this.puedeSubir()) {
       return;
     }
-    const albumId = this.albumFiltro() === GRUPALES ? null : this.albumFiltro();
+    const participanteId = this.participanteFiltro() === GRUPALES ? null : this.participanteFiltro();
 
     const tandas: File[][] = [];
     const archivos = this.archivos();
@@ -219,7 +219,7 @@ export class GaleriaComponent {
       .pipe(
         // Secuencial a propósito: no saturar la conexión del fotógrafo ni el pipeline de la API.
         concatMap((tanda) =>
-          this.fotosService.subir(cursoId, albumId, tanda).pipe(
+          this.fotosService.subir(grupoId, participanteId, tanda).pipe(
             tap(() => this.tandaActual.update((t) => t + 1)),
             map((fotos) => fotos.length),
           ),
@@ -285,17 +285,17 @@ export class GaleriaComponent {
     return foto.estadoProcesamiento === EstadoProcesamientoFoto.Error;
   }
 
-  protected nombreAlbum(foto: Foto): string {
-    if (foto.albumId == null) {
+  protected nombreParticipante(foto: Foto): string {
+    if (foto.participanteId == null) {
       return 'Grupal';
     }
-    return this.albumPorId().get(foto.albumId) ?? `Álbum ${foto.albumId}`;
+    return this.participantePorId().get(foto.participanteId) ?? `Participante ${foto.participanteId}`;
   }
 
   protected nombreDestino(): string {
-    return this.albumFiltro() === GRUPALES
-      ? 'grupales del curso'
-      : `el álbum de ${this.albumPorId().get(this.albumFiltro()) ?? 'ese alumno'}`;
+    return this.participanteFiltro() === GRUPALES
+      ? 'las grupales del grupo'
+      : `el álbum de ${this.participantePorId().get(this.participanteFiltro()) ?? 'ese participante'}`;
   }
 
   protected tamanoLegible(bytes: number): string {

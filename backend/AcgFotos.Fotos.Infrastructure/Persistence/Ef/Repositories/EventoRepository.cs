@@ -25,7 +25,7 @@ public class EventoRepository : EntityBaseRepository<Evento>, IEventoRepository
         if (!string.IsNullOrEmpty(criteria.SearchText))
         {
             query = query.Where(e => e.Nombre.Contains(criteria.SearchText)
-                                     || (e.Colegio != null && e.Colegio.Contains(criteria.SearchText)));
+                                     || (e.LugarOrganizacion != null && e.LugarOrganizacion.Contains(criteria.SearchText)));
         }
 
         return this.BuildPaginationAsync(query, criteria);

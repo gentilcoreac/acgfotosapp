@@ -11,7 +11,7 @@ public partial class FotoMapper
     [MapperIgnoreSource(nameof(Foto.TenantId))]
     [MapperIgnoreSource(nameof(Foto.StorageKey))]
     [MapperIgnoreSource(nameof(Foto.Evento))]
-    [MapperIgnoreSource(nameof(Foto.Curso))]
-    [MapperIgnoreSource(nameof(Foto.Album))]
+    [MapperIgnoreSource(nameof(Foto.Grupo))]
+    [MapperIgnoreSource(nameof(Foto.Participante))]
     public partial FotoDto ToDto(Foto entity);
 }
