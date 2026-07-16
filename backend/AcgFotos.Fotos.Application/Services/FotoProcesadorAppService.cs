@@ -56,7 +56,13 @@ public class FotoProcesadorAppService : IFotoProcesadorAppService
 
             var derivados = await _imageProcessor.GenerarDerivadosAsync(
                 stream,
-                new OpcionesDerivados { TextoWatermark = _opciones.TextoWatermark },
+                new OpcionesDerivados
+                {
+                    TextoWatermark = _opciones.TextoWatermark,
+                    LadoMayorPreview = _opciones.LadoMayorPreview,
+                    LadoMayorThumb = _opciones.LadoMayorThumb,
+                    Calidad = _opciones.CalidadDerivados,
+                },
                 cancellationToken);
 
             await _fotoStorage.GuardarDerivadosAsync(foto, derivados);

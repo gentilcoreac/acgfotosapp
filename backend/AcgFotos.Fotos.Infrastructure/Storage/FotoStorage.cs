@@ -14,6 +14,7 @@ public class FotoStorage : IFotoStorage
 {
     private const string PrefijoPrivado = "private/";
     private const string JpegContentType = "image/jpeg";
+    private const string WebpContentType = "image/webp";
 
     private readonly IStorageProvider _storageProvider;
 
@@ -51,14 +52,14 @@ public class FotoStorage : IFotoStorage
     {
         await _storageProvider.SaveAsync(
             PrefijoPrivado + FotoStorageKeys.Preview(foto),
-            derivados.PreviewJpeg,
-            JpegContentType,
+            derivados.Preview,
+            WebpContentType,
             StorageVisibility.Private);
 
         await _storageProvider.SaveAsync(
             PrefijoPrivado + FotoStorageKeys.Thumb(foto),
-            derivados.ThumbJpeg,
-            JpegContentType,
+            derivados.Thumb,
+            WebpContentType,
             StorageVisibility.Private);
     }
 }

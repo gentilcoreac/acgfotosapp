@@ -1,7 +1,7 @@
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
-using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
 using AcgFotos.Fotos.Application.Imaging;
 
@@ -42,8 +42,8 @@ public class ImageSharpImageProcessor : IImageProcessor
 
             return new DerivadosFoto
             {
-                PreviewJpeg = preview,
-                ThumbJpeg = thumb,
+                Preview = preview,
+                Thumb = thumb,
                 AnchoOriginal = anchoOriginal,
                 AltoOriginal = altoOriginal,
             };
@@ -72,7 +72,9 @@ public class ImageSharpImageProcessor : IImageProcessor
         AplicarWatermark(derivado, opciones.TextoWatermark);
 
         using var ms = new MemoryStream();
-        await derivado.SaveAsync(ms, new JpegEncoder { Quality = opciones.CalidadJpeg }, cancellationToken);
+        // WebP lossy: ~25-30% menos peso que JPEG a igual calidad percibida (galería mobile con
+        // datos móviles). Los derivados se regeneran, así que cambiar de formato es barato.
+        await derivado.SaveAsync(ms, new WebpEncoder { Quality = opciones.Calidad }, cancellationToken);
         return ms.ToArray();
     }
 
@@ -83,7 +85,7 @@ public class ImageSharpImageProcessor : IImageProcessor
         var medida = TextMeasurer.MeasureSize(texto, new TextOptions(font));
 
         // Grilla diagonal: el paso se deriva del tamaño del texto para que la densidad sea
-        // parecida en el preview (1200px) y en el thumb (300px).
+        // parecida en el preview (900px) y en el thumb (300px).
         var pasoX = medida.Width * 1.6f;
         var pasoY = medida.Height * 5f;
 

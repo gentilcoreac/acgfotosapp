@@ -8,9 +8,18 @@ public class OpcionesFotos
 {
     public string TextoWatermark { get; set; } = "ACG Fotos";
 
+    /// <summary>Lado mayor del preview en px. Muy bajo a propósito (premisa ADR-01 + pedido 2026-07-15).</summary>
+    public int LadoMayorPreview { get; set; } = 900;
+
+    /// <summary>Lado mayor del thumb de la grilla, en px.</summary>
+    public int LadoMayorThumb { get; set; } = 300;
+
+    /// <summary>Calidad WebP (0-100) de ambos derivados. Baja a propósito.</summary>
+    public int CalidadDerivados { get; set; } = 55;
+
     /// <summary>
     /// Molde de la URL que codifican los QR de las tarjetas ({codigo} se reemplaza por el código
-    /// del álbum). La ruta de canje se implementa en Fase 2; el dominio real se define al deploy.
+    /// del participante). La ruta de canje se implementa en Fase 2; el dominio real se define al deploy.
     /// </summary>
     public string UrlCanjeTemplate { get; set; } = "http://localhost:4200/canje/{codigo}";
 }

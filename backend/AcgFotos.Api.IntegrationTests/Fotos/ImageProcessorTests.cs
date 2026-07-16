@@ -37,12 +37,12 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             Assert.Equal(4000, derivados.AnchoOriginal);
             Assert.Equal(3000, derivados.AltoOriginal);
 
-            using var preview = Image.Load(derivados.PreviewJpeg);
-            Assert.Equal(1200, Math.Max(preview.Width, preview.Height));
+            using var preview = Image.Load(derivados.Preview);
+            Assert.Equal(900, Math.Max(preview.Width, preview.Height));
             // Conserva el aspecto 4:3.
-            Assert.Equal(900, Math.Min(preview.Width, preview.Height));
+            Assert.Equal(675, Math.Min(preview.Width, preview.Height));
 
-            using var thumb = Image.Load(derivados.ThumbJpeg);
+            using var thumb = Image.Load(derivados.Thumb);
             Assert.Equal(300, Math.Max(thumb.Width, thumb.Height));
         }
 
@@ -53,7 +53,7 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
 
             var derivados = await Processor.GenerarDerivadosAsync(original, Opciones());
 
-            using var preview = Image.Load(derivados.PreviewJpeg);
+            using var preview = Image.Load(derivados.Preview);
             Assert.Equal(800, preview.Width);
             Assert.Equal(600, preview.Height);
         }
@@ -68,7 +68,7 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             // Sobre un color plano, los píxeles "más claros que el fondo" solo pueden ser watermark
             // (blanco al 35%). Se exige presencia en los CUATRO cuadrantes: una marca solo en el
             // centro o en una esquina se recorta fácil y no cumple ADR-01.
-            using var preview = Image.Load<Rgb24>(derivados.PreviewJpeg);
+            using var preview = Image.Load<Rgb24>(derivados.Preview);
             var cuadrantesConMarca = new bool[2, 2];
             preview.ProcessPixelRows(accessor =>
             {

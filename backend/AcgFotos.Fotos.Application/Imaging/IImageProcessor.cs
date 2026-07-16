@@ -14,27 +14,32 @@ public interface IImageProcessor
         CancellationToken cancellationToken = default);
 }
 
-/// <summary>Parámetros del procesamiento. Los defaults implementan la premisa del producto.</summary>
+/// <summary>
+/// Parámetros del procesamiento. Los defaults implementan la premisa del producto (2026-07-15,
+/// pedido del fotógrafo): resolución MUY baja — lo capturable no debe servir ni para imprimir
+/// ni para compartir con dignidad; alcanza justo para elegir la foto. Ajustables por config
+/// (sección <c>Fotos</c>) sin tocar código.
+/// </summary>
 public record OpcionesDerivados
 {
     /// <summary>Texto de la marca de agua, repetido en diagonal sobre toda la imagen.</summary>
     public required string TextoWatermark { get; init; }
 
     /// <summary>Lado mayor del preview: alcanza para elegir, no para imprimir (ADR-01).</summary>
-    public int LadoMayorPreview { get; init; } = 1200;
+    public int LadoMayorPreview { get; init; } = 900;
 
     /// <summary>Lado mayor del thumbnail de la grilla.</summary>
     public int LadoMayorThumb { get; init; } = 300;
 
-    /// <summary>Calidad JPEG de los derivados (0-100).</summary>
-    public int CalidadJpeg { get; init; } = 80;
+    /// <summary>Calidad WebP de los derivados (0-100). Baja a propósito.</summary>
+    public int Calidad { get; init; } = 55;
 }
 
-/// <summary>Resultado: bytes JPEG de los derivados + dimensiones del original (para fot_Fotos).</summary>
+/// <summary>Resultado: bytes WebP de los derivados + dimensiones del original (para fot_Fotos).</summary>
 public record DerivadosFoto
 {
-    public required byte[] PreviewJpeg { get; init; }
-    public required byte[] ThumbJpeg { get; init; }
+    public required byte[] Preview { get; init; }
+    public required byte[] Thumb { get; init; }
     public required int AnchoOriginal { get; init; }
     public required int AltoOriginal { get; init; }
 }

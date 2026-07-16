@@ -13,8 +13,8 @@ public static class FotoStorageKeys
         $"fotos/originals/{foto.EventoId}/{foto.StorageKey:N}.jpg";
 
     public static string Preview(Foto foto) =>
-        $"fotos/derived/{foto.EventoId}/{foto.StorageKey:N}_preview.jpg";
+        $"fotos/derived/{foto.EventoId}/{foto.StorageKey:N}_preview.webp";
 
     public static string Thumb(Foto foto) =>
-        $"fotos/derived/{foto.EventoId}/{foto.StorageKey:N}_thumb.jpg";
+        $"fotos/derived/{foto.EventoId}/{foto.StorageKey:N}_thumb.webp";
 }
