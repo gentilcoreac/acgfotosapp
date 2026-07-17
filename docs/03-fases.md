@@ -69,7 +69,7 @@ Objetivo: una familia real puede hacer un pedido de punta a punta. **Con esto ya
 
 - [ ] Ingreso por código / link QR → token de sesión del álbum
 - [ ] Galería mobile-first (grilla de thumbs, vista ampliada del preview)
-- [ ] Fricción anti-copia en la galería: bloquear clic derecho, arrastre e impresión (capa 2 de ADR-01)
+- [ ] Fricción anti-copia en la galería de familias (capa 2 de ADR-01; detectado 2026-07-16 en la galería admin: clic derecho → "Guardar imagen como" funciona). Técnicas, todas juntas: bloquear `contextmenu` sobre la imagen, `draggable=false` + `user-select: none`, **div transparente encima de la `<img>`** (el clic derecho cae en el div y el menú no ofrece "guardar imagen") o directamente `background-image` en vez de `<img>`, y CSS `@media print` que oculte la galería. **Veredicto de robustez (no re-discutir)**: en web NO existe bloqueo real — la imagen siempre llega al navegador y se extrae por dev tools/Network, y el screenshot es imbloqueable (ADR-01). La defensa real ya está hecha por diseño: lo único descargable es un WebP de 900px con watermark horneado (valor comercial ≈ 0) + overlay con nombre (Fase 2) + app con FLAG_SECURE (capa 3). Aplicar la misma fricción en la galería admin es opcional/cosmético: el admin tiene el botón de descargar el original al lado.
 - [ ] Carrito: foto + tamaño + cantidad; total en vivo
 - [ ] Confirmación de pedido con nombre y teléfono
 - [ ] Admin: listado de pedidos por evento, detalle, cambio de estado (Pendiente → Impreso → Entregado)
