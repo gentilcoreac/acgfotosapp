@@ -17,6 +17,9 @@ public class OpcionesFotos
     /// <summary>Calidad WebP (0-100) de ambos derivados. Baja a propósito.</summary>
     public int CalidadDerivados { get; set; } = 55;
 
+    /// <summary>Opacidad del texto del watermark (0-1). Pedido del negocio: mitad transparente.</summary>
+    public float OpacidadWatermark { get; set; } = 0.5f;
+
     /// <summary>
     /// Molde de la URL que codifican los QR de las tarjetas ({codigo} se reemplaza por el código
     /// del participante). La ruta de canje se implementa en Fase 2; el dominio real se define al deploy.

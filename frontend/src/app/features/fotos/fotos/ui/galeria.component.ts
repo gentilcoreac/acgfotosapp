@@ -250,7 +250,14 @@ export class GaleriaComponent {
     if (foto.estadoProcesamiento !== EstadoProcesamientoFoto.Lista) {
       return;
     }
-    this.dialog.open(FotoPreviewDialogComponent, { data: foto, autoFocus: false });
+    // Casi pantalla completa (pedido 2026-07-16: el preview quedaba chico y con scroll lateral).
+    this.dialog.open(FotoPreviewDialogComponent, {
+      data: foto,
+      autoFocus: false,
+      maxWidth: '100vw',
+      width: '96vw',
+      height: '94vh',
+    });
   }
 
   protected descargarOriginal(foto: Foto): void {

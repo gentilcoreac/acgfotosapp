@@ -62,6 +62,7 @@ public class FotoProcesadorAppService : IFotoProcesadorAppService
                     LadoMayorPreview = _opciones.LadoMayorPreview,
                     LadoMayorThumb = _opciones.LadoMayorThumb,
                     Calidad = _opciones.CalidadDerivados,
+                    Opacidad = _opciones.OpacidadWatermark,
                 },
                 cancellationToken);
 

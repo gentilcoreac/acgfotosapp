@@ -14,8 +14,6 @@ namespace AcgFotos.Fotos.Infrastructure.Imaging;
 /// </summary>
 public class ImageSharpImageProcessor : IImageProcessor
 {
-    // La opacidad es un equilibrio: suficiente para arruinar una impresión, sin impedir elegir la foto.
-    private const float OpacidadWatermark = 0.35f;
 
     public async Task<DerivadosFoto> GenerarDerivadosAsync(
         Stream original,
@@ -69,7 +67,7 @@ public class ImageSharpImageProcessor : IImageProcessor
             }
         });
 
-        AplicarWatermark(derivado, opciones.TextoWatermark);
+        AplicarWatermark(derivado, opciones.TextoWatermark, opciones.Opacidad);
 
         using var ms = new MemoryStream();
         // WebP lossy: ~25-30% menos peso que JPEG a igual calidad percibida (galería mobile con
@@ -78,10 +76,10 @@ public class ImageSharpImageProcessor : IImageProcessor
         return ms.ToArray();
     }
 
-    private static void AplicarWatermark(Image imagen, string texto)
+    private static void AplicarWatermark(Image imagen, string texto, float opacidad)
     {
         var font = ResolverFuente(imagen.Width);
-        var color = Color.White.WithAlpha(OpacidadWatermark);
+        var color = Color.White.WithAlpha(opacidad);
         var medida = TextMeasurer.MeasureSize(texto, new TextOptions(font));
 
         // Grilla diagonal: el paso se deriva del tamaño del texto para que la densidad sea

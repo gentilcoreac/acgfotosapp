@@ -8,8 +8,10 @@ import { Foto } from '../domain/foto.model';
 import { FotoImgComponent } from './foto-img.component';
 
 /**
- * Preview ampliado de una foto (el derivado de 1200px CON watermark — el original nunca se
- * renderiza, ADR-01). Desde acá se puede descargar el original limpio (flujo admin, para imprimir).
+ * Preview ampliado de una foto (el derivado CON watermark — el original nunca se renderiza,
+ * ADR-01). El diálogo se abre casi a pantalla completa (ver `verPreview` en la galería) y la foto
+ * se muestra ENTERA (contain): nunca hay scroll lateral. Desde acá se puede descargar el original
+ * limpio (flujo admin, para imprimir).
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,16 +36,32 @@ import { FotoImgComponent } from './foto-img.component';
     </mat-dialog-actions>
   `,
   styles: `
+    /* El diálogo se abre con height fijo: el host llena el panel y el contenido flexea,
+       así la imagen toma todo el alto disponible entre título y acciones. */
+    :host {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
     .titulo {
-      max-width: 70vw;
+      max-width: 85vw;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
+    mat-dialog-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      max-height: none;
+    }
+
     .preview {
-      width: min(72vw, 900px);
-      height: min(66vh, 700px);
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
     }
   `,
 })

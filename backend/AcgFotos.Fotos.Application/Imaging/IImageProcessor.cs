@@ -33,6 +33,12 @@ public record OpcionesDerivados
 
     /// <summary>Calidad WebP de los derivados (0-100). Baja a propósito.</summary>
     public int Calidad { get; init; } = 55;
+
+    /// <summary>
+    /// Opacidad del texto del watermark (0-1). 0.5 pedido por el negocio (2026-07-16): suficiente
+    /// para arruinar una impresión sin impedir elegir la foto.
+    /// </summary>
+    public float Opacidad { get; init; } = 0.5f;
 }
 
 /// <summary>Resultado: bytes WebP de los derivados + dimensiones del original (para fot_Fotos).</summary>
