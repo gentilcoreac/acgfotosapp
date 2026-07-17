@@ -83,9 +83,11 @@ public class ImageSharpImageProcessor : IImageProcessor
         var medida = TextMeasurer.MeasureSize(texto, new TextOptions(font));
 
         // Grilla diagonal: el paso se deriva del tamaño del texto para que la densidad sea
-        // parecida en el preview (900px) y en el thumb (300px).
-        var pasoX = medida.Width * 1.6f;
-        var pasoY = medida.Height * 5f;
+        // parecida en el preview (900px) y en el thumb (300px). Apretada a pedido del negocio
+        // (2026-07-16, "más invasiva pero sutil"): la sutileza la aporta el tamaño de letra
+        // chico (ResolverFuente), no los huecos.
+        var pasoX = medida.Width * 1.25f;
+        var pasoY = medida.Height * 2.2f;
 
         imagen.Mutate(ctx =>
         {
@@ -108,8 +110,9 @@ public class ImageSharpImageProcessor : IImageProcessor
 
     private static Font ResolverFuente(int anchoImagen)
     {
-        // El tamaño escala con la imagen (~1/12 del ancho) para cubrirla igual en thumb y preview.
-        var tamano = Math.Max(12f, anchoImagen / 12f);
+        // El tamaño escala con la imagen (~1/20 del ancho): letra chica para que la frase completa
+        // entre varias veces y el patrón cubra sin tapar la foto (más marcas, cada una más sutil).
+        var tamano = Math.Max(11f, anchoImagen / 20f);
 
         // Arial está en Windows y en la mayoría de los Linux con fuentes MS; si no, cualquier fuente
         // del sistema sirve (el watermark no es tipográficamente exigente).
