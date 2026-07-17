@@ -72,6 +72,14 @@ describe('authInterceptor', () => {
     req.flush({});
   });
 
+  it('no agrega Authorization de plataforma en el canje de familia (fotos/canje)', () => {
+    const url = 'https://api.test.com/api/fotos/canje';
+    http.post(url, {}).subscribe();
+    const req = httpMock.expectOne(url);
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    req.flush({});
+  });
+
   it('ante 401 refresca y reintenta el request original con el token nuevo', () => {
     http.get(PROTECTED_URL).subscribe();
 

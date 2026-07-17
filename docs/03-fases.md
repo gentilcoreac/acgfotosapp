@@ -5,22 +5,23 @@ Cada fase termina en algo usable. No empezar una fase sin cerrar la anterior.
 > **Este documento ES el roadmap vivo del proyecto**: al completar un ítem se tilda acá; esta
 > sección de estado se actualiza al cerrar cada bloque de trabajo.
 
-## Estado (2026-07-15) y próximos pasos
+## Estado (2026-07-16) y próximos pasos
 
-**Dónde estamos**: Fase 0 cerrada. **El desarrollo de Fase 1 está completo** — API (468 tests) y
+**Dónde estamos**: Fase 0 cerrada. **FASE 1 TERMINADA** (2026-07-16) — API (468 tests) y
 front admin: ABMs de Eventos y Grupos/Participantes, pantalla única de Fotos (`/fotos/galeria`:
 subida masiva + grilla con preview/descarga/borrado) y Tarjetas imprimibles (`/fotos/tarjetas`).
 Se prueba en :4200 como `fotografo` (clave dev). **Naming genérico aplicado de punta a punta**
 (2026-07-15, ADR-10): `Curso→Grupo`, `Álbum→Participante`, `Colegio→LugarOrganizacion` en
 entidades, tablas (migración `RenombrarGrupoParticipante`), API (`api/fotos/grupos`), front
-(`/fotos/grupos`) y UI.
+(`/fotos/grupos`) y UI. **Alta real del negocio y evento piloto**: hechos de forma simulada
+(tenant básico + evento con pocas fotos, sin pasar por el alta definitiva del ABM) — alcanza para
+desarrollar y probar Fase 2; el alta DEFINITIVA del tenant del fotógrafo queda pendiente para
+antes de lanzar a producción real (ver Deploy).
 
 **Próximos pasos, en orden**:
 
-1. **Alta real del negocio**: tenant + usuario definitivos del fotógrafo desde los ABMs (ensayo dev hecho: `backend/scripts/dev-alta-fotografo.sql`).
-2. **Responder las preguntas al fotógrafo** (docs/05: tamaños/precios reales, cómo imprime, cómo organiza carpetas) y cargar el evento piloto → **Fase 1 TERMINADA**.
-3. Arrancar **Fase 2** (familias): canje de código → sesión de álbum, galería mobile-first con anti-copia, carrito y pedidos, lista de impresión. Al diseñar el token de sesión, dejarlo preparado para MÁS de un participante por sesión (ver nota en docs/05: hermanos / persona en dos grupos).
-4. Al final de Fase 2: decisiones de **deploy** (PostgreSQL, hosting, R2, dominio).
+1. **Fase 2** (familias): canje de código → sesión de álbum, galería mobile-first con anti-copia, carrito y pedidos, lista de impresión. Al diseñar el token de sesión, dejarlo preparado para MÁS de un participante por sesión (ver nota en docs/05: hermanos / persona en dos grupos).
+2. Al final de Fase 2: decisiones de **deploy** (PostgreSQL, hosting, R2, dominio) — incluye el alta definitiva del tenant del fotógrafo.
 
 ## Fase 0 — Fundaciones (actual)
 
@@ -67,7 +68,7 @@ Objetivo: el fotógrafo puede dejar un evento listo para publicar.
 
 Objetivo: una familia real puede hacer un pedido de punta a punta. **Con esto ya se reemplaza el ir casa por casa.**
 
-- [ ] Ingreso por código / link QR → token de sesión del álbum
+- [x] Ingreso por código / link QR → token de sesión del álbum (API: `POST api/fotos/canje`, ADR-11; rate-limiteado, rechaza evento no publicado/expirado. **Falta el consumo**: todavía no hay ningún endpoint de familia que valide el token — lo resuelve el próximo ítem, Galería)
 - [ ] Galería mobile-first (grilla de thumbs, vista ampliada del preview)
 - [ ] Fricción anti-copia en la galería de familias (capa 2 de ADR-01; detectado 2026-07-16 en la galería admin: clic derecho → "Guardar imagen como" funciona). Técnicas, todas juntas: bloquear `contextmenu` sobre la imagen, `draggable=false` + `user-select: none`, **div transparente encima de la `<img>`** (el clic derecho cae en el div y el menú no ofrece "guardar imagen") o directamente `background-image` en vez de `<img>`, y CSS `@media print` que oculte la galería. **Veredicto de robustez (no re-discutir)**: en web NO existe bloqueo real — la imagen siempre llega al navegador y se extrae por dev tools/Network, y el screenshot es imbloqueable (ADR-01). La defensa real ya está hecha por diseño: lo único descargable es un WebP de 900px con watermark horneado (valor comercial ≈ 0) + overlay con nombre (Fase 2) + app con FLAG_SECURE (capa 3). Aplicar la misma fricción en la galería admin es opcional/cosmético: el admin tiene el botón de descargar el original al lado.
 - [ ] Carrito: foto + tamaño + cantidad; total en vivo

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { allowedRoutesGuard, anonGuard, authGuard } from './core/auth';
+import { familiaSessionGuard } from './core/familia';
 
 export const routes: Routes = [
   {
@@ -7,6 +8,27 @@ export const routes: Routes = [
     canMatch: [anonGuard],
     loadComponent: () =>
       import('./features/auth/login/login.component').then((m) => m.LoginComponent),
+  },
+  {
+    // Canje de código (ADR-02): sin registro, fuera del layout admin. Llega por el form manual
+    // (/canje) o por el link del QR de la tarjeta (/canje/:codigo, precarga y dispara solo).
+    path: 'canje',
+    loadComponent: () =>
+      import('./features/familia/canje/ui/canje.component').then((m) => m.CanjeComponent),
+  },
+  {
+    path: 'canje/:codigo',
+    loadComponent: () =>
+      import('./features/familia/canje/ui/canje.component').then((m) => m.CanjeComponent),
+  },
+  {
+    // Landing post-canje de la familia (stub: la galería real es el próximo ítem de Fase 2).
+    path: 'mi-album',
+    canMatch: [familiaSessionGuard],
+    loadComponent: () =>
+      import('./features/familia/mi-album/ui/mi-album.component').then(
+        (m) => m.MiAlbumComponent,
+      ),
   },
   {
     // Activación de cuenta vía link del mail. Anónima: el usuario aún no tiene clave/sesión.

@@ -7,7 +7,7 @@ import { AuthStore } from './auth.store';
 
 /** Endpoints anónimos: no llevan `Authorization` ni disparan refresh ante 401. */
 const ANONYMOUS_URL =
-  /\/(auth\/token|auth\/refresh|auth\/olvide-password|auth\/resetear-password|auth\/confirmar-cuenta|version)/;
+  /\/(auth\/token|auth\/refresh|auth\/olvide-password|auth\/resetear-password|auth\/confirmar-cuenta|version|fotos\/canje)/;
 
 /** Lleva `Authorization` pero NO dispara refresh ante 401 (evita recursión en el propio logout). */
 const NO_REFRESH_ON_401 = /\/auth\/logout/;

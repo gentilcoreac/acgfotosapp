@@ -2,6 +2,7 @@ using Autofac;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using AcgFotos.Core.AutoFac;
+using AcgFotos.Fotos.Application.Familias;
 using AcgFotos.Fotos.Application.Imaging;
 using AcgFotos.Fotos.Application.Procesamiento;
 using AcgFotos.Fotos.Application.Storage;
@@ -48,6 +49,14 @@ namespace AcgFotos.Fotos.Controllers
             builder.RegisterType<FotoRepository>()
                 .As<IFotoRepository>()
                 .InstancePerLifetimeScope();
+
+            builder.RegisterType<CodigoAccesoRepository>()
+                .As<ICodigoAccesoRepository>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<FamiliaTokenFactory>()
+                .As<IFamiliaTokenFactory>()
+                .InstancePerLifetimeScope(); // usa IOptions<JwtSecurityTokenConfig>, no sin estado
 
             builder.RegisterType<FotoStorage>()
                 .As<IFotoStorage>()

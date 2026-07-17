@@ -25,4 +25,7 @@ public class OpcionesFotos
     /// del participante). La ruta de canje se implementa en Fase 2; el dominio real se define al deploy.
     /// </summary>
     public string UrlCanjeTemplate { get; set; } = "http://localhost:4200/canje/{codigo}";
+
+    /// <summary>Duración del token de sesión de familia (pedido de Alberto 2026-07-16: 30 minutos).</summary>
+    public int DuracionSesionFamiliaMinutos { get; set; } = 30;
 }

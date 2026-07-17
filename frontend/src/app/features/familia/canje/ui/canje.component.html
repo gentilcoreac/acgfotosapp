@@ -1,0 +1,24 @@
+<div class="canje">
+  <form class="canje__card" [formGroup]="form" (ngSubmit)="submit()">
+    <p class="canje__brand">{{ appTitle }}</p>
+    <h1 class="canje__title">Ingresá tu código</h1>
+    <p class="canje__subtitle">El código está en tu tarjeta o en el link que te compartieron.</p>
+
+    <tbi-text-field
+      formControlName="codigo"
+      label="Código"
+      autocomplete="off"
+      errorMessage="Requerido"
+    />
+
+    @if (errors().length > 0) {
+      <ul class="canje__errors" data-testid="canje-errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+
+    <tbi-button type="submit" label="Ver mis fotos" loadingText="Verificando…" [loading]="loading()" />
+  </form>
+</div>

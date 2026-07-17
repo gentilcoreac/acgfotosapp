@@ -101,3 +101,30 @@ Formato corto: contexto → decisión → consecuencias. Si una decisión se rev
 - Los conceptos que no son entidades conservan su vocabulario natural en la UI ("las fotos van al álbum de Ana" como frase es válido; la entidad es Participante).
 
 **Consecuencias**: en el sidenav de root conviven "Grupos" (vertical Fotos) y "Grupos" de plataforma (grupos de usuarios, sección Gestión) — se distinguen por sección e ícono, y el fotógrafo real no verá los menús de plataforma; en el backend conviven `AcgFotos.Fotos.Domain.Entities.Grupo` y el `Grupo` de la plataforma (namespaces distintos — cuidado con los `using` al tocar ambos). Docs/02 queda como fuente del naming. La migración de renombre es reversible (Down completo).
+
+## ADR-11 — JWT de familia reutiliza la infraestructura JWT existente, con `sessionType` como discriminador
+
+**Contexto**: ADR-02 y docs/01-arquitectura.md ya prescriben que el canje de código emite "un JWT de
+corta duración... reutiliza la infraestructura JWT existente". La plataforma firma sus tokens con
+`JwtSecurityTokenConfig` (Key/Issuer/Audience únicos, `AcgFotos.Core.Security`), pero
+`AuthenticationHelper.OnTokenValidated` (Core) revalida el `SecurityStamp` del token contra
+`gen_Usuarios` — chequeo que no tiene sentido para una sesión de familia, que no tiene usuario de
+plataforma.
+
+**Decisión**: el token de familia (`FamiliaTokenFactory`, `AcgFotos.Fotos.Application`) se firma con
+la MISMA `JwtSecurityTokenConfig` (mismo signing key/issuer/audience) que los tokens de plataforma,
+pero lleva un claim propio `sessionType=familia` que lo discrimina, `tenant`/`eventoId`/
+`participanteId` (este último repetible — la sesión ya nace lista para más de un participante,
+docs/05: hermanos / persona en dos grupos) y una duración propia de 30 minutos
+(`Fotos:DuracionSesionFamiliaMinutos`, decisión de Alberto 2026-07-16), no la
+`DurationInMinutes` de la sesión del fotógrafo/admin.
+
+**Consecuencias**: el canje (este ítem) YA emite el token con esta forma, pero todavía nada lo
+consume — ningún endpoint de familia existe aún. El próximo ítem del roadmap (Galería) es quien
+necesita que `OnTokenValidated` reconozca `sessionType=familia` y salte el chequeo de
+`SecurityStamp` (una excepción chica, análoga a la que ya existe para `isRoot`), para que esos
+endpoints puedan usar el `[Authorize]` estándar en vez de reinventar la validación del JWT en el
+vertical. Hasta que eso se implemente, un token de familia autentica igual que cualquier JWT mal
+formado: el pipeline actual lo rechaza (falla el chequeo de stamp). El canje en sí no depende de
+esto — nunca usa `AppContext` para decisiones de seguridad, siempre resuelve tenant/evento desde la
+fila de `CodigoAcceso` recién leída de la base (ver comentarios en `CodigoAccesoRepository`).
