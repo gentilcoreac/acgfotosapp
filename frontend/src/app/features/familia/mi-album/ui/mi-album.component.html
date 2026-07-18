@@ -1,9 +1,76 @@
 <div class="mi-album">
-  <div class="mi-album__card">
-    <h1 class="mi-album__saludo">{{ saludo() }}</h1>
-    @if (nombreEvento(); as evento) {
-      <p class="mi-album__evento">{{ evento }}</p>
+  <header class="mi-album__header">
+    <div class="mi-album__saludo-wrap">
+      <h1 class="mi-album__saludo">{{ saludo() }}</h1>
+      @if (nombreEvento(); as evento) {
+        <p class="mi-album__evento">{{ evento }}</p>
+      }
+    </div>
+
+    @if (fotos().length > 0) {
+      <div class="mi-album__densidad" role="group" aria-label="Tamaño de la grilla">
+        <button
+          matIconButton
+          type="button"
+          [class.activo]="densidad() === 2"
+          (click)="densidad.set(2)"
+          aria-label="Fotos grandes, 2 por fila"
+          title="Grande"
+        >
+          <mat-icon>crop_square</mat-icon>
+        </button>
+        <button
+          matIconButton
+          type="button"
+          [class.activo]="densidad() === 4"
+          (click)="densidad.set(4)"
+          aria-label="Fotos chicas, 4 por fila"
+          title="Chico"
+        >
+          <mat-icon>grid_view</mat-icon>
+        </button>
+        <button
+          matIconButton
+          type="button"
+          [class.activo]="densidad() === 'lista'"
+          (click)="densidad.set('lista')"
+          aria-label="Ver en lista"
+          title="Lista"
+        >
+          <mat-icon>view_list</mat-icon>
+        </button>
+      </div>
     }
-    <p class="mi-album__placeholder">Tu galería está en camino. Muy pronto vas a poder ver y pedir tus fotos acá.</p>
-  </div>
+  </header>
+
+  @if (cargando()) {
+    <p class="mi-album__hint">Cargando tus fotos…</p>
+  } @else if (fotos().length === 0) {
+    <p class="mi-album__hint">Todavía no hay fotos disponibles para vos.</p>
+  } @else {
+    <div
+      class="grilla"
+      [class.grilla--lista]="densidad() === 'lista'"
+      [style.grid-template-columns]="gridTemplateColumns()"
+    >
+      @for (foto of fotos(); track foto.id) {
+        <button
+          class="grilla__item"
+          type="button"
+          (click)="verPreview(foto)"
+          [attr.aria-label]="'Ver foto de ' + nombreParticipante(foto)"
+        >
+          <tbi-foto-familia-img class="grilla__img" [fotoId]="foto.id" />
+          @if (densidad() === 'lista') {
+            <span class="grilla__etiqueta">{{ nombreParticipante(foto) }}</span>
+          } @else if (foto.participanteId === null) {
+            <span class="grilla__chip">
+              <mat-icon inline>group</mat-icon>
+              Grupal
+            </span>
+          }
+        </button>
+      }
+    </div>
+  }
 </div>

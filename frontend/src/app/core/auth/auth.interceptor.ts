@@ -2,6 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/comm
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AplicacionContextStore } from '../aplicacion-context';
+import { FamiliaSessionStore } from '../familia';
 import { AuthService } from './auth.service';
 import { AuthStore } from './auth.store';
 
@@ -11,6 +12,12 @@ const ANONYMOUS_URL =
 
 /** Lleva `Authorization` pero NO dispara refresh ante 401 (evita recursión en el propio logout). */
 const NO_REFRESH_ON_401 = /\/auth\/logout/;
+
+/**
+ * Galería de familia (ADR-11): lleva el JWT de `FamiliaSessionStore`, NUNCA el de plataforma — son
+ * sesiones distintas y pueden convivir en el mismo navegador (el fotógrafo probando su propio evento).
+ */
+const FAMILIA_URL = /\/fotos\/familia\//;
 
 /**
  * Interceptor de autenticación (funcional).
@@ -26,9 +33,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const store = inject(AuthStore);
   const authService = inject(AuthService);
   const aplicacionStore = inject(AplicacionContextStore);
+  const familiaStore = inject(FamiliaSessionStore);
 
   if (ANONYMOUS_URL.test(req.url)) {
     return next(req);
+  }
+
+  if (FAMILIA_URL.test(req.url)) {
+    // Sin refresh (no existe para la sesión de familia, ADR-11): si el token de 30 min venció, el
+    // 401 pasa tal cual — el guard de `/mi-album` manda de vuelta a `/canje` en la próxima navegación.
+    return next(withBearer(req, familiaStore.token(), null));
   }
 
   const aplicacionId = aplicacionStore.selectedId();

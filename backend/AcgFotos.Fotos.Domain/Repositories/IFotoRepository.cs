@@ -23,4 +23,18 @@ public interface IFotoRepository : IEntityBaseRepository<Foto>
     /// arranque del worker, que re-encola lo que quedó a medias si el proceso se reinició.
     /// </summary>
     Task<List<Foto>> GetPendientesTodosLosTenantsAsync();
+
+    /// <summary>
+    /// Fotos visibles para una sesión de familia (ADR-11): las individuales de esos participantes
+    /// más las grupales (<c>ParticipanteId == null</c>) de sus grupos. Solo <c>Lista</c> — a la
+    /// familia nunca se le muestra una foto Pendiente/Error.
+    /// </summary>
+    Task<List<Foto>> ListarParaFamiliaAsync(IReadOnlyCollection<long> participanteIds);
+
+    /// <summary>
+    /// La foto puntual, solo si es visible para esos participantes (mismo criterio que
+    /// <see cref="ListarParaFamiliaAsync"/>); null si no existe, no está Lista o no le pertenece a
+    /// la sesión — el 404 no distingue "no existe" de "no es tuya" (no dar pistas).
+    /// </summary>
+    Task<Foto?> GetVisibleParaFamiliaAsync(long fotoId, IReadOnlyCollection<long> participanteIds);
 }

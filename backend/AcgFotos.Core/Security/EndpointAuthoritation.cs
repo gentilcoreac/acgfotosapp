@@ -59,7 +59,29 @@ namespace AcgFotos.Core.Security
             {
                 var appContext = RequestHeaderHandler.Encode(context.HttpContext.Request);
 
-                // En el caso de que el usuario sera Root le permito hacer todo más allá de que 
+                // Sesión de familia (ADR-11): no existe fila en gen_Usuarios, así que la matriz de
+                // permisos de más abajo no tiene nada que consultar. Autorización propia: solo puede
+                // pisar endpoints marcados explícitamente [AllowFamiliaSession]; todo lo demás es 403
+                // aunque el JWT ya haya validado (rama aparte, NO un bypass de la matriz normal).
+                if (appContext.IsFamiliaSession)
+                {
+                    var allowsFamiliaSession = context.ActionDescriptor
+                        .EndpointMetadata.Any(em => em is AllowFamiliaSessionAttribute);
+
+                    if (!allowsFamiliaSession)
+                    {
+                        context.Result = new ObjectResult(
+                            ApiErrorResponse.From(MessagesAPI.ErrorUserNotPrivilegesAccess))
+                        {
+                            StatusCode = 403
+                        };
+                        this.AuditDenied(context, appContext);
+                    }
+
+                    return;
+                }
+
+                // En el caso de que el usuario sera Root le permito hacer todo más allá de que
                 // no tenga los permisos asigandos.
                 // Si es anónimo no valida permisos ya que se supone que si llego hasta ahí es porque el controller está decorado como allowAnomymous.
                 // Si no lo debería haber filtrado la autenticación salvo que el isAuthEnable esté en false

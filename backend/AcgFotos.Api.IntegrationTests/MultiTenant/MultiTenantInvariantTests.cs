@@ -105,6 +105,9 @@ namespace AcgFotos.Api.IntegrationTests.MultiTenant
             public long UserId => TestData.UserBId;
             public string UserName => TestData.UserB;
             public long TenantId { get; private init; }
+            public bool IsFamiliaSession => false;
+            public long? FamiliaEventoId => null;
+            public IReadOnlyCollection<long> FamiliaParticipanteIds => Array.Empty<long>();
             public long? AplicacionId => null;
 
             public void SetContext(HttpRequest request) { }

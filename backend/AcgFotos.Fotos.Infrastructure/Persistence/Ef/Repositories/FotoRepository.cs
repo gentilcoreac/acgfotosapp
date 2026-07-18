@@ -41,4 +41,28 @@ public class FotoRepository : EntityBaseRepository<Foto>, IFotoRepository
             .IgnoreQueryFilters() // barrido de arranque del worker: cruza tenants a propósito
             .Where(f => f.EstadoProcesamiento == EstadoProcesamientoFoto.Pendiente)
             .ToListAsync();
+
+    public Task<List<Foto>> ListarParaFamiliaAsync(IReadOnlyCollection<long> participanteIds) =>
+        this.VisiblesParaFamilia(participanteIds)
+            .OrderBy(f => f.GrupoId).ThenBy(f => f.ParticipanteId).ThenBy(f => f.Id)
+            .ToListAsync();
+
+    public Task<Foto?> GetVisibleParaFamiliaAsync(long fotoId, IReadOnlyCollection<long> participanteIds) =>
+        this.VisiblesParaFamilia(participanteIds).FirstOrDefaultAsync(f => f.Id == fotoId);
+
+    /// <summary>
+    /// Individuales de esos participantes + grupales (<c>ParticipanteId == null</c>) de sus grupos,
+    /// Lista únicamente. El filtro global de tenant ya scopea por <c>IAppContext.TenantId</c>.
+    /// </summary>
+    private IQueryable<Foto> VisiblesParaFamilia(IReadOnlyCollection<long> participanteIds)
+    {
+        var gruposDeLaFamilia = this.DbContext.Set<Participante>().AsNoTracking()
+            .Where(p => participanteIds.Contains(p.Id))
+            .Select(p => p.GrupoId);
+
+        return this.DbContext.Set<Foto>().AsNoTracking()
+            .Where(f => f.EstadoProcesamiento == EstadoProcesamientoFoto.Lista
+                && ((f.ParticipanteId != null && participanteIds.Contains(f.ParticipanteId.Value))
+                    || (f.ParticipanteId == null && gruposDeLaFamilia.Contains(f.GrupoId))));
+    }
 }

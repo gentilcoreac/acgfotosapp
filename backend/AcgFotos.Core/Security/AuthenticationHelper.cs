@@ -47,7 +47,9 @@ namespace AcgFotos.Core.Security
                             var securityRepository = context.HttpContext.RequestServices.GetRequiredService<ISecurityRepository>();
                             var appContext = RequestHeaderHandler.Encode(context.HttpContext.Request);
 
-                            if (!appContext.IsRoot)
+                            // Una sesión de familia (ADR-11) no tiene usuario en gen_Usuarios: no hay
+                            // SecurityStamp contra el que validar (excepción análoga a root).
+                            if (!appContext.IsRoot && !appContext.IsFamiliaSession)
                             {
                                 var isValidSecurityStamp = securityRepository.ValidateSecurityStamp(appContext.UserName, appContext.TenantId, appContext._securityStamp);
                                 if (!isValidSecurityStamp)

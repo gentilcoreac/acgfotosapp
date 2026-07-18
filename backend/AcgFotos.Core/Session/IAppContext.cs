@@ -54,6 +54,23 @@ namespace AcgFotos.Core.Session
         long TenantId { get; }
 
         /// <summary>
+        /// True si el token es una sesión de FAMILIA (ADR-11: claim <c>sessionType=familia</c>), no un
+        /// usuario de plataforma — no tiene fila en <c>gen_Usuarios</c>. Ver <see cref="FamiliaEventoId"/>
+        /// y <see cref="FamiliaParticipanteIds"/>.
+        /// </summary>
+        bool IsFamiliaSession { get; }
+
+        /// <summary>EventoId de la sesión de familia (claim <c>eventoId</c>); null fuera de una sesión de familia.</summary>
+        long? FamiliaEventoId { get; }
+
+        /// <summary>
+        /// ParticipanteIds de la sesión de familia (claim <c>participanteId</c>, repetible — la sesión ya
+        /// nace lista para más de un participante, docs/05: hermanos / persona en dos grupos). Vacío fuera
+        /// de una sesión de familia.
+        /// </summary>
+        IReadOnlyCollection<long> FamiliaParticipanteIds { get; }
+
+        /// <summary>
         /// Aplicación activa. Este dato viene del header.
         /// Actualmente, se valida el acceso a los items del menú y las cuentas mediante esta propiedad.
         /// Tener presente que se puede manipular desde el front.

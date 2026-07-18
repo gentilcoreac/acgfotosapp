@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -27,6 +28,10 @@ namespace AcgFotos.Core.Session
         private long? _impersonatedBy;
         private bool _isSystemContext;
         public string _securityStamp { get; private set; }
+
+        private bool _isFamiliaSession;
+        private long? _familiaEventoId;
+        private List<long> _familiaParticipanteIds = new();
         #endregion
         /// <summary>
         /// Token recibido en el header del request
@@ -79,6 +84,33 @@ namespace AcgFotos.Core.Session
             }
         }
         // internal bool IsRoot { get; set; }
+
+        /// <inheritdoc />
+        public bool IsFamiliaSession
+        {
+            get
+            {
+                return _isFamiliaSession;
+            }
+        }
+
+        /// <inheritdoc />
+        public long? FamiliaEventoId
+        {
+            get
+            {
+                return _familiaEventoId;
+            }
+        }
+
+        /// <inheritdoc />
+        public IReadOnlyCollection<long> FamiliaParticipanteIds
+        {
+            get
+            {
+                return _familiaParticipanteIds;
+            }
+        }
 
         /// <summary>
         /// Si el contexto es una sesión de impersonalización (ADR-0002), devuelve el <b>userId real de root</b>
@@ -216,6 +248,28 @@ namespace AcgFotos.Core.Session
                     {
                         _impersonatedBy = Convert.ToInt64(impersonatedBy.Value);
                     }
+
+                    // Claims del JWT de sesión de familia (ADR-11, AcgFotos.Fotos.Application.Familias.
+                    // FamiliaTokenFactory). Core no puede referenciar el vertical (regla de arquitectura),
+                    // así que los nombres de claim son literales acá — deben mantenerse sincronizados con
+                    // las constantes de FamiliaTokenFactory.
+                    var sessionType = claim.FirstOrDefault(c => c.Type == "sessionType");
+                    if (sessionType != null && sessionType.Value == "familia")
+                    {
+                        _isFamiliaSession = true;
+
+                        var eventoId = claim.FirstOrDefault(c => c.Type == "eventoId");
+                        if (eventoId != null)
+                        {
+                            _familiaEventoId = Convert.ToInt64(eventoId.Value);
+                        }
+
+                        _familiaParticipanteIds = claim
+                            .Where(c => c.Type == "participanteId")
+                            .Select(c => Convert.ToInt64(c.Value))
+                            .ToList();
+                    }
+
                     var aplicacionId = request.Headers["aplicacionId"].ToString();
 
                     if (!string.IsNullOrEmpty(aplicacionId))
