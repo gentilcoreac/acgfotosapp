@@ -119,12 +119,35 @@ docs/05: hermanos / persona en dos grupos) y una duración propia de 30 minutos
 (`Fotos:DuracionSesionFamiliaMinutos`, decisión de Alberto 2026-07-16), no la
 `DurationInMinutes` de la sesión del fotógrafo/admin.
 
-**Consecuencias**: el canje (este ítem) YA emite el token con esta forma, pero todavía nada lo
-consume — ningún endpoint de familia existe aún. El próximo ítem del roadmap (Galería) es quien
-necesita que `OnTokenValidated` reconozca `sessionType=familia` y salte el chequeo de
-`SecurityStamp` (una excepción chica, análoga a la que ya existe para `isRoot`), para que esos
-endpoints puedan usar el `[Authorize]` estándar en vez de reinventar la validación del JWT en el
-vertical. Hasta que eso se implemente, un token de familia autentica igual que cualquier JWT mal
-formado: el pipeline actual lo rechaza (falla el chequeo de stamp). El canje en sí no depende de
-esto — nunca usa `AppContext` para decisiones de seguridad, siempre resuelve tenant/evento desde la
-fila de `CodigoAcceso` recién leída de la base (ver comentarios en `CodigoAccesoRepository`).
+**Consecuencias**: el canje (este ítem) YA emite el token con esta forma. El canje en sí no depende
+de esto — nunca usa `AppContext` para decisiones de seguridad, siempre resuelve tenant/evento desde
+la fila de `CodigoAcceso` recién leída de la base (ver comentarios en `CodigoAccesoRepository`).
+
+**Implementación (ítem Galería, 2026-07-18)**: `OnTokenValidated` (`AuthenticationHelper`, Core)
+reconoce `sessionType=familia` y saltea el chequeo de `SecurityStamp` (excepción chica, análoga a la
+que ya existe para `isRoot`) — el JWT de familia ya autentica como cualquier `[Authorize]` estándar.
+`IAppContext`/`AppContext` (Core) suman `IsFamiliaSession`/`FamiliaEventoId`/`FamiliaParticipanteIds`,
+parseados de esos mismos claims (con los nombres de claim repetidos como literales en Core, ya que
+Core no puede referenciar el vertical Fotos — mantenerlos sincronizados con `FamiliaTokenFactory` si
+cambian). Queda un problema aparte que ADR-11 no había anticipado: `EndpointAuthoritation` valida
+permisos contra la matriz de `gen_Usuarios`/roles, que una sesión de familia no tiene — así que,
+lejos de heredar el `[Authorize]` estándar sin más, cualquier endpoint autenticado le daba 403
+**salvo que se le diera un bypass total**, lo que habría sido peor (una sesión de familia accediendo
+a cualquier endpoint admin). Se resolvió con un allowlist explícito: `[AllowFamiliaSession]`
+(atributo marcador, Core) en cada acción que deba aceptar esa sesión — hoy solo
+`FamiliaGaleriaController` (`api/fotos/familia/fotos`, listado + thumb/preview, ambos scopeados
+ÚNICAMENTE por `FamiliaParticipanteIds`, nunca por parámetro del request; sin `/original`, ADR-06).
+Cualquier endpoint sin la marca es 403 para una sesión de familia, aunque el JWT sea válido —
+verificado en `AuthzFamiliaSessionTests` (con `AuthorizationEnabled=true`) y en
+`FamiliaGaleriaTests` (alcance de datos).
+
+**Defensa en profundidad (2026-07-18)**: el flag global `AuthorizationEnabled` está en `false` por
+defecto (dev y el `appsettings.json` base) — inutiliza el allowlist de arriba en la práctica, y
+prenderlo es un rollout de plataforma completo (ver docs/05), no algo a resolver desde Fotos.
+Mientras tanto, `FamiliaSessionGuard.EnsureNoFamiliaSession` (`AcgFotos.Fotos.Application/Security`)
+se llama al inicio de todos los métodos públicos de `EventoAppService`, `GrupoAppService` y
+`FotoAppService`, y rechaza una sesión de familia con `ForbiddenException` → 403 (Core,
+`ExceptionHandlingMiddleware`), **sin depender de `AuthorizationEnabled`**. Verificado con un smoke
+test manual (una sesión de familia lograba borrar la foto de otro participante por el endpoint
+admin) y con `FamiliaSessionAdminGuardTests` (reproduce el hallazgo, corre con authz OFF a
+propósito).
