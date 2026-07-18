@@ -21,8 +21,8 @@ export interface FotoFamiliaPreviewDialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatButtonModule, MatDialogModule, MatIconModule, FotoFamiliaImgComponent],
   host: {
-    '(keydown.arrowleft)': 'anterior()',
-    '(keydown.arrowright)': 'siguiente()',
+    '(document:keydown.arrowleft)': 'anterior()',
+    '(document:keydown.arrowright)': 'siguiente()',
   },
   template: `
     <mat-dialog-content>

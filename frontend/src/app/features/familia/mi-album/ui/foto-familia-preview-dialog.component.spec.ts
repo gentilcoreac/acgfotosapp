@@ -66,10 +66,10 @@ describe('FotoFamiliaPreviewDialogComponent', () => {
     expect(fixture.nativeElement.querySelector('.nav')).toBeNull();
   });
 
-  it('las flechas de teclado navegan el carrusel', async () => {
+  it('las flechas de teclado navegan el carrusel (sin depender del foco)', async () => {
     await create({ fotos: [foto(1), foto(2)], index: 0 });
 
-    fixture.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
     fixture.detectChanges();
 
     expect(fixture.componentInstance['actual']().id).toBe(2);
