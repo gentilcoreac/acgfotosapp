@@ -78,4 +78,16 @@ describe('FotoFamiliaImgComponent', () => {
 
     expect(fixture.nativeElement.querySelector('.marca-familia')).toBeNull();
   });
+
+  it('bloquea el menú de clic derecho y el arrastre de la imagen (fricción anti-copia)', async () => {
+    derivado = vi.fn().mockName('derivado').mockReturnValue(of(new Blob(['jpg'])));
+    await setup();
+
+    const img = fixture.nativeElement.querySelector('img') as HTMLImageElement;
+    expect(img.draggable).toBe(false);
+
+    const evento = new MouseEvent('contextmenu', { cancelable: true });
+    img.dispatchEvent(evento);
+    expect(evento.defaultPrevented).toBe(true);
+  });
 });

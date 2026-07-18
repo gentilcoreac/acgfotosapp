@@ -36,6 +36,12 @@ const MARCA_TILE_HEIGHT = 70;
  * un participante propio para hornear en el back. No reemplaza el watermark horneado (ese es el que
  * sobrevive a devtools/blob); esta capa apunta al ataque más común, la captura de pantalla: se lleva
  * el nombre de la familia responsable puesto.
+ *
+ * Fricción anti-copia (capa 2 de ADR-01, docs/03-fases.md): bloquea el menú de "Guardar imagen
+ * como" (clic derecho) y el arrastre, y se oculta al imprimir. Es disuasión, no seguridad — la
+ * imagen (WebP de 900px con watermark horneado) siempre llega al navegador y se puede sacar por
+ * devtools/Network; el veredicto de robustez ya está discutido y cerrado en docs/03, no
+ * re-discutirlo acá.
  */
 @Component({
   selector: 'tbi-foto-familia-img',
@@ -43,7 +49,13 @@ const MARCA_TILE_HEIGHT = 70;
   imports: [MatIconModule, MatProgressSpinnerModule],
   template: `
     @if (url(); as u) {
-      <img [src]="u" [alt]="alt()" [style.object-fit]="fit()" />
+      <img
+        [src]="u"
+        [alt]="alt()"
+        [style.object-fit]="fit()"
+        draggable="false"
+        (contextmenu)="$event.preventDefault()"
+      />
       @if (marcaBackground(); as bg) {
         <div class="marca-familia" aria-hidden="true" [style.background-image]="bg"></div>
       }
@@ -64,6 +76,14 @@ const MARCA_TILE_HEIGHT = 70;
       display: block;
       width: 100%;
       height: 100%;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    @media print {
+      :host {
+        display: none;
+      }
     }
 
     .marca-familia {
