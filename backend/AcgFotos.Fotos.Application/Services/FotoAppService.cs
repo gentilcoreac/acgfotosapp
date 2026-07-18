@@ -6,6 +6,7 @@ using AcgFotos.Fotos.Application.Dtos;
 using AcgFotos.Fotos.Application.IServices;
 using AcgFotos.Fotos.Application.Mappers.Mapperly;
 using AcgFotos.Fotos.Application.Procesamiento;
+using AcgFotos.Fotos.Application.Security;
 using AcgFotos.Fotos.Application.Storage;
 using AcgFotos.Fotos.Domain.Entities;
 using AcgFotos.Fotos.Domain.Repositories;
@@ -49,6 +50,7 @@ public class FotoAppService : IFotoAppService
 
     public async Task<List<FotoDto>> SubirAsync(SubirFotosInput input)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(_appContext);
         if (input.Archivos.Count == 0)
         {
             throw new BusinessValidationException("No se recibió ningún archivo.");
@@ -107,12 +109,14 @@ public class FotoAppService : IFotoAppService
 
     public async Task<List<FotoDto>> ListarAsync(long grupoId, long? participanteId)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(_appContext);
         var fotos = await _fotoRepository.ListarAsync(grupoId, participanteId);
         return fotos.Select(_fotoMapper.ToDto).ToList();
     }
 
     public async Task<byte[]?> ObtenerThumbAsync(long fotoId)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(_appContext);
         var foto = await _fotoRepository.GetByIdAsync(fotoId);
         return foto?.EstadoProcesamiento == EstadoProcesamientoFoto.Lista
             ? await _fotoStorage.LeerThumbAsync(foto)
@@ -121,6 +125,7 @@ public class FotoAppService : IFotoAppService
 
     public async Task<byte[]?> ObtenerPreviewAsync(long fotoId)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(_appContext);
         var foto = await _fotoRepository.GetByIdAsync(fotoId);
         return foto?.EstadoProcesamiento == EstadoProcesamientoFoto.Lista
             ? await _fotoStorage.LeerPreviewAsync(foto)
@@ -129,6 +134,7 @@ public class FotoAppService : IFotoAppService
 
     public async Task<DescargaOriginal?> ObtenerOriginalAsync(long fotoId)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(_appContext);
         var foto = await _fotoRepository.GetByIdAsync(fotoId);
         if (foto == null)
         {
@@ -141,6 +147,7 @@ public class FotoAppService : IFotoAppService
 
     public async Task<bool> EliminarAsync(long fotoId)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(_appContext);
         var foto = await _fotoRepository.GetByIdTrackedAsync(fotoId);
         if (foto == null)
         {

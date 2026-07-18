@@ -5,6 +5,7 @@ using AcgFotos.Core.Session;
 using AcgFotos.Fotos.Application.Dtos;
 using AcgFotos.Fotos.Application.IServices;
 using AcgFotos.Fotos.Application.Mappers.Mapperly;
+using AcgFotos.Fotos.Application.Security;
 using AcgFotos.Fotos.Domain.Entities;
 using AcgFotos.Fotos.Domain.Repositories;
 
@@ -33,20 +34,35 @@ public class EventoAppService : ExtendedEntityAppServiceBase<Evento,
 
     public override async Task<PaginationSet<EventoHeaderDto>> SearchAsync(ListaPaginadaCriteriaBase criteria)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(this.AppContext);
         var page = await _eventoRepository.PaginateHeadersAsync(criteria);
         return page.MapItems(_eventoMapper.ToHeaderDto);
     }
 
     public override async Task<IEnumerable<EventoHeaderDto>> GetAllAsync()
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(this.AppContext);
         var entities = await this.EntityRepository.GetAllAsync();
         return entities.Select(_eventoMapper.ToHeaderDto);
     }
 
     public override async Task<EventoDto?> GetByIdAsync(long id)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(this.AppContext);
         var entity = await _eventoRepository.GetByIdWithTamanosReadOnlyAsync(id);
         return entity == null ? null : _eventoMapper.ToDto(entity);
+    }
+
+    public override async Task<EventoDto> UpdateAsync(EventoInputDto dto)
+    {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(this.AppContext);
+        return await base.UpdateAsync(dto);
+    }
+
+    public override async Task DeleteByIdAsync(long id)
+    {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(this.AppContext);
+        await base.DeleteByIdAsync(id);
     }
 
     protected override async Task<Evento> GetEntityToUpdateAsync(long id) =>

@@ -8,6 +8,7 @@ using AcgFotos.Fotos.Application.Dtos;
 using AcgFotos.Fotos.Application.IServices;
 using AcgFotos.Fotos.Application.Mappers.Mapperly;
 using AcgFotos.Fotos.Application.Procesamiento;
+using AcgFotos.Fotos.Application.Security;
 using AcgFotos.Fotos.Application.Tarjetas;
 using AcgFotos.Fotos.Domain.Entities;
 using AcgFotos.Fotos.Domain.Repositories;
@@ -44,6 +45,7 @@ public class GrupoAppService : ExtendedEntityAppServiceBase<Grupo,
 
     public async Task<TarjetasGrupoDto?> GetTarjetasAsync(long grupoId)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(this.AppContext);
         var grupo = await _grupoRepository.GetByIdParaTarjetasAsync(grupoId);
         if (grupo == null)
         {
@@ -77,18 +79,21 @@ public class GrupoAppService : ExtendedEntityAppServiceBase<Grupo,
 
     public override async Task<PaginationSet<GrupoHeaderDto>> SearchAsync(GrupoCriteria criteria)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(this.AppContext);
         var page = await _grupoRepository.PaginateHeadersAsync(criteria, criteria.EventoId);
         return page.MapItems(_grupoMapper.ToHeaderDto);
     }
 
     public override async Task<IEnumerable<GrupoHeaderDto>> GetAllAsync()
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(this.AppContext);
         var entities = await _grupoRepository.GetAllWithParticipantesReadOnlyAsync();
         return entities.Select(_grupoMapper.ToHeaderDto);
     }
 
     public override async Task<GrupoDto?> GetByIdAsync(long id)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(this.AppContext);
         var entity = await _grupoRepository.GetByIdWithParticipantesReadOnlyAsync(id);
         return entity == null ? null : _grupoMapper.ToDto(entity);
     }
@@ -104,6 +109,7 @@ public class GrupoAppService : ExtendedEntityAppServiceBase<Grupo,
     // el commit con un 500: acá se corta antes con un 400 explicable.
     public override async Task<GrupoDto> UpdateAsync(GrupoInputDto dto)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(this.AppContext);
         this.CheckInputValidations(dto); // primero la forma (la base la repite; es idempotente)
 
         if (!await _grupoRepository.ExisteEventoAsync(dto.EventoId))
@@ -127,6 +133,7 @@ public class GrupoAppService : ExtendedEntityAppServiceBase<Grupo,
 
     public override async Task DeleteByIdAsync(long id)
     {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(this.AppContext);
         if (await _grupoRepository.TieneFotosAsync(id))
         {
             throw new BusinessValidationException(

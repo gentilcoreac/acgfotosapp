@@ -55,6 +55,18 @@ namespace AcgFotos.Core.Exceptions
                 this.AuditException(context, ex, startedAt);
             }
 
+            // Forbidden (regla de negocio, no el catálogo de EndpointAuthoritation)
+            catch (ForbiddenException ex)
+            {
+                response.StatusCode = (int)HttpStatusCode.Forbidden;
+                response.ContentType = "application/json";
+
+                var result = System.Text.Json.JsonSerializer.Serialize(ApiErrorResponse.From(ex.Message));
+                await context.Response.WriteAsync(result);
+
+                this.AuditException(context, ex, startedAt);
+            }
+
             catch (Exception ex)
             {
                 response.ContentType = "application/json";
