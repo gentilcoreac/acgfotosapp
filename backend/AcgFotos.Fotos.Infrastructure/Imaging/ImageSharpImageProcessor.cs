@@ -67,6 +67,7 @@ public class ImageSharpImageProcessor : IImageProcessor
             }
         });
 
+        LimpiarMetadatos(derivado);
         AplicarWatermark(derivado, opciones.TextoWatermark, opciones.Opacidad);
 
         using var ms = new MemoryStream();
@@ -74,6 +75,19 @@ public class ImageSharpImageProcessor : IImageProcessor
         // datos móviles). Los derivados se regeneran, así que cambiar de formato es barato.
         await derivado.SaveAsync(ms, new WebpEncoder { Quality = opciones.Calidad }, cancellationToken);
         return ms.ToArray();
+    }
+
+    /// <summary>
+    /// Son fotos de menores (docs/05-notas-abiertas.md): el original que sube el fotógrafo puede traer
+    /// GPS del lugar del evento y datos del equipo en el EXIF. El original no se toca (útil para
+    /// imprimir), pero ese EXIF no tiene por qué viajar en los derivados que ven las familias — el
+    /// watermark es la única marca que debe sobrevivir a una descarga/reenvío.
+    /// </summary>
+    private static void LimpiarMetadatos(Image imagen)
+    {
+        imagen.Metadata.ExifProfile = null;
+        imagen.Metadata.IptcProfile = null;
+        imagen.Metadata.XmpProfile = null;
     }
 
     private static void AplicarWatermark(Image imagen, string texto, float opacidad)

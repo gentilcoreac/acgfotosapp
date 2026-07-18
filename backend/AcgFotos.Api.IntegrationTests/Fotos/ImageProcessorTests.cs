@@ -1,4 +1,5 @@
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using SixLabors.ImageSharp.PixelFormats;
 using AcgFotos.Fotos.Application.Imaging;
 using AcgFotos.Fotos.Infrastructure.Imaging;
@@ -90,6 +91,25 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             Assert.True(cuadrantesConMarca[0, 1], "sin watermark en el cuadrante superior derecho");
             Assert.True(cuadrantesConMarca[1, 0], "sin watermark en el cuadrante inferior izquierdo");
             Assert.True(cuadrantesConMarca[1, 1], "sin watermark en el cuadrante inferior derecho");
+        }
+
+        [Fact]
+        public async Task Limpia_el_EXIF_del_original_GPS_y_equipo_en_ambos_derivados()
+        {
+            using var imagen = new Image<Rgb24>(800, 600, new Rgb24(40, 90, 160));
+            imagen.Metadata.ExifProfile = new ExifProfile();
+            imagen.Metadata.ExifProfile.SetValue(ExifTag.Model, "Canon EOS R5");
+            imagen.Metadata.ExifProfile.SetValue(ExifTag.GPSLatitudeRef, "S");
+            using var original = new MemoryStream();
+            imagen.SaveAsJpeg(original);
+            original.Position = 0;
+
+            var derivados = await Processor.GenerarDerivadosAsync(original, Opciones());
+
+            using var preview = Image.Load(derivados.Preview);
+            using var thumb = Image.Load(derivados.Thumb);
+            Assert.Null(preview.Metadata.ExifProfile);
+            Assert.Null(thumb.Metadata.ExifProfile);
         }
 
         [Fact]
