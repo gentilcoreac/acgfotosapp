@@ -1,8 +1,8 @@
 # AcgFotos — Frontend
 
 SPA Angular 22 (zoneless, signal forms, standalone). Shell de plataforma heredado del código base;
-el vertical Fotos se construye encima. Guía de trabajo: [CLAUDE.md](CLAUDE.md) · plan del producto:
-[../docs](../docs).
+el vertical Fotos se construye encima. Guía de trabajo: [CLAUDE.md](CLAUDE.md) · convenciones de
+código y checklist: [CONTRIBUTING.md](CONTRIBUTING.md) · plan del producto: [../docs](../docs).
 
 ## Requisitos
 

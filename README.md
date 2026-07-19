@@ -12,6 +12,8 @@ Plataforma de venta de fotos escolares. Reemplaza el proceso de ir casa por casa
 | [docs/03-fases.md](docs/03-fases.md) | Roadmap por fases con criterios de terminado |
 | [docs/04-decisiones.md](docs/04-decisiones.md) | Decisiones de diseño y su justificación (ADRs) |
 | [docs/05-notas-abiertas.md](docs/05-notas-abiertas.md) | Preguntas pendientes y notas para fases siguientes |
+| [backend/CONTRIBUTING.md](backend/CONTRIBUTING.md) | Convenciones de código, patrones obligatorios y checklist del backend |
+| [frontend/CONTRIBUTING.md](frontend/CONTRIBUTING.md) | Convenciones de código, patrones obligatorios y checklist del frontend |
 
 ## Stack (resumen)
 
