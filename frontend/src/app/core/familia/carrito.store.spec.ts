@@ -85,6 +85,25 @@ describe('CarritoStore', () => {
     expect(store.lineas()).toEqual([{ fotoId: 2, tamanoPrecioId: 10, cantidad: 1 }]);
   });
 
+  it('cambiarTamano mueve la cantidad de una línea a otro tamaño', () => {
+    store.agregar(1, 10, 2);
+    store.cambiarTamano(1, 10, 20);
+    expect(store.lineas()).toEqual([{ fotoId: 1, tamanoPrecioId: 20, cantidad: 2 }]);
+  });
+
+  it('cambiarTamano al tamaño actual no hace nada', () => {
+    store.agregar(1, 10, 2);
+    store.cambiarTamano(1, 10, 10);
+    expect(store.lineas()).toEqual([{ fotoId: 1, tamanoPrecioId: 10, cantidad: 2 }]);
+  });
+
+  it('cambiarTamano hacia un tamaño que ya tenía línea suma las cantidades en vez de duplicar', () => {
+    store.agregar(1, 10, 2);
+    store.agregar(1, 20, 3);
+    store.cambiarTamano(1, 10, 20);
+    expect(store.lineas()).toEqual([{ fotoId: 1, tamanoPrecioId: 20, cantidad: 5 }]);
+  });
+
   it('vaciar deja el carrito vacío y limpia sessionStorage', () => {
     store.agregar(1, 10, 1);
     store.vaciar();

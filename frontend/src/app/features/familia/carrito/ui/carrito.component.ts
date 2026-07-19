@@ -91,6 +91,9 @@ export class CarritoComponent {
 
   protected readonly total = computed(() => this.lineas().reduce((suma, l) => suma + l.subtotal, 0));
 
+  /** Catálogo completo, para las chips de tamaño editables inline de cada línea. */
+  protected readonly tamanosPrecios = computed(() => this.tamanosPreciosResource.value() ?? []);
+
   protected readonly confirmando = signal(false);
   protected readonly errors = signal<string[]>([]);
 
@@ -111,6 +114,10 @@ export class CarritoComponent {
 
   protected quitar(linea: LineaCarritoDetalle): void {
     this.carritoStore.quitar(linea.fotoId, linea.tamanoPrecioId);
+  }
+
+  protected cambiarTamano(linea: LineaCarritoDetalle, tamano: TamanoPrecio): void {
+    this.carritoStore.cambiarTamano(linea.fotoId, linea.tamanoPrecioId, tamano.id);
   }
 
   protected volver(): void {

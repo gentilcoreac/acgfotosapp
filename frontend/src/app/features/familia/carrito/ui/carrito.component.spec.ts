@@ -109,6 +109,34 @@ describe('CarritoComponent', () => {
     expect(carrito.cantidadDe(1, 10)).toBe(0);
   });
 
+  it('muestra una chip por tamaño del catálogo, marcando activa la de la línea', () => {
+    const { el } = create((carrito) => carrito.agregar(1, 10, 1));
+
+    const chips = el.querySelectorAll('.carrito__tamano-chip');
+    expect(chips.length).toBe(2);
+    expect(chips[0].textContent?.trim()).toBe('10x15');
+    expect(chips[0].classList.contains('activo')).toBe(true);
+    expect(chips[1].classList.contains('activo')).toBe(false);
+  });
+
+  it('tocar una chip de otro tamaño mueve la línea a ese tamaño en el CarritoStore', () => {
+    const { el } = create((carrito) => carrito.agregar(1, 10, 2));
+    const carrito = TestBed.inject(CarritoStore);
+
+    (el.querySelectorAll('.carrito__tamano-chip')[1] as HTMLButtonElement).click();
+
+    expect(carrito.lineas()).toEqual([{ fotoId: 1, tamanoPrecioId: 20, cantidad: 2 }]);
+  });
+
+  it('el botón "Quitar" de la línea saca esa línea del carrito', () => {
+    const { el } = create((carrito) => carrito.agregar(1, 10, 1));
+    const carrito = TestBed.inject(CarritoStore);
+
+    (el.querySelector('.carrito__quitar') as HTMLButtonElement).click();
+
+    expect(carrito.lineas()).toEqual([]);
+  });
+
   it('confirmar() con el form inválido no llama al servicio', () => {
     const { cmp } = create((carrito) => carrito.agregar(1, 10, 1));
 

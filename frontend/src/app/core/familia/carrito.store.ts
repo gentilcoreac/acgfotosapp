@@ -90,6 +90,27 @@ export class CarritoStore {
     this.actualizar((lineas) => lineas.filter((l) => !(l.fotoId === fotoId && l.tamanoPrecioId === tamanoPrecioId)));
   }
 
+  /** Cambia el tamaño de una línea existente; si ya había otra línea de esa foto en el tamaño
+   * destino, suma las cantidades ahí en vez de dejar dos líneas para el mismo foto+tamaño. */
+  cambiarTamano(fotoId: number, tamanoPrecioIdActual: number, tamanoPrecioIdNuevo: number): void {
+    if (tamanoPrecioIdActual === tamanoPrecioIdNuevo) {
+      return;
+    }
+    this.actualizar((lineas) => {
+      const origen = lineas.find((l) => l.fotoId === fotoId && l.tamanoPrecioId === tamanoPrecioIdActual);
+      if (!origen) {
+        return lineas;
+      }
+      const destino = lineas.find((l) => l.fotoId === fotoId && l.tamanoPrecioId === tamanoPrecioIdNuevo);
+      if (destino) {
+        return lineas
+          .filter((l) => l !== origen)
+          .map((l) => (l === destino ? { ...l, cantidad: l.cantidad + origen.cantidad } : l));
+      }
+      return lineas.map((l) => (l === origen ? { ...l, tamanoPrecioId: tamanoPrecioIdNuevo } : l));
+    });
+  }
+
   vaciar(): void {
     this._lineas.set([]);
     sessionStorage.removeItem(STORAGE_KEY);

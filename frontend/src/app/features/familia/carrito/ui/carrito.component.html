@@ -18,28 +18,46 @@
           <tbi-foto-familia-img class="carrito__thumb" [fotoId]="linea.fotoId" />
 
           <div class="carrito__detalle">
-            <span class="carrito__archivo">{{ linea.foto.nombreArchivoOriginal }}</span>
-            <span class="carrito__tamano">{{ linea.tamano.nombre }}</span>
-            <div class="carrito__cantidad" role="group" aria-label="Cantidad">
-              <button matIconButton type="button" (click)="restar(linea)" aria-label="Quitar una copia">
-                <mat-icon>remove</mat-icon>
-              </button>
-              <span class="carrito__numero">{{ linea.cantidad }}</span>
-              <button matIconButton type="button" (click)="sumar(linea)" aria-label="Agregar una copia">
-                <mat-icon>add</mat-icon>
-              </button>
+            <div class="carrito__fila-archivo">
+              <span class="carrito__archivo">{{ linea.foto.nombreArchivoOriginal }}</span>
+              <button type="button" class="carrito__quitar" (click)="quitar(linea)">Quitar</button>
             </div>
-            <span class="carrito__subtotal">{{ formatearPrecio(linea.subtotal) }}</span>
-          </div>
 
-          <button matIconButton type="button" (click)="quitar(linea)" aria-label="Quitar del carrito">
-            <mat-icon>delete_outline</mat-icon>
-          </button>
+            <div class="carrito__tamanos" role="group" [attr.aria-label]="'Tamaño de ' + linea.foto.nombreArchivoOriginal">
+              @for (tamano of tamanosPrecios(); track tamano.id) {
+                <button
+                  type="button"
+                  class="carrito__tamano-chip"
+                  [class.activo]="tamano.id === linea.tamanoPrecioId"
+                  [attr.aria-pressed]="tamano.id === linea.tamanoPrecioId"
+                  (click)="cambiarTamano(linea, tamano)"
+                >
+                  {{ tamano.nombre }}
+                </button>
+              }
+            </div>
+
+            <div class="carrito__fila-cantidad">
+              <div class="carrito__cantidad" role="group" aria-label="Cantidad">
+                <button matIconButton type="button" (click)="restar(linea)" aria-label="Quitar una copia">
+                  <mat-icon>remove</mat-icon>
+                </button>
+                <span class="carrito__numero">{{ linea.cantidad }}</span>
+                <button matIconButton type="button" (click)="sumar(linea)" aria-label="Agregar una copia">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
+              <span class="carrito__subtotal">{{ formatearPrecio(linea.subtotal) }}</span>
+            </div>
+          </div>
         </li>
       }
     </ul>
 
-    <p class="carrito__total">Total: {{ formatearPrecio(total()) }}</p>
+    <div class="carrito__resumen">
+      <span class="carrito__resumen-label">Total</span>
+      <span class="carrito__resumen-valor">{{ formatearPrecio(total()) }}</span>
+    </div>
 
     <form class="carrito__form" [formGroup]="form" (ngSubmit)="confirmar()">
       <h2 class="carrito__form-titulo">Datos de contacto</h2>
