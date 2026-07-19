@@ -16,9 +16,9 @@ export interface FotoFamiliaPreviewDialogData {
 /**
  * Preview ampliado de una foto de la galería de familia (el derivado CON watermark — el original
  * nunca se expone acá, ADR-01/ADR-06). Casi pantalla completa (ver `verPreview` en
- * `MiAlbumComponent`), la foto se muestra ENTERA (contain). Carrusel (pedido 2026-07-19): flechas +
- * flechas de teclado para pasar de foto en foto sin volver a la grilla, da la vuelta al llegar a una
- * punta. Sin "Descargar original": eso es exclusivo del admin.
+ * `MiAlbumComponent`), la foto se muestra ENTERA (contain). Carrusel: flechas + flechas de teclado
+ * para pasar de foto en foto sin volver a la grilla, da la vuelta al llegar a una punta. Sin
+ * "Descargar original": eso es exclusivo del admin.
  *
  * Selector de tamaño+cantidad inline (Fase 2, Carrito): agregar viendo la foto ampliada, sin volver
  * a la grilla — mismo `tbi-agregar-carrito` que usa la grilla (ver `MiAlbumComponent`), no hace su
@@ -201,9 +201,8 @@ export interface FotoFamiliaPreviewDialogData {
       }
     }
 
-    // Sigue abajo (bottom-sheet, NO al costado de la imagen — corregido 2026-07-19, el primer
-    // intento lo mandó al costado en pantallas anchas y no era lo pedido); adentro de esa franja
-    // inferior, el selector queda pegado a la derecha (antes arrancaba pegado a la izquierda).
+    // Bottom-sheet abajo, no al costado de la imagen: en pantallas anchas al costado se pierde la
+    // continuidad visual con la foto. El selector queda pegado a la derecha de esa franja.
     .agregar {
       display: flex;
       justify-content: flex-end;
@@ -225,7 +224,7 @@ export class FotoFamiliaPreviewDialogComponent {
   protected readonly actual = computed(() => this.data.fotos[this.index()]);
   protected readonly tamanosPrecios = computed(() => this.data.tamanosPrecios ?? []);
 
-  /** Mismo aviso que `.grilla__en-carrito` en la grilla — pedido de Alberto 2026-07-19. */
+  /** Mismo aviso que `.grilla__en-carrito` en la grilla. */
   protected readonly yaEnCarrito = computed(() => this.carrito.cantidadTotalDeFoto(this.actual().id) > 0);
 
   protected anterior(): void {

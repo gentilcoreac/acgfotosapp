@@ -5,10 +5,9 @@ import { formatearPrecio, PedidoConfirmado } from '../../../../core/familia';
 import { TbiButtonComponent } from '../../../../shared/ui/tbi-button/tbi-button.component';
 
 /**
- * Vista propia de confirmación de pedido (Fase 2, UX): antes vivía inline dentro de `/carrito`
- * (ver `docs/05-notas-abiertas.md`, comparación con el prototipo `docs/ClaudeDesign`); ahora es una
- * ruta separada (`/pedido-confirmado`) a la que `CarritoComponent.confirmar()` navega pasando el
- * pedido por `NavigationExtras.state` — no hay fetch propio, el pedido ya se confirmó.
+ * Vista propia de confirmación de pedido (Fase 2): ruta separada (`/pedido-confirmado`) a la que
+ * `CarritoComponent.confirmar()` navega pasando el pedido por `NavigationExtras.state` — no hay
+ * fetch propio, el pedido ya se confirmó.
  *
  * Sin `state` (entrada directa a la URL, F5 tras cerrar la pestaña, etc.) no hay nada que mostrar:
  * se manda de vuelta a la galería en vez de un cartel de error, porque no es un caso de fallo real.

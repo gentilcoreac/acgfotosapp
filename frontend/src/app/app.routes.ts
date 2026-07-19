@@ -40,7 +40,7 @@ export const routes: Routes = [
       ),
   },
   {
-    // Confirmación de pedido, vista propia (antes inline dentro de /carrito, ver docs/05).
+    // Confirmación de pedido: vista propia, fuera del layout admin (ver docs/05-notas-abiertas.md).
     path: 'pedido-confirmado',
     canMatch: [familiaSessionGuard],
     loadComponent: () =>

@@ -78,8 +78,8 @@ export class LoginComponent {
     this.errors.set([]);
     this.auth
       .login(this.form.getRawValue())
-      // finalize apaga el spinner siempre (éxito o error). Antes loading.set(false) estaba solo
-      // en el handler de error, así que tras un login OK el spinner podía quedar colgado.
+      // finalize corre en éxito y en error: si loading.set(false) solo estuviera en el handler de
+      // error, un login OK dejaría el spinner colgado.
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {

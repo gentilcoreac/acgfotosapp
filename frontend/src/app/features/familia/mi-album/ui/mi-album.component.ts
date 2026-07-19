@@ -79,7 +79,6 @@ export class MiAlbumComponent {
   protected readonly tamanosPrecios = computed(() => this.tamanosPreciosResource.value() ?? []);
   protected readonly cargando = computed(() => this.fotosResource.isLoading());
 
-  /** "Pantallazo general" por default (pedido 2026-07-19); el botón de arriba a la derecha cambia esto. */
   protected readonly densidad = signal<DensidadGrilla>(4);
 
   protected readonly gridTemplateColumns = computed(() => {
@@ -88,16 +87,15 @@ export class MiAlbumComponent {
       return '1fr';
     }
     if (d === 'compacta') {
-      // Auto-fill: la cantidad de columnas sale sola del ancho disponible (pedido de Alberto
-      // 2026-07-19: "ver la galería con una mayor cantidad, las que entren de acuerdo a la pantalla").
+      // Auto-fill: la cantidad de columnas sale sola del ancho disponible, sin fijar un número.
       return 'repeat(auto-fill, minmax(72px, 1fr))';
     }
     return `repeat(${d}, 1fr)`;
   });
 
-  /** "Seleccionar varias" (comparación con `docs/ClaudeDesign`, feedback de Alberto 2026-07-19): tildar
-   * fotos sin abrir el preview de cada una y mandarlas todas al carrito de una, en el tamaño elegido en
-   * `tamanoLoteId` (selector propio, no un default fijo — se puede cambiar antes de agregar). */
+  /** "Seleccionar varias" (ver `docs/ClaudeDesign`): tildar fotos sin abrir el preview de cada una y
+   * mandarlas todas al carrito de una, en el tamaño elegido en `tamanoLoteId` (selector propio, no un
+   * default fijo — se puede cambiar antes de agregar). */
   protected readonly modoSeleccion = signal(false);
   protected readonly seleccionadas = signal<ReadonlySet<number>>(new Set());
   protected readonly tamanoLoteId = signal<number | null>(null);
@@ -152,10 +150,6 @@ export class MiAlbumComponent {
       this.carrito.agregar(fotoId, tamano.id, 1);
     }
 
-    // El mensaje ya NO habla de "ajustar el tamaño después" (versión vieja, de cuando el tamaño
-    // salía de un default fijo sin poder elegirlo acá) — ahora el tamaño SÍ se elige antes de tocar
-    // este botón, así que lo único que queda abierto es sumar más copias (feedback de Alberto
-    // 2026-07-19: el mensaje viejo sonaba a que el tamaño todavía no estaba decidido).
     const cantidad = seleccionadas.size;
     this.notification.success(
       `${cantidad} foto${cantidad === 1 ? '' : 's'} agregada${cantidad === 1 ? '' : 's'} al carrito en ${tamano.nombre} (1 copia c/u). Podés sumar más copias desde el carrito.`,

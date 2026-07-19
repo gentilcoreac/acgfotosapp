@@ -11,10 +11,9 @@ import { TbiSelectComponent, toSelectOptions } from '../../../../shared/ui/tbi-s
  * `CarritoStore` (mismo criterio que `tbi-foto-familia-img`: los componentes de familia no hacen
  * prop-drilling de eventos para algo que ya vive en un store de `core/familia`).
  *
- * Un desplegable (`tbi-select`) + un solo stepper, agrupados con poco espacio entre sí (feedback de
- * Alberto 2026-07-19: NI el toggle-group horizontal de la 1ª versión NI una fila-por-tamaño de la 2ª
- * sirvieron — la primera separaba tamaño/cantidad en extremos opuestos, "ir de un lado de la pantalla
- * al otro"; la segunda es inviable con muchos tamaños, demasiadas filas en el preview ampliado). El
+ * Un desplegable (`tbi-select`) + un solo stepper, agrupados con poco espacio entre sí: un
+ * toggle-group horizontal separa tamaño/cantidad en extremos opuestos de la pantalla, y una
+ * fila-por-tamaño es inviable con muchos tamaños (demasiadas filas en el preview ampliado). El
  * tamaño arranca preseleccionado en el primero del catálogo (default) — si la familia quiere otro,
  * lo elige manualmente del desplegable.
  *
@@ -79,10 +78,9 @@ import { TbiSelectComponent, toSelectOptions } from '../../../../shared/ui/tbi-s
       font-size: 0.875rem;
     }
 
-    // Resumen + selector en la MISMA fila — pedido de Alberto 2026-07-19. Grid de 3 columnas
-    // (1fr / auto / 1fr) en vez de flex: así el selector (columna del medio) queda SIEMPRE
-    // centrado y fijo, sin importar si el resumen está o no — con flex + space-between el selector
-    // "saltaba" de la izquierda (sin resumen) a la derecha (con resumen); acá no se mueve nunca.
+    // Grid de 3 columnas (1fr / auto / 1fr) en vez de flex: así el selector (columna del medio)
+    // queda SIEMPRE centrado y fijo, sin importar si el resumen está o no — con flex + space-between
+    // el selector saltaba de la izquierda (sin resumen) a la derecha (con resumen); acá no se mueve.
     .agregar-carrito__fila {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
@@ -104,8 +102,8 @@ import { TbiSelectComponent, toSelectOptions } from '../../../../shared/ui/tbi-s
       color: var(--mat-sys-on-surface-variant);
     }
 
-    // Chip sutil por tamaño — pedido de Alberto 2026-07-19: separar "10x15 ×2" de "20x30 ×1" con un
-    // poco de color, nada llamativo (mismo tinte que el chip "Grande/Chico" activo del header).
+    // Chip sutil por tamaño: separa "10x15 ×2" de "20x30 ×1" con un poco de color, nada llamativo
+    // (mismo tinte que el chip "Grande/Chico" activo del header).
     .agregar-carrito__resumen-item {
       padding: 0.0625rem 0.375rem;
       border-radius: 6px;

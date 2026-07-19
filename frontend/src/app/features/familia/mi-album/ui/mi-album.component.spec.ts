@@ -207,7 +207,7 @@ describe('MiAlbumComponent', () => {
 
     expect(dialogOpen).not.toHaveBeenCalled();
     expect(cmp['seleccionadas']().size).toBe(2);
-    // el contador vive solo en el botón (no repetido en un texto aparte, ver feedback 2026-07-19)
+    // el contador vive solo en el botón, no repetido en un texto aparte
     expect(el.querySelector('.mi-album__seleccion-agregar')?.textContent?.trim()).toBe('Agregar 2 fotos');
     // en modo selección no se ve el botón individual "agregar al carrito"
     expect(el.querySelector('.grilla__add')).toBeNull();

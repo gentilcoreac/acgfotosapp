@@ -126,11 +126,8 @@
     }
   }
 
-  // Ícono + texto + badge de cantidad, sin monto: el precio se ve recién adentro del carrito
-  // (feedback de Alberto 2026-07-19, "puede intimidar" mostrarlo acá — estilo Mercado Libre/Amazon).
-  // Un primer intento la achicó a un círculo solo-ícono en una esquina y quedó "muy escondido"
-  // (mismo feedback, segunda vuelta) — de vuelta a una píldora ancha y centrada, bien visible, pero
-  // sin el monto.
+  // Ícono + texto + badge de cantidad, sin monto: el precio se ve recién adentro del carrito,
+  // no en un FAB de paso.
   &__carrito-fab {
     position: fixed;
     left: 50%;
@@ -233,9 +230,9 @@
     }
   }
 
-  // Persistente en la grilla normal (NO depende de "Seleccionar varias"): esquina opuesta al botón
-  // de agregar — indica que esa foto ya tiene al menos una copia en el carrito (feedback de Alberto
-  // 2026-07-19, calcado del prototipo `docs/ClaudeDesign`, badge `ph.inCart`).
+  // Persistente en la grilla normal (no depende de "Seleccionar varias"): esquina opuesta al botón
+  // de agregar — indica que la foto ya tiene copias en el carrito (ver `docs/ClaudeDesign`, badge
+  // `ph.inCart`).
   &__en-carrito {
     position: absolute;
     top: 6px;
@@ -278,9 +275,9 @@
     line-height: 1;
   }
 
-  // Solo aparece al pasar el mouse (o con foco de teclado) — pedido de Alberto 2026-07-19: no
-  // molestar visualmente la grilla con el ícono siempre puesto. En touch, sin hover real, el usuario
-  // agrega desde el preview ampliado (`verPreview`), que ya tiene el selector de tamaño+cantidad.
+  // Solo aparece al pasar el mouse (o con foco de teclado): no molestar visualmente la grilla con el
+  // ícono siempre puesto. En touch, sin hover real, el usuario agrega desde el preview ampliado
+  // (`verPreview`), que ya tiene el selector de tamaño+cantidad.
   &__add {
     position: absolute;
     top: 2px;
