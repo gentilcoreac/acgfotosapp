@@ -30,9 +30,7 @@
     list-style: none;
   }
 
-  &__linea {
-    display: flex;
-    gap: 0.75rem;
+  &__grupo {
     padding: 0.75rem;
     border-radius: 12px;
     background: var(--mat-sys-surface-container);
@@ -46,27 +44,31 @@
     }
   }
 
+  // Toda la cabecera (thumb + nombre) es un único botón: lleva al preview ampliado de esa foto —
+  // "redirigir a la foto" en vez de editar el tamaño ahí mismo en la línea (pedido de Alberto).
+  &__foto-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+
+    &:hover {
+      background-color: var(--mat-sys-surface-variant);
+    }
+  }
+
   &__thumb {
     flex: none;
-    width: 72px;
-    height: 72px;
+    width: 56px;
+    height: 56px;
     border-radius: 8px;
     overflow: hidden;
-  }
-
-  &__detalle {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  &__fila-archivo {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem;
   }
 
   &__archivo {
@@ -78,58 +80,31 @@
     white-space: nowrap;
   }
 
-  &__quitar {
-    flex: none;
-    padding: 0;
-    border: none;
-    background: none;
-    color: var(--mat-sys-primary);
-    font: inherit;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    cursor: pointer;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  &__tamanos {
+  &__tamanos-lista {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 0.375rem;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    list-style: none;
   }
 
-  &__tamano-chip {
-    padding: 0.25rem 0.625rem;
-    border: 1px solid var(--mat-sys-outline-variant);
-    border-radius: 8px;
-    background: transparent;
-    color: var(--mat-sys-on-surface-variant);
-    font: inherit;
-    font-size: 0.75rem;
-    font-weight: 500;
-    cursor: pointer;
-
-    &:hover {
-      background-color: var(--mat-sys-surface-variant);
-    }
-
-    &.activo {
-      border-color: var(--mat-sys-primary);
-      background: var(--mat-sys-primary-container);
-      color: var(--mat-sys-on-primary-container);
-    }
-  }
-
-  &__fila-cantidad {
+  &__tamano-linea {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.375rem 0 0.375rem 4.25rem; // alineado bajo el nombre de archivo, no bajo el thumb
+  }
+
+  &__tamano-nombre {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.9375rem;
   }
 
   &__cantidad {
     display: flex;
+    flex: none;
     align-items: center;
     gap: 0.25rem;
 
@@ -149,6 +124,7 @@
   }
 
   &__subtotal {
+    flex: none;
     color: var(--mat-sys-on-surface-variant);
     font-size: 0.875rem;
     font-weight: 500;

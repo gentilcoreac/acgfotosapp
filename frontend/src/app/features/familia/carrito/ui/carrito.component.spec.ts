@@ -1,5 +1,6 @@
-import type { MockedObject } from 'vitest';
+import type { Mock, MockedObject } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -36,6 +37,7 @@ const TAMANOS: TamanoPrecio[] = [
 describe('CarritoComponent', () => {
   let fixture: ComponentFixture<CarritoComponent>;
   let pedidoSpy: MockedObject<PedidoService>;
+  let dialogOpen: Mock;
 
   /** `sembrar` corre DESPUÉS de `configureTestingModule` (ya se puede injectar) y ANTES de crear el
    * componente, así el carrito ya tiene líneas cuando el componente arranca a leerlo. */
@@ -46,6 +48,7 @@ describe('CarritoComponent', () => {
     URL.revokeObjectURL = vi.fn();
 
     pedidoSpy = { confirmar: vi.fn() } as unknown as MockedObject<PedidoService>;
+    dialogOpen = vi.fn().mockName('dialog.open');
 
     TestBed.configureTestingModule({
       imports: [CarritoComponent],
@@ -58,6 +61,7 @@ describe('CarritoComponent', () => {
         },
         { provide: FamiliaCatalogoService, useValue: { listarTamanosPrecios: vi.fn().mockReturnValue(of(TAMANOS)) } },
         { provide: PedidoService, useValue: pedidoSpy },
+        { provide: MatDialog, useValue: { open: dialogOpen } },
       ],
     });
 
@@ -109,32 +113,56 @@ describe('CarritoComponent', () => {
     expect(carrito.cantidadDe(1, 10)).toBe(0);
   });
 
-  it('muestra una chip por tamaño del catálogo, marcando activa la de la línea', () => {
-    const { el } = create((carrito) => carrito.agregar(1, 10, 1));
+  it('agrupa las líneas de la MISMA foto en una sola card, una fila por tamaño', () => {
+    const { el } = create((carrito) => {
+      carrito.agregar(1, 10, 2);
+      carrito.agregar(1, 20, 1);
+    });
 
-    const chips = el.querySelectorAll('.carrito__tamano-chip');
-    expect(chips.length).toBe(2);
-    expect(chips[0].textContent?.trim()).toBe('10x15');
-    expect(chips[0].classList.contains('activo')).toBe(true);
-    expect(chips[1].classList.contains('activo')).toBe(false);
+    expect(el.querySelectorAll('.carrito__grupo').length).toBe(1);
+    const filas = el.querySelectorAll('.carrito__tamano-linea');
+    expect(filas.length).toBe(2);
+    expect(filas[0].querySelector('.carrito__tamano-nombre')?.textContent).toBe('10x15');
+    expect(filas[1].querySelector('.carrito__tamano-nombre')?.textContent).toBe('20x30');
   });
 
-  it('tocar una chip de otro tamaño mueve la línea a ese tamaño en el CarritoStore', () => {
-    const { el } = create((carrito) => carrito.agregar(1, 10, 2));
-    const carrito = TestBed.inject(CarritoStore);
+  it('fotos distintas quedan en cards separadas', () => {
+    const { el } = create((carrito) => {
+      carrito.agregar(1, 10, 1);
+      carrito.agregar(2, 20, 1);
+    });
 
-    (el.querySelectorAll('.carrito__tamano-chip')[1] as HTMLButtonElement).click();
-
-    expect(carrito.lineas()).toEqual([{ fotoId: 1, tamanoPrecioId: 20, cantidad: 2 }]);
+    expect(el.querySelectorAll('.carrito__grupo').length).toBe(2);
   });
 
-  it('el botón "Quitar" de la línea saca esa línea del carrito', () => {
-    const { el } = create((carrito) => carrito.agregar(1, 10, 1));
+  it('tocar la cabecera de una foto abre el preview ampliado posicionado en esa foto, sin poder reasignar el tamaño ahí', () => {
+    const { el } = create((carrito) => {
+      carrito.agregar(1, 10, 1);
+      carrito.agregar(2, 20, 1);
+    });
+
+    expect(el.querySelector('.carrito__tamano-chip')).toBeNull();
+
+    (el.querySelectorAll('.carrito__foto-header')[1] as HTMLButtonElement).click();
+
+    expect(dialogOpen).toHaveBeenCalledTimes(1);
+    const data = dialogOpen.mock.calls[0][1].data;
+    expect(data.fotos).toEqual([FOTOS[0], FOTOS[1]]);
+    expect(data.index).toBe(1);
+    expect(data.tamanosPrecios).toEqual(TAMANOS);
+  });
+
+  it('el botón "quitar" de una fila de tamaño saca solo esa línea del carrito', () => {
+    const { el } = create((carrito) => {
+      carrito.agregar(1, 10, 1);
+      carrito.agregar(1, 20, 1);
+    });
     const carrito = TestBed.inject(CarritoStore);
 
-    (el.querySelector('.carrito__quitar') as HTMLButtonElement).click();
+    const filas = el.querySelectorAll('.carrito__tamano-linea');
+    (filas[0].querySelector('button[aria-label="Quitar 10x15 del carrito"]') as HTMLButtonElement).click();
 
-    expect(carrito.lineas()).toEqual([]);
+    expect(carrito.lineas()).toEqual([{ fotoId: 1, tamanoPrecioId: 20, cantidad: 1 }]);
   });
 
   it('confirmar() con el form inválido no llama al servicio', () => {

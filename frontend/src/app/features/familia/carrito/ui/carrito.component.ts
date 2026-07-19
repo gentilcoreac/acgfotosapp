@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { rxResource } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { catchError, finalize, of } from 'rxjs';
@@ -16,6 +17,10 @@ import {
   TamanoPrecio,
 } from '../../../../core/familia';
 import { FotoFamiliaImgComponent } from '../../mi-album/ui/foto-familia-img.component';
+import {
+  FotoFamiliaPreviewDialogComponent,
+  FotoFamiliaPreviewDialogData,
+} from '../../mi-album/ui/foto-familia-preview-dialog.component';
 import { TbiButtonComponent } from '../../../../shared/ui/tbi-button/tbi-button.component';
 import { TbiTextFieldComponent } from '../../../../shared/ui/tbi-text-field/tbi-text-field.component';
 
@@ -27,6 +32,15 @@ interface LineaCarritoDetalle {
   foto: FotoFamilia;
   tamano: TamanoPrecio;
   subtotal: number;
+}
+
+/** Todas las líneas de una misma foto, agrupadas para mostrar una sola card por foto (pedido de
+ * Alberto 2026-07-19: no tiene sentido "reasignar" el tamaño de una línea tocándola en el carrito —
+ * si ya hay dos tamaños de la misma foto, se ven juntos bajo la misma foto, no como dos cards
+ * separadas con un selector confuso). */
+interface GrupoCarritoFoto {
+  foto: FotoFamilia;
+  lineas: LineaCarritoDetalle[];
 }
 
 /**
@@ -56,6 +70,7 @@ export class CarritoComponent {
   private readonly catalogoService = inject(FamiliaCatalogoService);
   private readonly pedidoService = inject(PedidoService);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
 
   private readonly fotosResource = rxResource({
     stream: () => this.galeriaService.listar().pipe(catchError(() => of<FotoFamilia[]>([]))),
@@ -91,8 +106,21 @@ export class CarritoComponent {
 
   protected readonly total = computed(() => this.lineas().reduce((suma, l) => suma + l.subtotal, 0));
 
-  /** Catálogo completo, para las chips de tamaño editables inline de cada línea. */
+  /** Catálogo completo, para el selector de tamaño+cantidad del preview ampliado. */
   protected readonly tamanosPrecios = computed(() => this.tamanosPreciosResource.value() ?? []);
+
+  protected readonly grupos = computed<GrupoCarritoFoto[]>(() => {
+    const grupos: GrupoCarritoFoto[] = [];
+    for (const linea of this.lineas()) {
+      const grupo = grupos.find((g) => g.foto.id === linea.fotoId);
+      if (grupo) {
+        grupo.lineas.push(linea);
+      } else {
+        grupos.push({ foto: linea.foto, lineas: [linea] });
+      }
+    }
+    return grupos;
+  });
 
   protected readonly confirmando = signal(false);
   protected readonly errors = signal<string[]>([]);
@@ -116,12 +144,27 @@ export class CarritoComponent {
     this.carritoStore.quitar(linea.fotoId, linea.tamanoPrecioId);
   }
 
-  protected cambiarTamano(linea: LineaCarritoDetalle, tamano: TamanoPrecio): void {
-    this.carritoStore.cambiarTamano(linea.fotoId, linea.tamanoPrecioId, tamano.id);
-  }
-
   protected volver(): void {
     this.router.navigateByUrl('/mi-album');
+  }
+
+  /** Abre el mismo preview ampliado que la grilla (con su selector de tamaño+cantidad), navegando
+   * entre las fotos que están en el carrito — pedido de Alberto: "redirigir a la foto" en vez de
+   * editar el tamaño ahí mismo en la línea. */
+  protected abrirPreview(foto: FotoFamilia): void {
+    const fotos = this.grupos().map((g) => g.foto);
+    const index = fotos.findIndex((f) => f.id === foto.id);
+    this.dialog.open(FotoFamiliaPreviewDialogComponent, {
+      data: {
+        fotos,
+        index: index === -1 ? 0 : index,
+        tamanosPrecios: this.tamanosPrecios(),
+      } satisfies FotoFamiliaPreviewDialogData,
+      autoFocus: false,
+      maxWidth: '100vw',
+      width: '96vw',
+      height: '94vh',
+    });
   }
 
   protected confirmar(): void {

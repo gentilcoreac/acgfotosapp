@@ -13,43 +13,46 @@
     <tbi-button label="Ver mis fotos" (click)="volver()" />
   } @else {
     <ul class="carrito__lista">
-      @for (linea of lineas(); track linea.fotoId + '-' + linea.tamanoPrecioId) {
-        <li class="carrito__linea">
-          <tbi-foto-familia-img class="carrito__thumb" [fotoId]="linea.fotoId" />
+      @for (grupo of grupos(); track grupo.foto.id) {
+        <li class="carrito__grupo">
+          <button
+            type="button"
+            class="carrito__foto-header"
+            (click)="abrirPreview(grupo.foto)"
+            [attr.aria-label]="'Ver foto ' + grupo.foto.nombreArchivoOriginal"
+          >
+            <tbi-foto-familia-img class="carrito__thumb" [fotoId]="grupo.foto.id" />
+            <span class="carrito__archivo">{{ grupo.foto.nombreArchivoOriginal }}</span>
+          </button>
 
-          <div class="carrito__detalle">
-            <div class="carrito__fila-archivo">
-              <span class="carrito__archivo">{{ linea.foto.nombreArchivoOriginal }}</span>
-              <button type="button" class="carrito__quitar" (click)="quitar(linea)">Quitar</button>
-            </div>
+          <ul class="carrito__tamanos-lista">
+            @for (linea of grupo.lineas; track linea.tamanoPrecioId) {
+              <li class="carrito__tamano-linea">
+                <span class="carrito__tamano-nombre">{{ linea.tamano.nombre }}</span>
 
-            <div class="carrito__tamanos" role="group" [attr.aria-label]="'Tamaño de ' + linea.foto.nombreArchivoOriginal">
-              @for (tamano of tamanosPrecios(); track tamano.id) {
+                <div class="carrito__cantidad" role="group" aria-label="Cantidad">
+                  <button matIconButton type="button" (click)="restar(linea)" aria-label="Quitar una copia">
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  <span class="carrito__numero">{{ linea.cantidad }}</span>
+                  <button matIconButton type="button" (click)="sumar(linea)" aria-label="Agregar una copia">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
+
+                <span class="carrito__subtotal">{{ formatearPrecio(linea.subtotal) }}</span>
+
                 <button
+                  matIconButton
                   type="button"
-                  class="carrito__tamano-chip"
-                  [class.activo]="tamano.id === linea.tamanoPrecioId"
-                  [attr.aria-pressed]="tamano.id === linea.tamanoPrecioId"
-                  (click)="cambiarTamano(linea, tamano)"
+                  (click)="quitar(linea)"
+                  [attr.aria-label]="'Quitar ' + linea.tamano.nombre + ' del carrito'"
                 >
-                  {{ tamano.nombre }}
+                  <mat-icon>close</mat-icon>
                 </button>
-              }
-            </div>
-
-            <div class="carrito__fila-cantidad">
-              <div class="carrito__cantidad" role="group" aria-label="Cantidad">
-                <button matIconButton type="button" (click)="restar(linea)" aria-label="Quitar una copia">
-                  <mat-icon>remove</mat-icon>
-                </button>
-                <span class="carrito__numero">{{ linea.cantidad }}</span>
-                <button matIconButton type="button" (click)="sumar(linea)" aria-label="Agregar una copia">
-                  <mat-icon>add</mat-icon>
-                </button>
-              </div>
-              <span class="carrito__subtotal">{{ formatearPrecio(linea.subtotal) }}</span>
-            </div>
-          </div>
+              </li>
+            }
+          </ul>
         </li>
       }
     </ul>
