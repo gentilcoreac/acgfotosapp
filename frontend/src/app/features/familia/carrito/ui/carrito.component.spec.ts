@@ -135,7 +135,7 @@ describe('CarritoComponent', () => {
     expect(el.querySelectorAll('.carrito__grupo').length).toBe(2);
   });
 
-  it('tocar la cabecera de una foto abre el preview ampliado posicionado en esa foto, sin poder reasignar el tamaño ahí', () => {
+  it('tocar la miniatura de una foto abre el preview ampliado posicionado en esa foto, sin poder reasignar el tamaño ahí', () => {
     const { el } = create((carrito) => {
       carrito.agregar(1, 10, 1);
       carrito.agregar(2, 20, 1);
@@ -143,13 +143,22 @@ describe('CarritoComponent', () => {
 
     expect(el.querySelector('.carrito__tamano-chip')).toBeNull();
 
-    (el.querySelectorAll('.carrito__foto-header')[1] as HTMLButtonElement).click();
+    (el.querySelectorAll('.carrito__thumb-btn')[1] as HTMLButtonElement).click();
 
     expect(dialogOpen).toHaveBeenCalledTimes(1);
     const data = dialogOpen.mock.calls[0][1].data;
     expect(data.fotos).toEqual([FOTOS[0], FOTOS[1]]);
     expect(data.index).toBe(1);
     expect(data.tamanosPrecios).toEqual(TAMANOS);
+  });
+
+  it('tocar el nombre de archivo también abre el preview (imagen y nombre son dos targets de click independientes)', () => {
+    const { el } = create((carrito) => carrito.agregar(1, 10, 1));
+
+    (el.querySelector('.carrito__archivo') as HTMLButtonElement).click();
+
+    expect(dialogOpen).toHaveBeenCalledTimes(1);
+    expect(dialogOpen.mock.calls[0][1].data.index).toBe(0);
   });
 
   it('el botón "quitar" de una fila de tamaño saca solo esa línea del carrito', () => {

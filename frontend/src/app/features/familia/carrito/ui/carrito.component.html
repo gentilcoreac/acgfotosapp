@@ -15,15 +15,18 @@
     <ul class="carrito__lista">
       @for (grupo of grupos(); track grupo.foto.id) {
         <li class="carrito__grupo">
-          <button
-            type="button"
-            class="carrito__foto-header"
-            (click)="abrirPreview(grupo.foto)"
-            [attr.aria-label]="'Ver foto ' + grupo.foto.nombreArchivoOriginal"
-          >
-            <tbi-foto-familia-img class="carrito__thumb" [fotoId]="grupo.foto.id" />
-            <span class="carrito__archivo">{{ grupo.foto.nombreArchivoOriginal }}</span>
-          </button>
+          <div class="carrito__foto-header">
+            <button
+              type="button"
+              class="carrito__thumb-btn"
+              (click)="abrirPreview(grupo.foto)"
+              [attr.aria-label]="'Ver foto ' + grupo.foto.nombreArchivoOriginal"
+            >
+              <tbi-foto-familia-img class="carrito__thumb" [fotoId]="grupo.foto.id" />
+            </button>
+
+            <button type="button" class="carrito__archivo" (click)="abrirPreview(grupo.foto)">{{ grupo.foto.nombreArchivoOriginal }}</button>
+          </div>
 
           <ul class="carrito__tamanos-lista">
             @for (linea of grupo.lineas; track linea.tamanoPrecioId) {
