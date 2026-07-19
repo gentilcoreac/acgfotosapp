@@ -102,6 +102,18 @@ export class MiAlbumComponent {
 
   protected readonly opcionesTamano = computed(() => toSelectOptions(this.tamanosPrecios(), (t) => t.nombre));
 
+  /** Filtro de repaso (pedido de Alberto 2026-07-19): antes de confirmar, ver solo las fotos que ya
+   * tienen copias en el carrito, sin tener que ir y volver de `/carrito`. */
+  protected readonly soloEnCarrito = signal(false);
+
+  protected readonly fotosFiltradas = computed(() => {
+    if (!this.soloEnCarrito()) {
+      return this.fotos();
+    }
+    const idsEnCarrito = new Set(this.carrito.lineas().map((l) => l.fotoId));
+    return this.fotos().filter((f) => idsEnCarrito.has(f.id));
+  });
+
   constructor() {
     // Preselecciona el primer tamaño en cuanto llega el catálogo (mismo criterio que `AgregarCarritoComponent`).
     effect(() => {
@@ -158,7 +170,7 @@ export class MiAlbumComponent {
   }
 
   protected verPreview(foto: FotoFamilia): void {
-    const fotos = this.fotos();
+    const fotos = this.fotosFiltradas();
     const index = fotos.findIndex((f) => f.id === foto.id);
     this.dialog.open(FotoFamiliaPreviewDialogComponent, {
       data: {

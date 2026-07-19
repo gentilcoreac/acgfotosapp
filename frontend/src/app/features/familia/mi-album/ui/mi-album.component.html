@@ -57,15 +57,30 @@
 
   @if (fotos().length > 0) {
     <div class="mi-album__seleccion-barra">
-      <button
-        type="button"
-        class="mi-album__seleccion-toggle"
-        [class.activo]="modoSeleccion()"
-        (click)="toggleModoSeleccion()"
-      >
-        <mat-icon inline>{{ modoSeleccion() ? 'close' : 'checklist' }}</mat-icon>
-        {{ modoSeleccion() ? 'Cancelar selección' : 'Seleccionar varias' }}
-      </button>
+      <div class="mi-album__toggles">
+        <button
+          type="button"
+          class="mi-album__seleccion-toggle"
+          [class.activo]="modoSeleccion()"
+          (click)="toggleModoSeleccion()"
+        >
+          <mat-icon inline>{{ modoSeleccion() ? 'close' : 'checklist' }}</mat-icon>
+          {{ modoSeleccion() ? 'Cancelar selección' : 'Seleccionar varias' }}
+        </button>
+
+        @if (carrito.totalItems() > 0) {
+          <button
+            type="button"
+            class="mi-album__seleccion-toggle"
+            [class.activo]="soloEnCarrito()"
+            [attr.aria-pressed]="soloEnCarrito()"
+            (click)="soloEnCarrito.set(!soloEnCarrito())"
+          >
+            <mat-icon inline>shopping_cart</mat-icon>
+            {{ soloEnCarrito() ? 'Viendo el carrito' : 'Ver solo el carrito' }}
+          </button>
+        }
+      </div>
 
       @if (modoSeleccion()) {
         <div class="mi-album__seleccion-info">
@@ -95,13 +110,15 @@
     <p class="mi-album__hint">Cargando tus fotos…</p>
   } @else if (fotos().length === 0) {
     <p class="mi-album__hint">Todavía no hay fotos disponibles para vos.</p>
+  } @else if (fotosFiltradas().length === 0) {
+    <p class="mi-album__hint">No tenés fotos en el carrito todavía.</p>
   } @else {
     <div
       class="grilla"
       [class.grilla--lista]="densidad() === 'lista'"
       [style.grid-template-columns]="gridTemplateColumns()"
     >
-      @for (foto of fotos(); track foto.id) {
+      @for (foto of fotosFiltradas(); track foto.id) {
         <div class="grilla__item">
           <button
             class="grilla__tile"

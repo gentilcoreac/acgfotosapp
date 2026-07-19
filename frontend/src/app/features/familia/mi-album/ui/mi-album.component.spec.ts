@@ -309,6 +309,52 @@ describe('MiAlbumComponent', () => {
     expect(el.querySelector('.grilla__filename')).toBeNull();
   });
 
+  it('sin ítems en el carrito no muestra el toggle "Ver solo el carrito"', async () => {
+    const { el } = await create([foto({ id: 1, participanteId: 100 })]);
+
+    expect(el.textContent).not.toContain('Ver solo el carrito');
+  });
+
+  it('"Ver solo el carrito" filtra la grilla a las fotos con copias en el carrito', async () => {
+    const fotos = [foto({ id: 1, participanteId: 100 }), foto({ id: 2, participanteId: null })];
+    const { el, cmp } = await create(fotos);
+    const carrito = TestBed.inject(CarritoStore);
+
+    carrito.agregar(2, TAMANOS[0].id, 1);
+    fixture.detectChanges();
+
+    const toggles = el.querySelectorAll('.mi-album__seleccion-toggle');
+    const filtroBtn = Array.from(toggles).find((b) => b.textContent?.includes('Ver solo el carrito')) as HTMLButtonElement;
+    filtroBtn.click();
+    fixture.detectChanges();
+
+    expect(cmp['soloEnCarrito']()).toBe(true);
+    expect(el.querySelectorAll('.grilla__item').length).toBe(1);
+    expect(el.textContent).toContain('Viendo el carrito');
+
+    filtroBtn.click();
+    fixture.detectChanges();
+    expect(el.querySelectorAll('.grilla__item').length).toBe(2);
+  });
+
+  it('con el filtro activo, el preview navega solo entre las fotos filtradas', async () => {
+    const fotos = [foto({ id: 1, participanteId: 100 }), foto({ id: 2, participanteId: null })];
+    const { el } = await create(fotos);
+    const carrito = TestBed.inject(CarritoStore);
+
+    carrito.agregar(2, TAMANOS[0].id, 1);
+    fixture.detectChanges();
+    (el.querySelectorAll('.mi-album__seleccion-toggle')[1] as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    (el.querySelector('.grilla__tile') as HTMLButtonElement).click();
+
+    expect(dialogOpen).toHaveBeenCalledTimes(1);
+    const data = dialogOpen.mock.calls[0][1].data;
+    expect(data.fotos).toEqual([fotos[1]]);
+    expect(data.index).toBe(0);
+  });
+
   it('el botón "Grande" pone 2 columnas en la grilla', async () => {
     const { el, cmp } = await create([foto({ id: 1, participanteId: 100 })]);
 
