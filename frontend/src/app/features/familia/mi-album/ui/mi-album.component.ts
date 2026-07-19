@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -15,6 +15,8 @@ import {
   FotoFamilia,
   TamanoPrecio,
 } from '../../../../core/familia';
+import { NotificationService } from '../../../../shared/feedback/notification.service';
+import { TbiSelectComponent, toSelectOptions } from '../../../../shared/ui/tbi-select/tbi-select.component';
 import { AgregarCarritoBottomSheetComponent } from './agregar-carrito-bottom-sheet.component';
 import { FotoFamiliaImgComponent } from './foto-familia-img.component';
 import {
@@ -22,8 +24,9 @@ import {
   FotoFamiliaPreviewDialogData,
 } from './foto-familia-preview-dialog.component';
 
-/** Cantidad de fotos por fila de la grilla ("chico" = más fotos, más chicas; "lista" = una por fila con detalle). */
-export type DensidadGrilla = 2 | 4 | 'lista';
+/** Cantidad de fotos por fila de la grilla ("chico" = más fotos, más chicas; "compacta" = tantas como
+ * entren según el ancho de pantalla, sin overlay de texto; "lista" = una por fila con detalle). */
+export type DensidadGrilla = 2 | 4 | 'compacta' | 'lista';
 
 /**
  * Galería mobile-first de la familia (Fase 2): saluda con los datos del canje (sin round-trip,
@@ -35,7 +38,7 @@ export type DensidadGrilla = 2 | 4 | 'lista';
 @Component({
   selector: 'tbi-mi-album',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatBadgeModule, MatButtonModule, MatIconModule, FotoFamiliaImgComponent],
+  imports: [MatBadgeModule, MatButtonModule, MatIconModule, FotoFamiliaImgComponent, TbiSelectComponent],
   templateUrl: './mi-album.component.html',
   styleUrl: './mi-album.component.scss',
 })
@@ -46,6 +49,7 @@ export class MiAlbumComponent {
   private readonly dialog = inject(MatDialog);
   private readonly bottomSheet = inject(MatBottomSheet);
   private readonly router = inject(Router);
+  private readonly notification = inject(NotificationService);
 
   protected readonly carrito = inject(CarritoStore);
 
@@ -80,8 +84,84 @@ export class MiAlbumComponent {
 
   protected readonly gridTemplateColumns = computed(() => {
     const d = this.densidad();
-    return d === 'lista' ? '1fr' : `repeat(${d}, 1fr)`;
+    if (d === 'lista') {
+      return '1fr';
+    }
+    if (d === 'compacta') {
+      // Auto-fill: la cantidad de columnas sale sola del ancho disponible (pedido de Alberto
+      // 2026-07-19: "ver la galería con una mayor cantidad, las que entren de acuerdo a la pantalla").
+      return 'repeat(auto-fill, minmax(72px, 1fr))';
+    }
+    return `repeat(${d}, 1fr)`;
   });
+
+  /** "Seleccionar varias" (comparación con `docs/ClaudeDesign`, feedback de Alberto 2026-07-19): tildar
+   * fotos sin abrir el preview de cada una y mandarlas todas al carrito de una, en el tamaño elegido en
+   * `tamanoLoteId` (selector propio, no un default fijo — se puede cambiar antes de agregar). */
+  protected readonly modoSeleccion = signal(false);
+  protected readonly seleccionadas = signal<ReadonlySet<number>>(new Set());
+  protected readonly tamanoLoteId = signal<number | null>(null);
+
+  protected readonly opcionesTamano = computed(() => toSelectOptions(this.tamanosPrecios(), (t) => t.nombre));
+
+  constructor() {
+    // Preselecciona el primer tamaño en cuanto llega el catálogo (mismo criterio que `AgregarCarritoComponent`).
+    effect(() => {
+      const primero = this.tamanosPrecios()[0];
+      if (primero && untracked(this.tamanoLoteId) === null) {
+        this.tamanoLoteId.set(primero.id);
+      }
+    });
+  }
+
+  protected toggleModoSeleccion(): void {
+    this.modoSeleccion.update((v) => !v);
+    this.seleccionadas.set(new Set());
+  }
+
+  protected toggleSeleccion(fotoId: number): void {
+    this.seleccionadas.update((actual) => {
+      const siguiente = new Set(actual);
+      if (siguiente.has(fotoId)) {
+        siguiente.delete(fotoId);
+      } else {
+        siguiente.add(fotoId);
+      }
+      return siguiente;
+    });
+  }
+
+  protected onTileClick(foto: FotoFamilia): void {
+    if (this.modoSeleccion()) {
+      this.toggleSeleccion(foto.id);
+    } else {
+      this.verPreview(foto);
+    }
+  }
+
+  /** Crea una línea de carrito (tamaño elegido en `tamanoLoteId`, 1 copia) por cada foto tildada. */
+  protected agregarSeleccionadasAlCarrito(): void {
+    const tamanoId = this.tamanoLoteId();
+    const tamano = this.tamanosPrecios().find((t) => t.id === tamanoId);
+    const seleccionadas = this.seleccionadas();
+    if (!tamano || seleccionadas.size === 0) {
+      return;
+    }
+
+    for (const fotoId of seleccionadas) {
+      this.carrito.agregar(fotoId, tamano.id, 1);
+    }
+
+    // El mensaje ya NO habla de "ajustar el tamaño después" (versión vieja, de cuando el tamaño
+    // salía de un default fijo sin poder elegirlo acá) — ahora el tamaño SÍ se elige antes de tocar
+    // este botón, así que lo único que queda abierto es sumar más copias (feedback de Alberto
+    // 2026-07-19: el mensaje viejo sonaba a que el tamaño todavía no estaba decidido).
+    const cantidad = seleccionadas.size;
+    this.notification.success(
+      `${cantidad} foto${cantidad === 1 ? '' : 's'} agregada${cantidad === 1 ? '' : 's'} al carrito en ${tamano.nombre} (1 copia c/u). Podés sumar más copias desde el carrito.`,
+    );
+    this.toggleModoSeleccion();
+  }
 
   protected verPreview(foto: FotoFamilia): void {
     const fotos = this.fotos();

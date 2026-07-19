@@ -114,6 +114,14 @@ describe('LoginComponent', () => {
     expect(el.querySelector('.login__image img')).toBeTruthy();
   });
 
+  it('el link "Entrar con código" apunta a /canje', () => {
+    const fixture = TestBed.createComponent(LoginComponent);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    const link = el.querySelector('[data-testid="login-canje-link"]');
+    expect(link?.getAttribute('href')).toBe('/canje');
+  });
+
   it('loginLogoUrl sigue el modo light/dark', () => {
     TestBed.inject(TenantStyleStore).set(
       makeStyle({ logoLoginLightUrl: 'L.png', logoLoginDarkUrl: 'D.png' }),

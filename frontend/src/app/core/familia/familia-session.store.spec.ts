@@ -38,6 +38,23 @@ describe('FamiliaSessionStore', () => {
     expect(store.participantes()).toEqual([{ id: 100, nombre: 'Ana Pérez' }]);
   });
 
+  it('nombreFamilia arma "Familia de {nombres}", uniendo varios participantes con "y"', () => {
+    expect(store.nombreFamilia()).toBeNull(); // sin sesión
+
+    store.setSession(fakeResult({ participantes: [{ id: 100, nombre: 'Ana Pérez' }] }));
+    expect(store.nombreFamilia()).toBe('Familia de Ana Pérez');
+
+    store.setSession(
+      fakeResult({
+        participantes: [
+          { id: 100, nombre: 'Ana Pérez' },
+          { id: 101, nombre: 'José López' },
+        ],
+      }),
+    );
+    expect(store.nombreFamilia()).toBe('Familia de Ana Pérez y José López');
+  });
+
   it('no está activa si el token ya venció', () => {
     store.setSession(fakeResult({ validTo: new Date(Date.now() - 1000).toISOString() }));
     expect(store.isActive()).toBe(false);

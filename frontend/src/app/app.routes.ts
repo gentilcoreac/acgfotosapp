@@ -31,12 +31,21 @@ export const routes: Routes = [
       ),
   },
   {
-    // Carrito + confirmación de pedido (Fase 2, ADR-07).
+    // Carrito de la sesión de familia (Fase 2, ADR-07).
     path: 'carrito',
     canMatch: [familiaSessionGuard],
     loadComponent: () =>
       import('./features/familia/carrito/ui/carrito.component').then(
         (m) => m.CarritoComponent,
+      ),
+  },
+  {
+    // Confirmación de pedido, vista propia (antes inline dentro de /carrito, ver docs/05).
+    path: 'pedido-confirmado',
+    canMatch: [familiaSessionGuard],
+    loadComponent: () =>
+      import('./features/familia/pedido-confirmado/ui/pedido-confirmado.component').then(
+        (m) => m.PedidoConfirmadoComponent,
       ),
   },
   {

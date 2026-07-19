@@ -39,6 +39,10 @@
 
       <tbi-button type="submit" label="Ingresar" loadingText="Ingresando…" [loading]="loading()" />
 
+      <a class="login__canje-link" routerLink="/canje" data-testid="login-canje-link">
+        Entrar con código
+      </a>
+
       <footer class="login__footer">{{ appTitle }} v{{ version }} · {{ year }}</footer>
     </form>
   </div>

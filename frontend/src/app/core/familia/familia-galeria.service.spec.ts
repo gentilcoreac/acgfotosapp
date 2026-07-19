@@ -44,7 +44,9 @@ describe('FamiliaGaleriaService', () => {
   afterEach(() => httpMock.verify());
 
   it('listar pega a fotos/familia/fotos sin filtros (el alcance sale del JWT)', () => {
-    const fotos: FotoFamilia[] = [{ id: 1, grupoId: 3, participanteId: 100, ancho: 800, alto: 600 }];
+    const fotos: FotoFamilia[] = [
+      { id: 1, grupoId: 3, participanteId: 100, nombreArchivoOriginal: 'IMG_001.jpg', ancho: 800, alto: 600 },
+    ];
     service.listar().subscribe();
 
     const req = httpMock.expectOne((r) => r.url.endsWith('/api/fotos/familia/fotos'));

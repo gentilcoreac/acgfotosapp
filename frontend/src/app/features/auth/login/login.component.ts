@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../core/auth';
 import { AppConfigService } from '../../../core/config';
@@ -14,7 +14,7 @@ import { TbiTextFieldComponent } from '../../../shared/ui/tbi-text-field/tbi-tex
 @Component({
   selector: 'tbi-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, TbiTextFieldComponent, TbiButtonComponent],
+  imports: [ReactiveFormsModule, RouterLink, TbiTextFieldComponent, TbiButtonComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })

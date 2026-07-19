@@ -33,6 +33,16 @@
           <button
             matIconButton
             type="button"
+            [class.activo]="densidad() === 'compacta'"
+            (click)="densidad.set('compacta')"
+            aria-label="Fotos muy chicas, tantas como entren por fila"
+            title="Muy chico"
+          >
+            <mat-icon>apps</mat-icon>
+          </button>
+          <button
+            matIconButton
+            type="button"
             [class.activo]="densidad() === 'lista'"
             (click)="densidad.set('lista')"
             aria-label="Ver en lista"
@@ -42,21 +52,44 @@
           </button>
         </div>
       }
-
-      <button
-        matIconButton
-        type="button"
-        class="mi-album__carrito"
-        (click)="irAlCarrito()"
-        aria-label="Ver carrito"
-        title="Carrito"
-      >
-        <mat-icon [matBadge]="carrito.totalItems()" [matBadgeHidden]="carrito.totalItems() === 0" matBadgeSize="small">
-          shopping_cart
-        </mat-icon>
-      </button>
     </div>
   </header>
+
+  @if (fotos().length > 0) {
+    <div class="mi-album__seleccion-barra">
+      <button
+        type="button"
+        class="mi-album__seleccion-toggle"
+        [class.activo]="modoSeleccion()"
+        (click)="toggleModoSeleccion()"
+      >
+        <mat-icon inline>{{ modoSeleccion() ? 'close' : 'checklist' }}</mat-icon>
+        {{ modoSeleccion() ? 'Cancelar selección' : 'Seleccionar varias' }}
+      </button>
+
+      @if (modoSeleccion()) {
+        <div class="mi-album__seleccion-info">
+          @if (opcionesTamano().length > 0) {
+            <tbi-select
+              class="mi-album__seleccion-tamano"
+              label="Tamaño"
+              [options]="opcionesTamano()"
+              [(value)]="tamanoLoteId"
+            />
+          }
+
+          <button
+            type="button"
+            class="mi-album__seleccion-agregar"
+            [disabled]="seleccionadas().size === 0 || tamanoLoteId() === null"
+            (click)="agregarSeleccionadasAlCarrito()"
+          >
+            Agregar {{ seleccionadas().size }} foto{{ seleccionadas().size === 1 ? '' : 's' }}
+          </button>
+        </div>
+      }
+    </div>
+  }
 
   @if (cargando()) {
     <p class="mi-album__hint">Cargando tus fotos…</p>
@@ -73,43 +106,78 @@
           <button
             class="grilla__tile"
             type="button"
-            (click)="verPreview(foto)"
+            [class.grilla__tile--seleccionada]="modoSeleccion() && seleccionadas().has(foto.id)"
+            [class.grilla__tile--no-seleccionada]="modoSeleccion() && !seleccionadas().has(foto.id)"
+            (click)="onTileClick(foto)"
             [attr.aria-label]="'Ver foto de ' + nombreParticipante(foto)"
           >
             <tbi-foto-familia-img class="grilla__img" [fotoId]="foto.id" />
             @if (densidad() === 'lista') {
-              <span class="grilla__etiqueta">{{ nombreParticipante(foto) }}</span>
-            } @else if (foto.participanteId === null) {
-              <span class="grilla__chip">
-                <mat-icon inline>group</mat-icon>
-                Grupal
+              <span class="grilla__etiqueta">
+                <span class="grilla__etiqueta-nombre">{{ nombreParticipante(foto) }}</span>
+                <span class="grilla__etiqueta-archivo">{{ foto.nombreArchivoOriginal }}</span>
               </span>
+            } @else if (densidad() !== 'compacta') {
+              @if (foto.participanteId === null) {
+                <span class="grilla__chip">
+                  <mat-icon inline>group</mat-icon>
+                  Grupal
+                </span>
+              }
+              <span class="grilla__filename">{{ foto.nombreArchivoOriginal }}</span>
             }
           </button>
 
-          <button
-            class="grilla__add"
-            matIconButton
-            type="button"
-            (click)="agregarAlCarrito(foto, $event)"
-            [attr.aria-label]="
-              carrito.cantidadTotalDeFoto(foto.id) > 0
-                ? carrito.cantidadTotalDeFoto(foto.id) + ' en el carrito, tocar para editar'
-                : 'Agregar esta foto al carrito'
-            "
-            title="Agregar al carrito"
-          >
-            <mat-icon
-              [matBadge]="carrito.cantidadTotalDeFoto(foto.id)"
-              [matBadgeHidden]="carrito.cantidadTotalDeFoto(foto.id) === 0"
-              matBadgeSize="small"
-              matBadgeColor="accent"
+          @if (carrito.cantidadTotalDeFoto(foto.id) > 0) {
+            <span class="grilla__en-carrito" aria-hidden="true">
+              <span class="grilla__check-marca">✓</span>
+            </span>
+          }
+
+          @if (modoSeleccion()) {
+            <span class="grilla__check" [class.grilla__check--activo]="seleccionadas().has(foto.id)" aria-hidden="true">
+              @if (seleccionadas().has(foto.id)) {
+                <span class="grilla__check-marca">✓</span>
+              }
+            </span>
+          } @else {
+            <button
+              class="grilla__add"
+              matIconButton
+              type="button"
+              (click)="agregarAlCarrito(foto, $event)"
+              [attr.aria-label]="
+                carrito.cantidadTotalDeFoto(foto.id) > 0
+                  ? carrito.cantidadTotalDeFoto(foto.id) + ' en el carrito, tocar para editar'
+                  : 'Agregar esta foto al carrito'
+              "
+              title="Agregar al carrito"
             >
-              add_shopping_cart
-            </mat-icon>
-          </button>
+              <mat-icon
+                [matBadge]="carrito.cantidadTotalDeFoto(foto.id)"
+                [matBadgeHidden]="carrito.cantidadTotalDeFoto(foto.id) === 0"
+                matBadgeSize="small"
+                matBadgeColor="accent"
+              >
+                add_shopping_cart
+              </mat-icon>
+            </button>
+          }
         </div>
       }
     </div>
+  }
+
+  @if (carrito.totalItems() > 0) {
+    <button
+      type="button"
+      class="mi-album__carrito-fab"
+      (click)="irAlCarrito()"
+      [attr.aria-label]="'Ver carrito, ' + carrito.totalItems() + ' fotos'"
+    >
+      <mat-icon>shopping_cart</mat-icon>
+      Ver carrito
+      <span class="mi-album__carrito-fab-badge">{{ carrito.totalItems() }}</span>
+    </button>
   }
 </div>

@@ -11,7 +11,7 @@ import {
   FamiliaCatalogoService,
   FamiliaGaleriaService,
   FotoFamilia,
-  PedidoConfirmado,
+  formatearPrecio,
   PedidoService,
   TamanoPrecio,
 } from '../../../../core/familia';
@@ -93,16 +93,13 @@ export class CarritoComponent {
 
   protected readonly confirmando = signal(false);
   protected readonly errors = signal<string[]>([]);
-  protected readonly confirmado = signal<PedidoConfirmado | null>(null);
 
   protected readonly form = this.fb.group({
     nombreContacto: ['', [Validators.required]],
     telefonoContacto: ['', [Validators.required]],
   });
 
-  protected formatearPrecio(monto: number): string {
-    return `$ ${monto.toFixed(2).replace('.', ',')}`;
-  }
+  protected readonly formatearPrecio = formatearPrecio;
 
   protected sumar(linea: LineaCarritoDetalle): void {
     this.carritoStore.actualizarCantidad(linea.fotoId, linea.tamanoPrecioId, linea.cantidad + 1);
@@ -143,7 +140,7 @@ export class CarritoComponent {
       .subscribe({
         next: (pedido) => {
           this.carritoStore.vaciar();
-          this.confirmado.set(pedido);
+          this.router.navigate(['/pedido-confirmado'], { state: { pedido } });
         },
         error: (error: ApiError) => {
           this.errors.set(errorMessages(error, ['No se pudo confirmar el pedido.']));

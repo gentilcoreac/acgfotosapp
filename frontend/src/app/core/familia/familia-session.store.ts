@@ -52,6 +52,16 @@ export class FamiliaSessionStore {
     return token !== null && expiresAt !== null && Date.now() < expiresAt;
   });
 
+  /** "Familia de {nombres}" — texto de la segunda marca de agua (docs/05-notas-abiertas.md);
+   * centralizado acá para que `tbi-foto-familia-img` y el preview ampliado usen exactamente el mismo
+   * texto sin duplicar el `join`. `null` si por algún motivo no hay sesión activa. */
+  readonly nombreFamilia = computed<string | null>(() => {
+    const nombres = this._participantes()
+      .map((p) => p.nombre)
+      .join(' y ');
+    return nombres ? `Familia de ${nombres}` : null;
+  });
+
   constructor() {
     const stored = readStorage();
     if (stored && Date.now() < new Date(stored.validTo).getTime()) {

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(98% .004 175);}
+  * { box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:oklch(85% .008 175);border-radius:8px;}
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px);} to { opacity:1; transform:translateY(0);} }
+  @keyframes popIn { from { opacity:0; transform:scale(.96);} to { opacity:1; transform:scale(1);} }
+  a { color: oklch(42% .13 175); }
+  a:hover { color: oklch(36% .13 175); }
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:oklch(98% .004 175);color:oklch(20% .012 175);display:flex;flex-direction:column;position:relative;">
+
+  <!-- TOP APP BAR (M3 Center/Small) -->
+  <header style="position:sticky;top:0;z-index:20;background:oklch(98% .004 175 / .96);backdrop-filter:blur(10px);border-bottom:1px solid oklch(85% .008 175);display:flex;align-items:center;justify-content:space-between;padding:{{ headerPad }};gap:12px;">
+    <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ goToGallery }}">
+      <div style="width:32px;height:32px;border-radius:10px;background:oklch(42% .13 175);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:15px;flex:none;">A</div>
+      <sc-if value="{{ !isMobile }}"><div style="font-weight:500;font-size:17px;letter-spacing:0;color:oklch(20% .012 175);">ACG Fotos</div></sc-if>
+    </div>
+
+    <sc-if value="{{ view === 'gallery' }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;align-items:center;gap:8px;overflow-x:auto;flex:1;min-width:0;padding:2px 0;">
+        <sc-for list="{{ albums }}" as="al" hint-placeholder-count="4">
+          <button onClick="{{ al.select }}" style="{{ al.chipStyle }}">{{ al.label }}</button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <div style="display:flex;align-items:center;gap:6px;flex:none;">
+      <button onClick="{{ togglePhotographerMode }}" style="{{ photographerModeBtnStyle }}" title="Vista del fotógrafo: sin marca de agua, para mostrar en persona">{{ photographerModeLabel }}</button>
+      <button onClick="{{ setDeviceMobile }}" style="{{ deviceBtnMobileStyle }}" title="Vista mobile">Mobile</button>
+      <button onClick="{{ setDeviceDesktop }}" style="{{ deviceBtnDesktopStyle }}" title="Vista desktop">Desktop</button>
+    </div>
+  </header>
+
+  <sc-if value="{{ photographerMode }}">
+    <div style="background:oklch(30% .1 55);color:oklch(96% .04 55);text-align:center;font-size:12.5px;font-weight:500;padding:6px 10px;">
+      Modo fotógrafo activo — fotos originales sin marca de agua, seguridad desactivada (uso presencial)
+    </div>
+  </sc-if>
+
+  <!-- GALLERY VIEW -->
+  <sc-if value="{{ view === 'gallery' }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;padding:{{ contentPad }};padding-bottom:104px;animation:fadeIn .25s ease;">
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button onClick="{{ toggleFacesOnly }}" style="{{ facesChipStyle }}">
+            <sc-if value="{{ facesOnly }}"><span style="margin-right:4px;">✓</span></sc-if>
+            Mis fotos (reconocimiento facial)
+          </button>
+          <button onClick="{{ toggleSelectMode }}" style="{{ selectModeBtnStyle }}">
+            <sc-if value="{{ selectMode }}"><span style="margin-right:4px;">✓</span></sc-if>
+            {{ selectModeLabel }}
+          </button>
+        </div>
+        <sc-if value="{{ selectMode }}">
+          <div style="display:flex;align-items:center;gap:10px;animation:fadeIn .2s ease;">
+            <span style="font-size:13px;color:oklch(42% .014 175);">{{ selectedCount }} seleccionadas</span>
+            <button onClick="{{ addSelectedToCart }}" style="{{ bulkAddBtnStyle }}" disabled="{{ selectedCount === 0 }}">Agregar seleccionadas</button>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="display:grid;grid-template-columns:{{ gridCols }};gap:{{ gridGap }};">
+        <sc-for list="{{ visiblePhotos }}" as="ph" hint-placeholder-count="8">
+          <div style="position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1/1;cursor:pointer;background:{{ ph.color }};box-shadow:0 1px 2px oklch(0% 0 0 / .12),0 1px 3px 1px oklch(0% 0 0 / .1);border:{{ ph.borderStyle }};" onClick="{{ ph.onClick }}">
+            <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg, transparent 0 10px, oklch(0% 0 0 / .04) 10px 11px);"></div>
+            <div style="position:absolute;bottom:6px;right:8px;font-family:'Roboto Flex', monospace;font-size:9px;color:oklch(0% 0 0 / .35);letter-spacing:.02em;">{{ ph.filename }}</div>
+
+            <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;">
+              <sc-for list="{{ watermarkLines }}" as="wl" hint-placeholder-count="2">
+                <div style="position:absolute;top:{{ wl.top }};left:{{ wl.left }};transform:translate(-50%,-50%) rotate({{ wl.rotate }}deg);white-space:nowrap;font-weight:500;font-size:10px;letter-spacing:.06em;color:oklch(98% 0 0 / {{ wl.opacity }});text-transform:uppercase;">{{ wl.text }}</div>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ ph.inCart }}">
+              <div style="position:absolute;top:6px;left:6px;width:22px;height:22px;border-radius:7px;background:oklch(42% .13 175);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">✓</div>
+            </sc-if>
+            <sc-if value="{{ selectMode }}">
+              <div style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:2px solid white;background:{{ ph.checkBg }};display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px oklch(0% 0 0 / .3);">
+                <sc-if value="{{ ph.selected }}"><span style="color:white;font-size:12px;font-weight:700;">✓</span></sc-if>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ visiblePhotosEmpty }}">
+        <div style="padding:60px 20px;text-align:center;color:oklch(42% .014 175);">No hay fotos para este filtro.</div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- CART VIEW -->
+  <sc-if value="{{ view === 'cart' }}">
+    <div style="flex:1;padding:{{ contentPad }};padding-bottom:120px;max-width:760px;width:100%;margin:0 auto;animation:fadeIn .25s ease;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+        <button onClick="{{ goToGallery }}" style="background:none;border:none;font-size:20px;cursor:pointer;color:oklch(20% .012 175);width:40px;height:40px;border-radius:50%;">←</button>
+        <h1 style="font-size:22px;font-weight:500;margin:0;letter-spacing:0;">Tu carrito</h1>
+      </div>
+
+      <sc-if value="{{ cartIsEmpty }}">
+        <div style="padding:60px 20px;text-align:center;color:oklch(42% .014 175);">
+          <div style="font-size:15px;margin-bottom:14px;">Tu carrito está vacío.</div>
+          <button onClick="{{ goToGallery }}" style="background:oklch(42% .13 175);color:white;border:none;border-radius:999px;padding:10px 24px;font-size:14px;font-weight:500;cursor:pointer;">Ver galería</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ cartHasItems }}">
+        <sc-if value="{{ discountBannerText }}">
+          <div style="background:oklch(91% .07 55);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:500;color:oklch(24% .09 55);margin-bottom:8px;">{{ discountBannerText }}</div>
+            <div style="height:6px;border-radius:999px;background:oklch(85% .06 55);overflow:hidden;">
+              <div style="height:100%;border-radius:999px;background:oklch(52% .13 55);width:{{ discountProgressPct }}%;transition:width .3s ease;"></div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ packUpsellText }}">
+          <div style="background:oklch(93% .02 175);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:oklch(28% .03 175);">
+            {{ packUpsellText }}
+          </div>
+        </sc-if>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <sc-for list="{{ cartLines }}" as="cl" hint-placeholder-count="2">
+            <div style="display:flex;gap:14px;background:oklch(97% .005 175);border-radius:12px;padding:12px;">
+              <div style="width:{{ cartThumbSize }};height:{{ cartThumbSize }};border-radius:9px;background:{{ cl.color }};flex:none;position:relative;overflow:hidden;">
+                <div style="position:absolute;bottom:4px;right:5px;font-family:monospace;font-size:7px;color:oklch(0% 0 0 / .35);">{{ cl.filename }}</div>
+              </div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                  <div style="font-size:14px;font-weight:500;">{{ cl.filename }}</div>
+                  <button onClick="{{ cl.onRemove }}" style="background:none;border:none;color:oklch(42% .13 175);font-size:12px;font-weight:500;cursor:pointer;flex:none;">Quitar</button>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <sc-for list="{{ cl.sizeOptions }}" as="so" hint-placeholder-count="3">
+                    <button onClick="{{ so.onSelect }}" style="{{ so.style }}">{{ so.label }}</button>
+                  </sc-for>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <button onClick="{{ cl.onDec }}" style="{{ stepperBtnStyle }}">−</button>
+                    <span style="font-size:14px;font-weight:500;min-width:16px;text-align:center;">{{ cl.qty }}</span>
+                    <button onClick="{{ cl.onInc }}" style="{{ stepperBtnStyle }}">+</button>
+                  </div>
+                  <div style="font-size:14px;font-weight:700;">{{ cl.subtotalLabel }}</div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="margin-top:20px;background:oklch(97% .005 175);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:oklch(42% .014 175);"><span>Subtotal</span><span>{{ subtotalLabel }}</span></div>
+          <sc-if value="{{ discountPct > 0 }}">
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:oklch(45% .13 55);"><span>Descuento ({{ discountPct }}%)</span><span>−{{ discountAmountLabel }}</span></div>
+          </sc-if>
+          <div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;padding-top:8px;border-top:1px solid oklch(88% .008 175);"><span>Total</span><span>{{ totalLabel }}</span></div>
+          <button onClick="{{ goToCheckout }}" style="margin-top:8px;background:oklch(42% .13 175);color:white;border:none;border-radius:999px;padding:15px;font-size:15px;font-weight:500;cursor:pointer;">Continuar compra</button>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- CHECKOUT VIEW -->
+  <sc-if value="{{ view === 'checkout' }}">
+    <div style="flex:1;padding:{{ contentPad }};padding-bottom:60px;max-width:640px;width:100%;margin:0 auto;animation:fadeIn .25s ease;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+        <button onClick="{{ backToCart }}" style="background:none;border:none;font-size:20px;cursor:pointer;color:oklch(20% .012 175);width:40px;height:40px;border-radius:50%;">←</button>
+        <h1 style="font-size:22px;font-weight:500;margin:0;letter-spacing:0;">Finalizar compra</h1>
+      </div>
+
+      <div style="background:oklch(97% .005 175);border-radius:16px;padding:18px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:oklch(42% .014 175);margin-bottom:12px;">Datos de contacto</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <input value="{{ checkoutName }}" onInput="{{ onNameInput }}" placeholder="Nombre y apellido" style="{{ inputStyle }}" />
+          <input value="{{ checkoutPhone }}" onInput="{{ onPhoneInput }}" placeholder="Teléfono" style="{{ inputStyle }}" />
+        </div>
+      </div>
+
+      <div style="background:oklch(97% .005 175);border-radius:16px;padding:18px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:oklch(42% .014 175);margin-bottom:12px;">Entrega</div>
+        <div style="display:flex;margin-bottom:10px;border-radius:8px;overflow:hidden;border:1px solid oklch(62% .012 175);width:fit-content;">
+          <button onClick="{{ setDeliveryRetiro }}" style="{{ deliveryRetiroStyle }}">Retiro en local</button>
+          <button onClick="{{ setDeliveryEnvio }}" style="{{ deliveryEnvioStyle }}">Envío a domicilio</button>
+        </div>
+        <sc-if value="{{ deliveryMethod === 'envio' }}">
+          <input value="{{ checkoutAddress }}" onInput="{{ onAddressInput }}" placeholder="Dirección de envío" style="{{ inputStyle }}" />
+        </sc-if>
+      </div>
+
+      <div style="background:oklch(97% .005 175);border-radius:16px;padding:18px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:oklch(42% .014 175);margin-bottom:12px;">Método de pago</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button onClick="{{ setPaymentMP }}" style="{{ paymentMPStyle }}">Mercado Pago</button>
+          <button onClick="{{ setPaymentTransfer }}" style="{{ paymentTransferStyle }}">Transferencia bancaria</button>
+        </div>
+        <sc-if value="{{ paymentMethod === 'mercadopago' }}">
+          <div style="margin-top:12px;font-size:12.5px;color:oklch(42% .014 175);">Vas a ser redirigido a Mercado Pago para completar el pago de forma segura. El pedido se confirma automáticamente al acreditarse.</div>
+        </sc-if>
+        <sc-if value="{{ paymentMethod === 'transferencia' }}">
+          <div style="margin-top:12px;background:oklch(93% .02 175);border-radius:10px;padding:12px 14px;font-size:12.5px;color:oklch(24% .03 175);line-height:1.6;">
+            CBU: 0000003100012345678901<br/>
+            Alias: ACGFOTOS.VENTAS<br/>
+            Titular: ACG Fotografía SRL<br/>
+            Enviá el comprobante por WhatsApp para que confirmemos el pedido (se reserva por 24hs).
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="background:oklch(97% .005 175);border-radius:16px;padding:18px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:oklch(42% .014 175);margin-bottom:12px;">Resumen del pedido</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <sc-for list="{{ cartLines }}" as="ol" hint-placeholder-count="2">
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div style="width:36px;height:36px;border-radius:6px;background:{{ ol.color }};flex:none;"></div>
+              <div style="flex:1;font-size:13px;color:oklch(24% .014 175);">{{ ol.filename }} <span style="color:oklch(50% .014 175);">· {{ ol.typeLabel }} {{ ol.sizeLabel }} ×{{ ol.qty }}</span></div>
+              <div style="font-size:13px;font-weight:600;">{{ ol.subtotalLabel }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:oklch(97% .005 175);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:oklch(42% .014 175);"><span>{{ cartCount }} fotos</span><span>{{ subtotalLabel }}</span></div>
+        <sc-if value="{{ discountPct > 0 }}">
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:oklch(45% .13 55);"><span>Descuento</span><span>−{{ discountAmountLabel }}</span></div>
+        </sc-if>
+        <div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;padding-top:8px;border-top:1px solid oklch(88% .008 175);"><span>Total</span><span>{{ totalLabel }}</span></div>
+        <button onClick="{{ placeOrder }}" style="margin-top:8px;background:oklch(42% .13 175);color:white;border:none;border-radius:999px;padding:15px;font-size:15px;font-weight:500;cursor:pointer;">Confirmar pedido</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- CONFIRMATION VIEW -->
+  <sc-if value="{{ view === 'confirmation' }}">
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;animation:popIn .3s ease;">
+      <div style="max-width:420px;text-align:center;">
+        <div style="width:56px;height:56px;border-radius:16px;background:oklch(90% .06 175);color:oklch(18% .09 175);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px;">✓</div>
+        <h1 style="font-size:22px;font-weight:500;margin:0 0 8px;letter-spacing:0;">¡Pedido confirmado!</h1>
+        <div style="color:oklch(42% .014 175);font-size:14px;margin-bottom:6px;">Pedido #{{ orderNumber }}</div>
+        <div style="color:oklch(42% .014 175);font-size:14px;margin-bottom:24px;">Te avisaremos cuando esté listo. Las fotos digitales sin marca de agua estarán disponibles en tu cuenta.</div>
+        <button onClick="{{ resetAll }}" style="background:oklch(42% .13 175);color:white;border:none;border-radius:999px;padding:12px 26px;font-size:14px;font-weight:500;cursor:pointer;">Volver a la galería</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- EXTENDED FAB — CART -->
+  <sc-if value="{{ showCartBar }}">
+    <div style="position:fixed;bottom:0;left:0;right:0;z-index:15;display:flex;justify-content:center;padding:16px;pointer-events:none;">
+      <button onClick="{{ goToCart }}" style="pointer-events:auto;background:oklch(90% .06 175);color:oklch(18% .09 175);border:none;border-radius:16px;padding:14px 22px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 2px 6px oklch(0% 0 0 / .15),0 4px 10px oklch(0% 0 0 / .12);">
+        <span style="background:oklch(42% .13 175);color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">{{ cartCount }}</span>
+        Ver carrito
+        <span style="opacity:.5;">·</span>
+        <span>{{ totalLabel }}</span>
+      </button>
+    </div>
+  </sc-if>
+
+  <!-- VIEWER MODAL -->
+  <sc-if value="{{ viewerOpen }}">
+    <div style="position:fixed;inset:0;z-index:50;background:oklch(0% 0 0 / .6);display:flex;flex-direction:{{ viewerFlexDir }};animation:fadeIn .2s ease;">
+      <div style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;background:oklch(15% .012 175);">
+        <button onClick="{{ closeViewer }}" style="position:absolute;top:16px;right:16px;background:oklch(100% 0 0 / .14);border:none;color:white;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;z-index:2;">✕</button>
+        <div style="position:absolute;top:16px;left:16px;color:white;font-size:12px;opacity:.75;font-family:'Roboto Flex', monospace;z-index:2;">{{ viewerIndexLabel }}</div>
+
+        <button onClick="{{ viewerPrev }}" style="{{ navBtnStyle }}left:16px;">‹</button>
+        <button onClick="{{ viewerNext }}" style="{{ navBtnStyle }}right:16px;">›</button>
+
+        <div style="position:relative;max-width:min(88vw,760px);max-height:{{ viewerImgMaxH }};aspect-ratio:3/4;width:100%;border-radius:12px;overflow:hidden;background:{{ viewerColor }};">
+          <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg, transparent 0 18px, oklch(0% 0 0 / .04) 18px 19px);"></div>
+          <div style="position:absolute;bottom:10px;right:12px;font-family:monospace;font-size:11px;color:oklch(0% 0 0 / .35);">{{ viewerFilename }}</div>
+          <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;">
+            <sc-for list="{{ watermarkLines }}" as="wl" hint-placeholder-count="2">
+              <div style="position:absolute;top:{{ wl.top }};left:{{ wl.left }};transform:translate(-50%,-50%) rotate({{ wl.rotate }}deg);white-space:nowrap;font-weight:500;font-size:22px;letter-spacing:.06em;color:oklch(98% 0 0 / {{ wl.opacity }});text-transform:uppercase;">{{ wl.text }}</div>
+            </sc-for>
+          </div>
+          <div style="position:absolute;bottom:12px;left:14px;font-size:11px;color:oklch(98% 0 0 / .55);letter-spacing:.02em;">{{ cornerTagText }}</div>
+        </div>
+      </div>
+
+      <div style="{{ viewerPanelStyle }}">
+        <div style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:oklch(72% .012 175);margin-bottom:14px;">Elegí el producto</div>
+
+        <div style="display:flex;margin-bottom:16px;border-radius:8px;overflow:hidden;border:1px solid oklch(45% .012 175);width:fit-content;">
+          <button onClick="{{ setViewerTypePrint }}" style="{{ viewerTypePrintStyle }}">Impresión</button>
+          <button onClick="{{ setViewerTypeDigital }}" style="{{ viewerTypeDigitalStyle }}">Digital</button>
+        </div>
+
+        <sc-if value="{{ viewerExistingLabel }}">
+          <div style="background:oklch(35% .012 175);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:oklch(85% .012 175);">
+            Ya en tu carrito: {{ viewerExistingLabel }}. Podés sumar otro tamaño de la misma foto.
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ viewerType === 'print' }}">
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+            <sc-for list="{{ viewerSizeOptions }}" as="vs" hint-placeholder-count="3">
+              <button onClick="{{ vs.onSelect }}" style="{{ vs.rowStyle }}">
+                <div style="{{ vs.swatchStyle }}"></div>
+                <div style="flex:1;text-align:left;">
+                  <div style="font-size:14px;font-weight:500;">{{ vs.label }}</div>
+                </div>
+                <div style="font-size:14px;font-weight:700;">{{ vs.priceLabel }}</div>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ viewerType === 'digital' }}">
+          <div style="background:oklch(28% .05 175);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:oklch(90% .04 175);">
+            Descarga digital en alta resolución, sin marca de agua, disponible al instante tras la compra. {{ digitalPriceLabel }}
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ viewerUpsellText }}">
+          <div style="background:oklch(30% .08 55);border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:12.5px;color:oklch(91% .07 55);">{{ viewerUpsellText }}</div>
+        </sc-if>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <span style="font-size:13px;color:oklch(72% .012 175);">Cantidad</span>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <button onClick="{{ viewerQtyDec }}" style="{{ stepperBtnStyleDark }}">−</button>
+            <span style="font-size:15px;font-weight:700;min-width:16px;text-align:center;color:white;">{{ viewerQty }}</span>
+            <button onClick="{{ viewerQtyInc }}" style="{{ stepperBtnStyleDark }}">+</button>
+          </div>
+        </div>
+
+        <button onClick="{{ addViewerToCart }}" style="width:100%;background:oklch(90% .06 175);color:oklch(18% .09 175);border:none;border-radius:999px;padding:16px;font-size:15px;font-weight:500;cursor:pointer;">{{ addToCartLabel }} · {{ viewerLineTotalLabel }}</button>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900},&quot;clientName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Familia Alegre&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;watermarkIntensity&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;balanced&quot;,&quot;options&quot;:[&quot;subtle&quot;,&quot;balanced&quot;,&quot;dense&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Marca de agua&quot;},&quot;showUpsell&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Ventas&quot;}}">
+const ALBUMS = [
+  { id: 'todas', label: 'Todas' },
+  { id: 'ceremonia', label: 'Ceremonia' },
+  { id: 'fiesta', label: 'Fiesta' },
+  { id: 'egresados', label: 'Egresados' },
+];
+
+const COLORS = ['#b7c4a8','#9fb3c4','#c7ab9a','#c1a3ad','#a8b7c9','#c9c2a3','#a3b8ab','#bfa8b8'];
+
+function buildPhotos() {
+  const albums = ['ceremonia','fiesta','egresados'];
+  const out = [];
+  let n = 1;
+  albums.forEach((album, ai) => {
+    for (let i = 0; i < 7; i++) {
+      out.push({
+        id: 'p' + n,
+        album,
+        color: COLORS[(n + ai) % COLORS.length],
+        filename: album.slice(0,4).toUpperCase() + '_' + String(n).padStart(3,'0') + '.jpg',
+        withFace: n % 3 === 0,
+      });
+      n++;
+    }
+  });
+  return out;
+}
+
+const SIZE_PRICES = { '10x15': 1200, '15x20': 1800, '20x30': 2800 };
+const SIZE_ORDER = ['10x15','15x20','20x30'];
+const DIGITAL_PRICE = 900;
+const DIGITAL_PACK_QTY = 10;
+const DIGITAL_PACK_PRICE = 6000;
+const DISCOUNT_TIERS = [{ min: 5, pct: 10 }, { min: 10, pct: 20 }];
+
+function money(n) { return '$' + Math.round(n).toLocaleString('es-AR'); }
+
+function watermarkLinesFor(intensity, clientName) {
+  const base = clientName.toUpperCase() + ' · ACG FOTOS';
+  if (intensity === 'subtle') {
+    return [
+      { top: '50%', left: '50%', rotate: -18, text: base, opacity: 0.14 },
+    ];
+  }
+  if (intensity === 'dense') {
+    const rows = [18, 38, 58, 78];
+    return rows.map((top, i) => ({ top: top + '%', left: (i % 2 === 0 ? 30 : 68) + '%', rotate: -18, text: 'COPIA NO AUTORIZADA — ' + base, opacity: 0.22 }));
+  }
+  return [
+    { top: '28%', left: '32%', rotate: -18, text: base, opacity: 0.16 },
+    { top: '50%', left: '68%', rotate: -18, text: 'COPIA NO AUTORIZADA', opacity: 0.16 },
+    { top: '74%', left: '34%', rotate: -18, text: base, opacity: 0.16 },
+  ];
+}
+
+class Component extends DCLogic {
+  photos = buildPhotos();
+
+  state = {
+    view: 'gallery',
+    selectedAlbum: 'todas',
+    facesOnly: false,
+    selectMode: false,
+    selectedIds: [],
+    viewerId: null,
+    viewerSize: '15x20',
+    viewerQty: 1,
+    viewerType: 'print',
+    cart: [],
+    width: typeof window !== 'undefined' ? window.innerWidth : 1280,
+    deviceOverride: null,
+    photographerMode: false,
+    checkoutName: '',
+    checkoutPhone: '',
+    checkoutAddress: '',
+    deliveryMethod: 'retiro',
+    paymentMethod: 'mercadopago',
+    orderNumber: null,
+  };
+
+  componentDidMount() {
+    this._onResize = () => this.setState({ width: window.innerWidth });
+    window.addEventListener('resize', this._onResize);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this._onResize);
+  }
+
+  setAlbum(id) { this.setState({ selectedAlbum: id }); }
+  toggleFacesOnly() { this.setState(s => ({ facesOnly: !s.facesOnly })); }
+  toggleSelectMode() { this.setState(s => ({ selectMode: !s.selectMode, selectedIds: [] })); }
+  togglePhotoSelected(id) {
+    this.setState(s => ({
+      selectedIds: s.selectedIds.includes(id) ? s.selectedIds.filter(x => x !== id) : [...s.selectedIds, id],
+    }));
+  }
+  openViewer(id) { this.setState({ viewerId: id, viewerSize: '15x20', viewerQty: 1, viewerType: 'print' }); }
+  closeViewer() { this.setState({ viewerId: null }); }
+  viewerStep(delta) {
+    const list = this.getVisiblePhotoIds();
+    const idx = list.indexOf(this.state.viewerId);
+    if (idx === -1) return;
+    const next = (idx + delta + list.length) % list.length;
+    this.setState({ viewerId: list[next], viewerSize: '15x20', viewerQty: 1, viewerType: 'print' });
+  }
+  getVisiblePhotoIds() {
+    return this.photos.filter(p =>
+      (this.state.selectedAlbum === 'todas' || p.album === this.state.selectedAlbum) &&
+      (!this.state.facesOnly || p.withFace)
+    ).map(p => p.id);
+  }
+  setViewerSize(size) { this.setState({ viewerSize: size }); }
+  setViewerType(type) { this.setState({ viewerType: type }); }
+  viewerQtyDelta(d) { this.setState(s => ({ viewerQty: Math.max(1, s.viewerQty + d) })); }
+  addViewerToCart() {
+    const { viewerId, viewerType, viewerSize, viewerQty } = this.state;
+    if (!viewerId) return;
+    this.setState(s => {
+      const existing = s.cart.find(c => c.photoId === viewerId && c.type === viewerType && (viewerType === 'digital' || c.size === viewerSize));
+      if (existing) {
+        return { cart: s.cart.map(c => c.id === existing.id ? { ...c, qty: c.qty + viewerQty } : c), viewerId: null };
+      }
+      return { cart: [...s.cart, { id: 'c' + Date.now() + Math.random(), photoId: viewerId, type: viewerType, size: viewerSize, qty: viewerQty }], viewerId: null };
+    });
+  }
+  addSelectedToCart() {
+    const { selectedIds } = this.state;
+    if (!selectedIds.length) return;
+    const newLines = selectedIds.map(pid => ({ id: 'c' + Date.now() + Math.random(), photoId: pid, type: 'print', size: '15x20', qty: 1 }));
+    this.setState(s => ({ cart: [...s.cart, ...newLines], selectMode: false, selectedIds: [] }));
+  }
+  removeCartLine(id) { this.setState(s => ({ cart: s.cart.filter(c => c.id !== id) })); }
+  cartQtyDelta(id, d) {
+    this.setState(s => ({ cart: s.cart.map(c => c.id === id ? { ...c, qty: Math.max(1, c.qty + d) } : c) }));
+  }
+  setCartLineSize(id, size) {
+    this.setState(s => ({ cart: s.cart.map(c => c.id === id ? { ...c, size } : c) }));
+  }
+  goTo(view) { this.setState({ view }); }
+  setDevice(v) { this.setState({ deviceOverride: v }); }
+  togglePhotographerMode() { this.setState(s => ({ photographerMode: !s.photographerMode })); }
+  updateField(key, val) { this.setState({ [key]: val }); }
+  setDelivery(v) { this.setState({ deliveryMethod: v }); }
+  setPayment(v) { this.setState({ paymentMethod: v }); }
+  placeOrder() {
+    this.setState({ view: 'confirmation', orderNumber: Math.floor(10000 + Math.random() * 89999) });
+  }
+  resetAll() {
+    this.setState({ view: 'gallery', cart: [], selectMode: false, selectedIds: [], checkoutName: '', checkoutPhone: '', checkoutAddress: '' });
+  }
+
+  renderVals() {
+    const s = this.state;
+    const clientName = this.props.clientName || 'Familia Alegre';
+    const intensity = this.props.watermarkIntensity || 'balanced';
+    const showUpsell = this.props.showUpsell !== false;
+
+    const isMobile = s.deviceOverride ? s.deviceOverride === 'mobile' : s.width < 720;
+    const watermarkLines = s.photographerMode ? [] : watermarkLinesFor(intensity, clientName);
+    const cornerTagText = s.photographerMode ? '' : clientName + ' · Copia no autorizada';
+
+    const photoById = id => this.photos.find(p => p.id === id);
+
+    const visiblePhotosRaw = this.photos.filter(p =>
+      (s.selectedAlbum === 'todas' || p.album === s.selectedAlbum) &&
+      (!s.facesOnly || p.withFace)
+    );
+    const cartPhotoIds = new Set(s.cart.map(c => c.photoId));
+
+    const visiblePhotos = visiblePhotosRaw.map(p => ({
+      ...p,
+      inCart: cartPhotoIds.has(p.id),
+      selected: s.selectedIds.includes(p.id),
+      checkBg: s.selectedIds.includes(p.id) ? 'oklch(42% .13 175)' : 'oklch(0% 0 0 / .25)',
+      borderStyle: s.selectedIds.includes(p.id) ? '2px solid oklch(42% .13 175)' : '2px solid transparent',
+      onClick: () => s.selectMode ? this.togglePhotoSelected(p.id) : this.openViewer(p.id),
+    }));
+
+    const albums = ALBUMS.map(a => {
+      const active = a.id === s.selectedAlbum;
+      return {
+        ...a,
+        select: () => this.setAlbum(a.id),
+        chipStyle: `flex:none;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid ${active ? 'oklch(42% .13 175)' : 'oklch(62% .012 175)'};background:${active ? 'oklch(90% .06 175)' : 'transparent'};color:${active ? 'oklch(18% .09 175)' : 'oklch(30% .014 175)'};`,
+      };
+    });
+
+    const cartLines = s.cart.map(c => {
+      const photo = photoById(c.photoId);
+      const unitPrice = c.type === 'digital' ? DIGITAL_PRICE : SIZE_PRICES[c.size];
+      const subtotal = unitPrice * c.qty;
+      return {
+        id: c.id,
+        color: photo.color,
+        filename: photo.filename,
+        qty: c.qty,
+        type: c.type,
+        size: c.size,
+        subtotal,
+        subtotalLabel: money(subtotal),
+        typeLabel: c.type === 'digital' ? 'Digital' : 'Impresión',
+        sizeLabel: c.type === 'digital' ? '' : c.size,
+        onRemove: () => this.removeCartLine(c.id),
+        onInc: () => this.cartQtyDelta(c.id, 1),
+        onDec: () => this.cartQtyDelta(c.id, -1),
+        sizeOptions: SIZE_ORDER.map(sz => ({
+          label: sz,
+          onSelect: () => this.setCartLineSize(c.id, sz),
+          style: `padding:6px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid ${c.type === 'print' && c.size === sz ? 'oklch(42% .13 175)' : 'oklch(62% .012 175)'};background:${c.type === 'print' && c.size === sz ? 'oklch(90% .06 175)' : 'transparent'};color:${c.type === 'print' && c.size === sz ? 'oklch(18% .09 175)' : 'oklch(30% .014 175)'};`,
+        })),
+      };
+    });
+
+    const subtotal = cartLines.reduce((sum, c) => sum + c.subtotal, 0);
+    const printQty = s.cart.filter(c => c.type === 'print').reduce((sum, c) => sum + c.qty, 0);
+    const digitalQty = s.cart.filter(c => c.type === 'digital').reduce((sum, c) => sum + c.qty, 0);
+    const totalItemQty = printQty + digitalQty;
+
+    let discountPct = 0;
+    for (const t of DISCOUNT_TIERS) if (totalItemQty >= t.min) discountPct = t.pct;
+    const discountAmount = subtotal * discountPct / 100;
+    const total = subtotal - discountAmount;
+
+    let discountBannerText = '';
+    let discountProgressPct = 0;
+    const nextTier = DISCOUNT_TIERS.find(t => totalItemQty < t.min);
+    if (nextTier) {
+      const remaining = nextTier.min - totalItemQty;
+      const prevMin = DISCOUNT_TIERS[DISCOUNT_TIERS.indexOf(nextTier) - 1]?.min || 0;
+      discountProgressPct = Math.min(100, Math.round(((totalItemQty - prevMin) / (nextTier.min - prevMin)) * 100));
+      discountBannerText = remaining > 0
+        ? `Llevá ${remaining} foto${remaining > 1 ? 's' : ''} más y obtené ${nextTier.pct}% de descuento`
+        : '';
+    } else if (discountPct > 0) {
+      discountBannerText = `¡Tenés ${discountPct}% de descuento aplicado!`;
+      discountProgressPct = 100;
+    }
+
+    let packUpsellText = '';
+    if (showUpsell && digitalQty > 0 && digitalQty < DIGITAL_PACK_QTY) {
+      const remaining = DIGITAL_PACK_QTY - digitalQty;
+      const savings = (digitalQty + remaining) * DIGITAL_PRICE - DIGITAL_PACK_PRICE;
+      packUpsellText = `Sumá ${remaining} foto${remaining > 1 ? 's' : ''} digital${remaining > 1 ? 'es' : ''} más y desbloqueá el Pack x10 por ${money(DIGITAL_PACK_PRICE)} (ahorrás ${money(savings)})`;
+    }
+
+    const viewerId = s.viewerId;
+    const viewerOpen = !!viewerId;
+    const viewerPhoto = viewerId ? photoById(viewerId) : null;
+    const viewerList = this.getVisiblePhotoIds();
+    const viewerIdx = viewerId ? viewerList.indexOf(viewerId) : -1;
+
+    const viewerUnitPrice = s.viewerType === 'digital' ? DIGITAL_PRICE : SIZE_PRICES[s.viewerSize];
+    const viewerLineTotal = viewerUnitPrice * s.viewerQty;
+
+    let viewerUpsellText = '';
+    if (showUpsell && s.viewerType === 'print') {
+      const currentIdx = SIZE_ORDER.indexOf(s.viewerSize);
+      if (currentIdx < SIZE_ORDER.length - 1) {
+        const nextSize = SIZE_ORDER[currentIdx + 1];
+        const diff = SIZE_PRICES[nextSize] - SIZE_PRICES[s.viewerSize];
+        viewerUpsellText = `Llevate el ${nextSize} por solo ${money(diff)} más`;
+      }
+    }
+
+    const viewerSizeOptions = SIZE_ORDER.map((sz, i) => ({
+      label: sz + ' cm',
+      priceLabel: money(SIZE_PRICES[sz]),
+      onSelect: () => this.setViewerSize(sz),
+      rowStyle: `display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;cursor:pointer;border:1px solid ${s.viewerSize === sz ? 'oklch(90% .06 175)' : 'oklch(35% .012 175)'};background:${s.viewerSize === sz ? 'oklch(90% .06 175 / .16)' : 'transparent'};color:white;`,
+      swatchStyle: `width:${18 + i * 8}px;height:${24 + i * 10}px;border:1.5px solid oklch(90% 0 0 / .6);border-radius:2px;flex:none;`,
+    }));
+
+    // sizes/quantities of THIS photo already in cart (supports adding several distinct sizes of the same photo)
+    const viewerExistingLines = viewerId ? s.cart.filter(c => c.photoId === viewerId) : [];
+    const viewerExistingLabel = viewerExistingLines.length
+      ? viewerExistingLines.map(c => (c.type === 'digital' ? 'Digital' : c.size) + ' ×' + c.qty).join(' · ')
+      : '';
+    const viewerAlreadyHasThisConfig = viewerExistingLines.some(c => c.type === s.viewerType && (s.viewerType === 'digital' || c.size === s.viewerSize));
+    const addToCartLabel = viewerAlreadyHasThisConfig ? 'Sumar otra unidad' : (viewerExistingLines.length ? 'Agregar este tamaño también' : 'Agregar al carrito');
+
+    const showCartBar = s.cart.length > 0 && (s.view === 'gallery' || s.view === 'cart') && !viewerOpen;
+
+    return {
+      view: s.view,
+      isMobile,
+      cartIsEmpty: cartLines.length === 0,
+      cartHasItems: cartLines.length > 0,
+      visiblePhotosEmpty: visiblePhotos.length === 0,
+      facesOnly: s.facesOnly,
+      selectMode: s.selectMode,
+      headerPad: isMobile ? '10px 14px' : '14px 28px',
+      contentPad: isMobile ? '14px' : '24px 32px',
+      gridCols: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(180px, 1fr))',
+      gridGap: isMobile ? '8px' : '14px',
+      cartThumbSize: isMobile ? '64px' : '88px',
+
+      goToGallery: () => this.goTo('gallery'),
+      goToCart: () => this.goTo('cart'),
+      goToCheckout: () => this.goTo('checkout'),
+      backToCart: () => this.goTo('cart'),
+
+      albums,
+      facesChipStyle: `padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid ${s.facesOnly ? 'oklch(42% .13 175)' : 'oklch(62% .012 175)'};background:${s.facesOnly ? 'oklch(90% .06 175)' : 'transparent'};color:${s.facesOnly ? 'oklch(18% .09 175)' : 'oklch(30% .014 175)'};`,
+      toggleFacesOnly: () => this.toggleFacesOnly(),
+      selectModeLabel: s.selectMode ? 'Cancelar selección' : 'Seleccionar varias',
+      selectModeBtnStyle: `padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid ${s.selectMode ? 'oklch(42% .13 175)' : 'oklch(62% .012 175)'};background:${s.selectMode ? 'oklch(90% .06 175)' : 'transparent'};color:${s.selectMode ? 'oklch(18% .09 175)' : 'oklch(30% .014 175)'};`,
+      toggleSelectMode: () => this.toggleSelectMode(),
+      selectedCount: s.selectedIds.length,
+      bulkAddBtnStyle: `background:oklch(42% .13 175);color:white;border:none;border-radius:999px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;opacity:${s.selectedIds.length === 0 ? 0.5 : 1};`,
+      addSelectedToCart: () => this.addSelectedToCart(),
+
+      visiblePhotos,
+      watermarkLines,
+      cornerTagText,
+
+      deviceBtnMobileStyle: `padding:6px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid oklch(62% .012 175);background:${s.deviceOverride === 'mobile' ? 'oklch(42% .13 175)' : 'transparent'};color:${s.deviceOverride === 'mobile' ? 'white' : 'oklch(30% .014 175)'};`,
+      deviceBtnDesktopStyle: `padding:6px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid oklch(62% .012 175);background:${s.deviceOverride === 'desktop' ? 'oklch(42% .13 175)' : 'transparent'};color:${s.deviceOverride === 'desktop' ? 'white' : 'oklch(30% .014 175)'};`,
+      setDeviceMobile: () => this.setDevice(s.deviceOverride === 'mobile' ? null : 'mobile'),
+      setDeviceDesktop: () => this.setDevice(s.deviceOverride === 'desktop' ? null : 'desktop'),
+      photographerMode: s.photographerMode,
+      photographerModeLabel: s.photographerMode ? 'Modo fotógrafo ✓' : 'Modo fotógrafo',
+      photographerModeBtnStyle: `padding:6px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid ${s.photographerMode ? 'oklch(45% .13 55)' : 'oklch(62% .012 175)'};background:${s.photographerMode ? 'oklch(45% .13 55)' : 'transparent'};color:${s.photographerMode ? 'white' : 'oklch(30% .014 175)'};`,
+      togglePhotographerMode: () => this.togglePhotographerMode(),
+
+      cartLines,
+      subtotalLabel: money(subtotal),
+      discountPct,
+      discountAmountLabel: money(discountAmount),
+      totalLabel: money(total),
+      cartCount: totalItemQty,
+      discountBannerText,
+      discountProgressPct,
+      packUpsellText,
+      stepperBtnStyle: 'width:28px;height:28px;border-radius:50%;border:1px solid oklch(62% .012 175);background:transparent;font-size:15px;cursor:pointer;color:oklch(30% .014 175);',
+      stepperBtnStyleDark: 'width:28px;height:28px;border-radius:50%;border:1px solid oklch(45% .012 175);background:transparent;font-size:15px;cursor:pointer;color:white;',
+      showCartBar,
+
+      checkoutName: s.checkoutName,
+      checkoutPhone: s.checkoutPhone,
+      checkoutAddress: s.checkoutAddress,
+      onNameInput: e => this.updateField('checkoutName', e.target.value),
+      onPhoneInput: e => this.updateField('checkoutPhone', e.target.value),
+      onAddressInput: e => this.updateField('checkoutAddress', e.target.value),
+      inputStyle: 'padding:12px 14px;border-radius:8px;border:1px solid oklch(62% .012 175);font-size:14px;outline:none;background:oklch(98% .004 175);',
+      deliveryMethod: s.deliveryMethod,
+      deliveryRetiroStyle: `padding:11px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:${s.deliveryMethod === 'retiro' ? 'oklch(42% .13 175)' : 'transparent'};color:${s.deliveryMethod === 'retiro' ? 'white' : 'oklch(30% .014 175)'};`,
+      deliveryEnvioStyle: `padding:11px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;border-left:1px solid oklch(62% .012 175);background:${s.deliveryMethod === 'envio' ? 'oklch(42% .13 175)' : 'transparent'};color:${s.deliveryMethod === 'envio' ? 'white' : 'oklch(30% .014 175)'};`,
+      setDeliveryRetiro: () => this.setDelivery('retiro'),
+      setDeliveryEnvio: () => this.setDelivery('envio'),
+      paymentMPStyle: `padding:13px 14px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;text-align:left;border:1px solid ${s.paymentMethod === 'mercadopago' ? 'oklch(42% .13 175)' : 'oklch(62% .012 175)'};background:${s.paymentMethod === 'mercadopago' ? 'oklch(90% .06 175 / .5)' : 'transparent'};color:oklch(20% .012 175);`,
+      paymentTransferStyle: `padding:13px 14px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;text-align:left;border:1px solid ${s.paymentMethod === 'transferencia' ? 'oklch(42% .13 175)' : 'oklch(62% .012 175)'};background:${s.paymentMethod === 'transferencia' ? 'oklch(90% .06 175 / .5)' : 'transparent'};color:oklch(20% .012 175);`,
+      paymentMethod: s.paymentMethod,
+      setPaymentMP: () => this.setPayment('mercadopago'),
+      setPaymentTransfer: () => this.setPayment('transferencia'),
+      placeOrder: () => this.placeOrder(),
+      orderNumber: s.orderNumber,
+      resetAll: () => this.resetAll(),
+
+      viewerOpen,
+      viewerFlexDir: isMobile ? 'column' : 'row',
+      viewerImgMaxH: isMobile ? '48vh' : '86vh',
+      viewerColor: viewerPhoto ? viewerPhoto.color : '#ccc',
+      viewerFilename: viewerPhoto ? viewerPhoto.filename : '',
+      viewerIndexLabel: viewerList.length ? `${viewerIdx + 1} / ${viewerList.length}` : '',
+      closeViewer: () => this.closeViewer(),
+      viewerPrev: () => this.viewerStep(-1),
+      viewerNext: () => this.viewerStep(1),
+      navBtnStyle: 'position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:oklch(100% 0 0 / .14);border:none;color:white;font-size:22px;cursor:pointer;z-index:2;',
+      viewerPanelStyle: isMobile
+        ? 'background:oklch(20% .014 175);padding:20px;border-radius:28px 28px 0 0;'
+        : 'width:340px;flex:none;background:oklch(20% .014 175);padding:26px;overflow-y:auto;',
+      viewerType: s.viewerType,
+      setViewerTypePrint: () => this.setViewerType('print'),
+      setViewerTypeDigital: () => this.setViewerType('digital'),
+      viewerTypePrintStyle: `padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:${s.viewerType === 'print' ? 'oklch(90% .06 175)' : 'transparent'};color:${s.viewerType === 'print' ? 'oklch(18% .09 175)' : 'oklch(75% .012 175)'};`,
+      viewerTypeDigitalStyle: `padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;border-left:1px solid oklch(45% .012 175);background:${s.viewerType === 'digital' ? 'oklch(90% .06 175)' : 'transparent'};color:${s.viewerType === 'digital' ? 'oklch(18% .09 175)' : 'oklch(75% .012 175)'};`,
+      viewerSizeOptions,
+      digitalPriceLabel: money(DIGITAL_PRICE),
+      viewerUpsellText,
+      viewerQty: s.viewerQty,
+      viewerQtyInc: () => this.viewerQtyDelta(1),
+      viewerQtyDec: () => this.viewerQtyDelta(-1),
+      viewerLineTotalLabel: money(viewerLineTotal),
+      viewerExistingLabel,
+      addToCartLabel,
+      addViewerToCart: () => this.addViewerToCart(),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

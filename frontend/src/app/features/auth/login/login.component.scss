@@ -71,6 +71,18 @@
     font-size: 1.25rem;
   }
 
+  &__canje-link {
+    margin-top: 0.25rem;
+    color: var(--mat-sys-primary);
+    font-size: 0.875rem;
+    text-align: center;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
   &__footer {
     margin-top: 0.5rem;
     color: var(--mat-sys-on-surface-variant);

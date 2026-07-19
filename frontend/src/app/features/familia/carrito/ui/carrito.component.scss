@@ -21,31 +21,6 @@
     text-align: center;
   }
 
-  &__gracias {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 2rem;
-    text-align: center;
-
-    tbi-button {
-      margin-top: 0.5rem;
-    }
-  }
-
-  &__gracias-icono {
-    width: 48px;
-    height: 48px;
-    font-size: 48px;
-    color: var(--mat-sys-primary);
-  }
-
-  &__gracias-total {
-    font-size: 1.125rem;
-    font-weight: 500;
-  }
-
   &__lista {
     display: flex;
     flex-direction: column;
@@ -91,6 +66,15 @@
     display: flex;
     flex-direction: column;
     gap: 0.125rem;
+  }
+
+  &__archivo {
+    overflow: hidden;
+    color: var(--mat-sys-on-surface-variant);
+    font-family: monospace;
+    font-size: 0.75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__tamano {

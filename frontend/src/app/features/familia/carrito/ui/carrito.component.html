@@ -6,15 +6,7 @@
     <h1 class="carrito__titulo">Carrito</h1>
   </header>
 
-  @if (confirmado(); as pedido) {
-    <div class="carrito__gracias">
-      <mat-icon class="carrito__gracias-icono">check_circle</mat-icon>
-      <h2>¡Listo! Pedido #{{ pedido.id }} registrado</h2>
-      <p class="carrito__gracias-total">Total: {{ formatearPrecio(pedido.total) }}</p>
-      <p>El fotógrafo se va a contactar para coordinar la entrega y el pago.</p>
-      <tbi-button label="Volver a mis fotos" (click)="volver()" />
-    </div>
-  } @else if (cargando()) {
+  @if (cargando()) {
     <p class="carrito__hint">Cargando tu carrito…</p>
   } @else if (lineas().length === 0) {
     <p class="carrito__hint">Todavía no agregaste fotos al carrito.</p>
@@ -26,6 +18,7 @@
           <tbi-foto-familia-img class="carrito__thumb" [fotoId]="linea.fotoId" />
 
           <div class="carrito__detalle">
+            <span class="carrito__archivo">{{ linea.foto.nombreArchivoOriginal }}</span>
             <span class="carrito__tamano">{{ linea.tamano.nombre }}</span>
             <div class="carrito__cantidad" role="group" aria-label="Cantidad">
               <button matIconButton type="button" (click)="restar(linea)" aria-label="Quitar una copia">

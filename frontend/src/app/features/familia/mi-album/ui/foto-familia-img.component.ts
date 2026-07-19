@@ -112,13 +112,7 @@ export class FotoFamiliaImgComponent {
   readonly fit = input<'cover' | 'contain'>('cover');
 
   /** `null` si por algún motivo no hay sesión activa (no debería pasar: sin sesión no hay fotos). */
-  protected readonly marcaTexto = computed<string | null>(() => {
-    const nombres = this.sessionStore
-      .participantes()
-      .map((p) => p.nombre)
-      .join(' y ');
-    return nombres ? `Familia de ${nombres}` : null;
-  });
+  protected readonly marcaTexto = this.sessionStore.nombreFamilia;
 
   protected readonly marcaBackground = computed<string | null>(() => {
     const texto = this.marcaTexto();

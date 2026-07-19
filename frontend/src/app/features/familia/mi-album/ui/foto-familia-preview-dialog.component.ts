@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { FotoFamilia, TamanoPrecio } from '../../../../core/familia';
+import { CarritoStore, FamiliaSessionStore, FotoFamilia, TamanoPrecio } from '../../../../core/familia';
 import { AgregarCarritoComponent } from './agregar-carrito.component';
 import { FotoFamiliaImgComponent } from './foto-familia-img.component';
 
@@ -34,6 +34,17 @@ export interface FotoFamiliaPreviewDialogData {
   template: `
     <mat-dialog-content>
       @if (data.fotos.length > 1) {
+        <span class="contador">{{ index() + 1 }} / {{ data.fotos.length }}</span>
+      }
+      @if (yaEnCarrito()) {
+        <span class="en-carrito" aria-hidden="true">✓</span>
+      }
+
+      <button class="cerrar" matIconButton mat-dialog-close aria-label="Cerrar">
+        <mat-icon>close</mat-icon>
+      </button>
+
+      @if (data.fotos.length > 1) {
         <button
           class="nav nav--prev"
           matIconButton
@@ -45,6 +56,11 @@ export interface FotoFamiliaPreviewDialogData {
       }
 
       <tbi-foto-familia-img class="preview" [fotoId]="actual().id" variante="preview" fit="contain" />
+
+      @if (nombreFamilia(); as legal) {
+        <span class="legal">{{ legal }}</span>
+      }
+      <span class="archivo">{{ actual().nombreArchivoOriginal }}</span>
 
       @if (data.fotos.length > 1) {
         <button
@@ -61,13 +77,6 @@ export interface FotoFamiliaPreviewDialogData {
     <div class="agregar">
       <tbi-agregar-carrito [fotoId]="actual().id" [tamanosPrecios]="tamanosPrecios()" />
     </div>
-
-    <mat-dialog-actions align="end">
-      @if (data.fotos.length > 1) {
-        <span class="contador">{{ index() + 1 }} / {{ data.fotos.length }}</span>
-      }
-      <button matButton mat-dialog-close>Cerrar</button>
-    </mat-dialog-actions>
   `,
   styles: `
     :host {
@@ -91,6 +100,79 @@ export interface FotoFamiliaPreviewDialogData {
       flex: 1;
       min-width: 0;
       min-height: 0;
+    }
+
+    // Las 4 esquinas siguen el prototipo (docs/ClaudeDesign/PropuestaDisenioExperienciaCompra):
+    // cerrar arriba-derecha, paginación arriba-izquierda, nombre legal abajo-izquierda, archivo abajo-derecha.
+    .archivo {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 1;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--mat-sys-scrim) 55%, transparent);
+      color: white;
+      font-family: monospace;
+      font-size: 0.75rem;
+    }
+
+    .legal {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      z-index: 1;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--mat-sys-scrim) 55%, transparent);
+      color: white;
+      font-size: 0.75rem;
+    }
+
+    .cerrar {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 2;
+      background: color-mix(in srgb, var(--mat-sys-scrim) 45%, transparent);
+      color: white;
+      transition: background-color 0.15s ease;
+
+      &:hover {
+        background: color-mix(in srgb, var(--mat-sys-scrim) 65%, transparent);
+      }
+    }
+
+    .contador {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 2;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--mat-sys-scrim) 45%, transparent);
+      color: white;
+      font-size: 0.75rem;
+    }
+
+    // Mismo aviso que el badge de la grilla (.grilla__en-carrito): esta foto ya tiene copias en el
+    // carrito. Apilado debajo del contador (misma esquina) — no hay una 5ª esquina libre.
+    .en-carrito {
+      position: absolute;
+      top: 44px;
+      left: 12px;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: var(--mat-sys-primary);
+      color: var(--mat-sys-on-primary);
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
     }
 
     .nav {
@@ -119,29 +201,32 @@ export interface FotoFamiliaPreviewDialogData {
       }
     }
 
+    // Sigue abajo (bottom-sheet, NO al costado de la imagen — corregido 2026-07-19, el primer
+    // intento lo mandó al costado en pantallas anchas y no era lo pedido); adentro de esa franja
+    // inferior, el selector queda pegado a la derecha (antes arrancaba pegado a la izquierda).
     .agregar {
+      display: flex;
+      justify-content: flex-end;
       flex: none;
       padding: 0.75rem 1rem;
       border-top: 1px solid var(--mat-sys-outline-variant);
-    }
-
-    mat-dialog-actions {
-      align-items: center;
-    }
-
-    .contador {
-      margin-right: auto;
-      color: var(--mat-sys-on-surface-variant);
-      font-size: 0.8125rem;
     }
   `,
 })
 export class FotoFamiliaPreviewDialogComponent {
   protected readonly data = inject<FotoFamiliaPreviewDialogData>(MAT_DIALOG_DATA);
+  private readonly carrito = inject(CarritoStore);
+
+  /** "Familia de {nombres}" — mismo texto que el overlay tileado de `tbi-foto-familia-img`, acá como
+   * una sola etiqueta legible en la esquina (ver comentario de estilos: layout de 4 esquinas del prototipo). */
+  protected readonly nombreFamilia = inject(FamiliaSessionStore).nombreFamilia;
 
   protected readonly index = signal(this.data.index);
   protected readonly actual = computed(() => this.data.fotos[this.index()]);
   protected readonly tamanosPrecios = computed(() => this.data.tamanosPrecios ?? []);
+
+  /** Mismo aviso que `.grilla__en-carrito` en la grilla — pedido de Alberto 2026-07-19. */
+  protected readonly yaEnCarrito = computed(() => this.carrito.cantidadTotalDeFoto(this.actual().id) > 0);
 
   protected anterior(): void {
     const total = this.data.fotos.length;

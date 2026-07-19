@@ -16,7 +16,15 @@ import {
 import { CarritoComponent } from './carrito.component';
 
 function foto(parcial: Partial<FotoFamilia>): FotoFamilia {
-  return { id: 1, grupoId: 1, participanteId: 100, ancho: 800, alto: 600, ...parcial };
+  return {
+    id: 1,
+    grupoId: 1,
+    participanteId: 100,
+    nombreArchivoOriginal: 'IMG_001.jpg',
+    ancho: 800,
+    alto: 600,
+    ...parcial,
+  };
 }
 
 const FOTOS: FotoFamilia[] = [foto({ id: 1 }), foto({ id: 2 })];
@@ -80,6 +88,12 @@ describe('CarritoComponent', () => {
     expect(el.textContent).toContain('2200,00');
   });
 
+  it('muestra el nombre de archivo de la foto en cada línea', () => {
+    const { el } = create((carrito) => carrito.agregar(1, 10, 1));
+
+    expect(el.querySelector('.carrito__archivo')?.textContent).toBe('IMG_001.jpg');
+  });
+
   it('sumar/restar/quitar delegan al CarritoStore', () => {
     const { cmp } = create((carrito) => carrito.agregar(1, 10, 2));
     const carrito = TestBed.inject(CarritoStore);
@@ -103,8 +117,8 @@ describe('CarritoComponent', () => {
     expect(pedidoSpy.confirmar).not.toHaveBeenCalled();
   });
 
-  it('confirmar() OK manda los items del carrito, lo vacía y muestra la confirmación', () => {
-    const { cmp, el } = create((carrito) => carrito.agregar(1, 10, 2));
+  it('confirmar() OK manda los items del carrito, lo vacía y navega a /pedido-confirmado con el pedido', () => {
+    const { cmp } = create((carrito) => carrito.agregar(1, 10, 2));
 
     const confirmado: PedidoConfirmado = {
       id: 55,
@@ -114,6 +128,9 @@ describe('CarritoComponent', () => {
       items: [{ fotoId: 1, tamanoPrecioId: 10, cantidad: 2, precioUnitarioSnapshot: 500 }],
     };
     pedidoSpy.confirmar.mockReturnValue(of(confirmado));
+    const navSpy = vi
+      .spyOn(TestBed.inject(Router), 'navigate')
+      .mockReturnValue(undefined as unknown as Promise<boolean>);
 
     cmp['form'].setValue({ nombreContacto: 'Familia Pérez', telefonoContacto: '1155555555' });
     cmp['confirmar']();
@@ -125,8 +142,7 @@ describe('CarritoComponent', () => {
       items: [{ fotoId: 1, tamanoPrecioId: 10, cantidad: 2 }],
     });
     expect(TestBed.inject(CarritoStore).lineas()).toEqual([]);
-    expect(cmp['confirmado']()?.id).toBe(55);
-    expect(el.textContent).toContain('Pedido #55');
+    expect(navSpy).toHaveBeenCalledWith(['/pedido-confirmado'], { state: { pedido: confirmado } });
   });
 
   it('ante error de confirmación muestra los mensajes del ApiError', () => {

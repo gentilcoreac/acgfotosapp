@@ -2,6 +2,7 @@ export * from './models/canje-result.model';
 export * from './models/foto-familia.model';
 export * from './models/tamano-precio.model';
 export * from './models/pedido.model';
+export * from './money.util';
 export * from './familia-session.store';
 export * from './familia.service';
 export * from './familia-galeria.service';

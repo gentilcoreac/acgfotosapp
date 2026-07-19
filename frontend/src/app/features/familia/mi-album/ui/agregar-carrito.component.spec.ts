@@ -42,7 +42,7 @@ describe('AgregarCarritoComponent', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Todavía no hay tamaños disponibles');
   });
 
-  it('preselecciona el primer tamaño del catálogo', () => {
+  it('preselecciona el primer tamaño del catálogo (default)', () => {
     const cmp = create();
     expect(cmp['tamanoSeleccionadoId']()).toBe(10);
   });
@@ -74,12 +74,30 @@ describe('AgregarCarritoComponent', () => {
     expect(carritoSpy.actualizarCantidad).toHaveBeenCalledWith(7, 10, 2);
   });
 
-  it('cambiar el tamaño elegido muestra la cantidad de ESE tamaño, no la del anterior', () => {
+  it('cambiar el tamaño elegido (desplegable) muestra la cantidad de ESE tamaño, no la del anterior', () => {
     const cmp = create(TAMANOS, 1, { 1: { 10: 4, 20: 1 } });
     expect(cmp['cantidad']()).toBe(4);
 
     cmp['tamanoSeleccionadoId'].set(20);
     expect(cmp['cantidad']()).toBe(1);
+  });
+
+  it('sin nada en el carrito para esta foto no muestra el resumen "Ya en tu carrito"', () => {
+    create();
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Ya en tu carrito');
+  });
+
+  it('resumenEnCarrito lista TODOS los tamaños con copias de la foto, no solo el elegido, cada uno en su propio chip', () => {
+    const cmp = create(TAMANOS, 1, { 1: { 10: 2, 20: 1 } });
+    expect(cmp['resumenEnCarrito']()).toEqual([
+      { nombre: '10x15', cantidad: 2 },
+      { nombre: '20x30', cantidad: 1 },
+    ]);
+
+    const chips = (fixture.nativeElement as HTMLElement).querySelectorAll('.agregar-carrito__resumen-item');
+    expect(chips.length).toBe(2);
+    expect(chips[0].textContent).toBe('10x15 ×2');
+    expect(chips[1].textContent).toBe('20x30 ×1');
   });
 
   it('BUG corregido: al cambiar de foto (carrusel) la cantidad no arrastra el valor de la foto anterior', () => {

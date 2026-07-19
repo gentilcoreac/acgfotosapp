@@ -7,6 +7,7 @@ export interface FotoFamilia {
   grupoId: number;
   /** Null ⇒ foto grupal, visible para todos los participantes del grupo. */
   participanteId: number | null;
+  nombreArchivoOriginal: string;
   ancho: number;
   alto: number;
 }
