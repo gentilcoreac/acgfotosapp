@@ -2,12 +2,15 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { FotoFamilia } from '../../../../core/familia';
+import { FotoFamilia, TamanoPrecio } from '../../../../core/familia';
+import { AgregarCarritoComponent } from './agregar-carrito.component';
 import { FotoFamiliaImgComponent } from './foto-familia-img.component';
 
 export interface FotoFamiliaPreviewDialogData {
   fotos: FotoFamilia[];
   index: number;
+  /** Catálogo para `tbi-agregar-carrito`; opcional en los tests que no ejercitan esa parte. */
+  tamanosPrecios?: TamanoPrecio[];
 }
 
 /**
@@ -16,10 +19,14 @@ export interface FotoFamiliaPreviewDialogData {
  * `MiAlbumComponent`), la foto se muestra ENTERA (contain). Carrusel (pedido 2026-07-19): flechas +
  * flechas de teclado para pasar de foto en foto sin volver a la grilla, da la vuelta al llegar a una
  * punta. Sin "Descargar original": eso es exclusivo del admin.
+ *
+ * Selector de tamaño+cantidad inline (Fase 2, Carrito): agregar viendo la foto ampliada, sin volver
+ * a la grilla — mismo `tbi-agregar-carrito` que usa la grilla (ver `MiAlbumComponent`), no hace su
+ * propio fetch del catálogo.
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatDialogModule, MatIconModule, FotoFamiliaImgComponent],
+  imports: [MatButtonModule, MatDialogModule, MatIconModule, AgregarCarritoComponent, FotoFamiliaImgComponent],
   host: {
     '(document:keydown.arrowleft)': 'anterior()',
     '(document:keydown.arrowright)': 'siguiente()',
@@ -50,6 +57,11 @@ export interface FotoFamiliaPreviewDialogData {
         </button>
       }
     </mat-dialog-content>
+
+    <div class="agregar">
+      <tbi-agregar-carrito [fotoId]="actual().id" [tamanosPrecios]="tamanosPrecios()" />
+    </div>
+
     <mat-dialog-actions align="end">
       @if (data.fotos.length > 1) {
         <span class="contador">{{ index() + 1 }} / {{ data.fotos.length }}</span>
@@ -72,6 +84,7 @@ export interface FotoFamiliaPreviewDialogData {
       overflow: hidden;
       max-height: none;
       padding: 0;
+      min-height: 0;
     }
 
     .preview {
@@ -87,6 +100,15 @@ export interface FotoFamiliaPreviewDialogData {
       transform: translateY(-50%);
       background: color-mix(in srgb, var(--mat-sys-scrim) 45%, transparent);
       color: white;
+      transition: background-color 0.15s ease;
+
+      &:hover {
+        background: color-mix(in srgb, var(--mat-sys-scrim) 65%, transparent);
+      }
+
+      &:active {
+        background: color-mix(in srgb, var(--mat-sys-scrim) 80%, transparent);
+      }
 
       &--prev {
         left: 4px;
@@ -95,6 +117,12 @@ export interface FotoFamiliaPreviewDialogData {
       &--next {
         right: 4px;
       }
+    }
+
+    .agregar {
+      flex: none;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--mat-sys-outline-variant);
     }
 
     mat-dialog-actions {
@@ -113,6 +141,7 @@ export class FotoFamiliaPreviewDialogComponent {
 
   protected readonly index = signal(this.data.index);
   protected readonly actual = computed(() => this.data.fotos[this.index()]);
+  protected readonly tamanosPrecios = computed(() => this.data.tamanosPrecios ?? []);
 
   protected anterior(): void {
     const total = this.data.fotos.length;

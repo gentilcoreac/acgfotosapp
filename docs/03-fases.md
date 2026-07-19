@@ -5,7 +5,7 @@ Cada fase termina en algo usable. No empezar una fase sin cerrar la anterior.
 > **Este documento ES el roadmap vivo del proyecto**: al completar un ítem se tilda acá; esta
 > sección de estado se actualiza al cerrar cada bloque de trabajo.
 
-## Estado (2026-07-16) y próximos pasos
+## Estado (2026-07-18) y próximos pasos
 
 **Dónde estamos**: Fase 0 cerrada. **FASE 1 TERMINADA** (2026-07-16) — API (468 tests) y
 front admin: ABMs de Eventos y Grupos/Participantes, pantalla única de Fotos (`/fotos/galeria`:
@@ -18,9 +18,13 @@ entidades, tablas (migración `RenombrarGrupoParticipante`), API (`api/fotos/gru
 desarrollar y probar Fase 2; el alta DEFINITIVA del tenant del fotógrafo queda pendiente para
 antes de lanzar a producción real (ver Deploy).
 
+**Fase 2, en curso**: canje ✅, galería mobile-first con anti-copia ✅ (2026-07-18), carrito +
+confirmación de pedido ✅ (2026-07-18, ver el ítem de Fase 2 más abajo). Quedan: admin de pedidos
+(listado/detalle/cambio de estado) y lista de impresión exportable.
+
 **Próximos pasos, en orden**:
 
-1. **Fase 2** (familias): canje de código → sesión de álbum, galería mobile-first con anti-copia, carrito y pedidos, lista de impresión. Al diseñar el token de sesión, dejarlo preparado para MÁS de un participante por sesión (ver nota en docs/05: hermanos / persona en dos grupos).
+1. **Fase 2** (familias): admin de pedidos (listado por evento, detalle, Pendiente → Impreso → Entregado) y lista de impresión exportable.
 2. Al final de Fase 2: decisiones de **deploy** (PostgreSQL, hosting, R2, dominio) — incluye el alta definitiva del tenant del fotógrafo.
 
 ## Fase 0 — Fundaciones (actual)
@@ -71,8 +75,7 @@ Objetivo: una familia real puede hacer un pedido de punta a punta. **Con esto ya
 - [x] Ingreso por código / link QR → token de sesión del álbum (API: `POST api/fotos/canje`, ADR-11; rate-limiteado, rechaza evento no publicado/expirado)
 - [x] **Galería mobile-first** (hecho 2026-07-18): consumo real del token de familia. `OnTokenValidated` (Core) ya reconoce `sessionType=familia` y saltea el chequeo de SecurityStamp; `EndpointAuthoritation` suma un allowlist explícito (`[AllowFamiliaSession]`, ver ADR-11) — una sesión de familia solo pisa endpoints marcados, todo lo demás 403. Nuevo `api/fotos/familia/fotos` (listado + thumb/preview) scopeado ÚNICAMENTE por los `participanteId` firmados en el JWT (individuales + grupales del grupo), nunca por parámetro; sin `/original` (ADR-06). Front: `/mi-album` pasa de stub a grilla mobile-first + preview ampliado (`tbi-foto-familia-img`, mismo patrón blob-autenticado que el admin), y el `authInterceptor` aprendió a usar el token de `FamiliaSessionStore` en vez del de plataforma para esas rutas. Tests: 18 nuevos de integración (alcance de datos + el allowlist con `AuthorizationEnabled=true`) + verificación manual end-to-end contra la API dev real. **Hallazgo del smoke test, RESUELTO el mismo día (ver docs/05 y ADR-11)**: `AuthorizationEnabled=false` por defecto en dev/prod dejaba que cualquier JWT válido (incluida una sesión de familia) llamara cualquier endpoint admin — confirmado con un token de familia borrando la foto de otro participante. Se descartó el rollout completo de permisos de plataforma (fuera de alcance de Fase 2, decisión de Alberto) y en su lugar se agregó `FamiliaSessionGuard` en los AppServices admin del vertical (Evento/Grupo/Foto): rechaza la sesión de familia con 403 sin depender de ese flag. 4 tests de regresión + suite completa (487/487).
 - [x] ~~Fricción anti-copia en la galería de familias~~ (capa 2 de ADR-01; detectado 2026-07-16 en la galería admin: clic derecho → "Guardar imagen como" funciona). **RESUELTO (2026-07-18)**: en `tbi-foto-familia-img` — `(contextmenu)="$event.preventDefault()"` + `draggable="false"` en el `<img>`, `user-select: none`, y `@media print { :host { display: none } }`. No se agregó el div transparente (alternativa descartada: bloquear `contextmenu` directo en el `<img>` ya suprime el menú nativo en Chrome/Firefox sin nodo extra). **Veredicto de robustez (no re-discutir)**: en web NO existe bloqueo real — la imagen siempre llega al navegador y se extrae por dev tools/Network, y el screenshot es imbloqueable (ADR-01). La defensa real ya está hecha por diseño: lo único descargable es un WebP de 900px con watermark horneado (valor comercial ≈ 0) + overlay con nombre (Fase 2) + app con FLAG_SECURE (capa 3). Aplicar la misma fricción en la galería admin queda opcional/cosmético, sin hacer: el admin tiene el botón de descargar el original al lado.
-- [ ] Carrito: foto + tamaño + cantidad; total en vivo
-- [ ] Confirmación de pedido con nombre y teléfono
+- [x] **Carrito + confirmación de pedido** (hecho 2026-07-18, ADR-07): el modelo (`Pedido`/`PedidoItem`/`TamanoPrecio`) ya estaba migrado desde `VerticalFotos` — el trabajo fue capa de aplicación/API/front. Nuevo `FamiliaPedidoAppService` (plano, no CRUD Extended: un pedido se confirma una vez, no se "edita") expone `GET api/fotos/familia/tamanos-precios` (catálogo activo del evento de la sesión) y `POST api/fotos/familia/pedidos` (confirmar), ambos `[AllowFamiliaSession]`. Valida que las fotos pedidas sean visibles para la sesión (reusa `IFotoRepository.ListarParaFamiliaAsync`, el mismo criterio que la galería) y que los tamaños sean del catálogo activo del evento; el precio SIEMPRE sale del catálogo vigente al confirmar, nunca del cliente (`PrecioUnitarioSnapshot`). `IEntityBaseRepository<Pedido>` genérico alcanza — sin repo nuevo. Front: `CarritoStore` (signals, persistido en `sessionStorage`, se vacía al cambiar de sesión de familia — mismo criterio de dispositivo compartido que la caché de derivados) + `tbi-agregar-carrito` (selector de tamaño+cantidad) usable **tanto desde la grilla** (`MatBottomSheet` por tile, sin salir de `/mi-album`) **como desde el preview ampliado** (inline, pedido explícito de Alberto: "cómodo agregar fotos, se un experto en usabilidad y seguridad") + página `/carrito` (líneas editables, total en vivo, form de nombre/teléfono, confirmación). Tests: 6 nuevos de integración (494/494) + 4 specs nuevos/actualizados de front (422/422) + build + lint + verificación manual end-to-end contra la API dev real (evento con 2 tamaños, canje, catálogo, confirmar con 2 líneas → `Total` y snapshot de precio correctos en la respuesta).
 - [ ] Admin: listado de pedidos por evento, detalle, cambio de estado (Pendiente → Impreso → Entregado)
 - [ ] Lista de impresión exportable (agregado por foto/tamaño/cantidad, agrupada por álbum)
 

@@ -1,0 +1,5 @@
+backend
+Set-Location c:\PROYECTOS\AcgFotosApp\backend; dotnet run --project AcgFotos.Api --launch-profile http
+
+frontend
+Set-Location c:\PROYECTOS\AcgFotosApp\frontend; $env:Path = "c:\PROYECTOS\AcgFotosApp\.tools\node-v22.22.3-win-x64;$env:Path"; npm start

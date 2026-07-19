@@ -1,15 +1,8 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { blobObjectUrl } from '../../../../shared/util/blob-object-url';
 import { FotosService, VarianteDerivado } from '../data/fotos.service';
 
 /**
@@ -69,20 +62,10 @@ export class FotoImgComponent {
   });
 
   protected readonly cargando = computed(() => this.blobResource.isLoading());
-  protected readonly url = signal<string | null>(null);
 
-  constructor() {
-    effect((onCleanup) => {
-      // value() LANZA si el resource está en error (p. ej. 404 de una foto aún no procesada):
-      // hasValue() es el guard correcto.
-      const blob = this.blobResource.hasValue() ? this.blobResource.value() : null;
-      const objectUrl = blob ? URL.createObjectURL(blob) : null;
-      this.url.set(objectUrl);
-      onCleanup(() => {
-        if (objectUrl) {
-          URL.revokeObjectURL(objectUrl);
-        }
-      });
-    });
-  }
+  // value() LANZA si el resource está en error (p. ej. 404 de una foto aún no procesada):
+  // hasValue() es el guard correcto.
+  protected readonly url = blobObjectUrl(() =>
+    this.blobResource.hasValue() ? this.blobResource.value() : null,
+  );
 }

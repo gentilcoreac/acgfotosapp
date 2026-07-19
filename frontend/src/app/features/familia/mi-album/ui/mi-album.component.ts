@@ -1,10 +1,21 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
-import { FamiliaGaleriaService, FamiliaSessionStore, FotoFamilia } from '../../../../core/familia';
+import {
+  CarritoStore,
+  FamiliaCatalogoService,
+  FamiliaGaleriaService,
+  FamiliaSessionStore,
+  FotoFamilia,
+  TamanoPrecio,
+} from '../../../../core/familia';
+import { AgregarCarritoBottomSheetComponent } from './agregar-carrito-bottom-sheet.component';
 import { FotoFamiliaImgComponent } from './foto-familia-img.component';
 import {
   FotoFamiliaPreviewDialogComponent,
@@ -24,14 +35,19 @@ export type DensidadGrilla = 2 | 4 | 'lista';
 @Component({
   selector: 'tbi-mi-album',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule, FotoFamiliaImgComponent],
+  imports: [MatBadgeModule, MatButtonModule, MatIconModule, FotoFamiliaImgComponent],
   templateUrl: './mi-album.component.html',
   styleUrl: './mi-album.component.scss',
 })
 export class MiAlbumComponent {
   private readonly session = inject(FamiliaSessionStore);
   private readonly galeriaService = inject(FamiliaGaleriaService);
+  private readonly catalogoService = inject(FamiliaCatalogoService);
   private readonly dialog = inject(MatDialog);
+  private readonly bottomSheet = inject(MatBottomSheet);
+  private readonly router = inject(Router);
+
+  protected readonly carrito = inject(CarritoStore);
 
   readonly nombreEvento = this.session.nombreEvento;
   readonly participantes = this.session.participantes;
@@ -51,7 +67,12 @@ export class MiAlbumComponent {
       ),
   });
 
+  protected readonly tamanosPreciosResource = rxResource({
+    stream: () => this.catalogoService.listarTamanosPrecios().pipe(catchError(() => of<TamanoPrecio[]>([]))),
+  });
+
   protected readonly fotos = computed(() => this.fotosResource.value() ?? []);
+  protected readonly tamanosPrecios = computed(() => this.tamanosPreciosResource.value() ?? []);
   protected readonly cargando = computed(() => this.fotosResource.isLoading());
 
   /** "Pantallazo general" por default (pedido 2026-07-19); el botón de arriba a la derecha cambia esto. */
@@ -66,12 +87,28 @@ export class MiAlbumComponent {
     const fotos = this.fotos();
     const index = fotos.findIndex((f) => f.id === foto.id);
     this.dialog.open(FotoFamiliaPreviewDialogComponent, {
-      data: { fotos, index: index === -1 ? 0 : index } satisfies FotoFamiliaPreviewDialogData,
+      data: {
+        fotos,
+        index: index === -1 ? 0 : index,
+        tamanosPrecios: this.tamanosPrecios(),
+      } satisfies FotoFamiliaPreviewDialogData,
       autoFocus: false,
       maxWidth: '100vw',
       width: '96vw',
       height: '94vh',
     });
+  }
+
+  /** Selector rápido de tamaño+cantidad para esa foto sin salir de la grilla (mobile-first). */
+  protected agregarAlCarrito(foto: FotoFamilia, evento: Event): void {
+    evento.stopPropagation();
+    this.bottomSheet.open(AgregarCarritoBottomSheetComponent, {
+      data: { fotoId: foto.id, tamanosPrecios: this.tamanosPrecios() },
+    });
+  }
+
+  protected irAlCarrito(): void {
+    this.router.navigateByUrl('/carrito');
   }
 
   protected nombreParticipante(foto: FotoFamilia): string {

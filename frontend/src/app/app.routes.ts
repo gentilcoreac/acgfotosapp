@@ -22,12 +22,21 @@ export const routes: Routes = [
       import('./features/familia/canje/ui/canje.component').then((m) => m.CanjeComponent),
   },
   {
-    // Landing post-canje de la familia (stub: la galería real es el próximo ítem de Fase 2).
+    // Landing post-canje de la familia: galería mobile-first con anti-copia.
     path: 'mi-album',
     canMatch: [familiaSessionGuard],
     loadComponent: () =>
       import('./features/familia/mi-album/ui/mi-album.component').then(
         (m) => m.MiAlbumComponent,
+      ),
+  },
+  {
+    // Carrito + confirmación de pedido (Fase 2, ADR-07).
+    path: 'carrito',
+    canMatch: [familiaSessionGuard],
+    loadComponent: () =>
+      import('./features/familia/carrito/ui/carrito.component').then(
+        (m) => m.CarritoComponent,
       ),
   },
   {

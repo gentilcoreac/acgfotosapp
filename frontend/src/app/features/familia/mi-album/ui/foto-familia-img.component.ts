@@ -1,12 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -15,6 +7,7 @@ import {
   FamiliaSessionStore,
   VarianteDerivadoFamilia,
 } from '../../../../core/familia';
+import { blobObjectUrl } from '../../../../shared/util/blob-object-url';
 
 /**
  * Tamaño del tile del patrón repetido (grilla, no una sola marca centrada): imita el criterio del
@@ -138,20 +131,9 @@ export class FotoFamiliaImgComponent {
   });
 
   protected readonly cargando = computed(() => this.blobResource.isLoading());
-  protected readonly url = signal<string | null>(null);
-
-  constructor() {
-    effect((onCleanup) => {
-      const blob = this.blobResource.hasValue() ? this.blobResource.value() : null;
-      const objectUrl = blob ? URL.createObjectURL(blob) : null;
-      this.url.set(objectUrl);
-      onCleanup(() => {
-        if (objectUrl) {
-          URL.revokeObjectURL(objectUrl);
-        }
-      });
-    });
-  }
+  protected readonly url = blobObjectUrl(() =>
+    this.blobResource.hasValue() ? this.blobResource.value() : null,
+  );
 
   /**
    * SVG chico con el texto rotado, como `background-image` en vez de tiled con nodos DOM: una foto
