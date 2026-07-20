@@ -34,15 +34,20 @@ test.describe('Logs', () => {
   });
 
   test('E2E-LOG-04 el botón Filtrar (nivel) recarga; Limpiar restaura', async ({ page }) => {
-    await expect(page.getByTestId('table-row')).toHaveCount(2);
-    // Elegir nivel "Warning" en el select y filtrar → queda solo el Warning (tenant 2).
+    // Conteo relativo, no fijo: LogInfo (cross-tenant) acumula filas durante la corrida de la suite.
+    const rows = page.getByTestId('table-row');
+    await expect(rows.first()).toBeVisible(); // count() no auto-espera: esperar la carga antes de contar
+    const totalInicial = await rows.count();
+
+    // Filtrar por nivel Warning → queda el Warning sembrado (tenant 2, "Aviso...").
     await page.getByLabel('Nivel').click();
     await page.getByRole('option', { name: 'Warning' }).click();
     await page.getByRole('button', { name: 'Filtrar' }).click();
-    await expect(page.getByTestId('table-row')).toHaveCount(1);
-    await expect(page.getByTestId('table-row').first()).toContainText('Aviso');
-    // Limpiar vuelve a traer las 2.
+    await expect(rows.filter({ hasText: 'Aviso' })).toHaveCount(1);
+    await expect(rows).not.toHaveCount(totalInicial);
+
+    // Limpiar restaura el listado completo.
     await page.getByRole('button', { name: 'Limpiar' }).click();
-    await expect(page.getByTestId('table-row')).toHaveCount(2);
+    await expect(rows).toHaveCount(totalInicial);
   });
 });
