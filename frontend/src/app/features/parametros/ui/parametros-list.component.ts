@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +15,7 @@ import { Observable, EMPTY, tap } from 'rxjs';
 import { QueryParams } from '../../../core/models/query-params.model';
 import { NotificationService } from '../../../shared/feedback/notification.service';
 import { TbiRowAction } from '../../../shared/ui/tbi-row-actions/tbi-row-actions.component';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import {
   TbiSelectComponent,
   TbiSelectOption,
@@ -48,8 +56,10 @@ export class ParametrosListComponent {
 
   /** Filtro por aplicación (`ParametroCriteria.AplicacionId`), como el front original. */
   protected readonly filters = signal<QueryParams>({});
-  protected readonly aplicacionFilterOptions = signal<TbiSelectOption<number | null>[]>([
+  private readonly aplicacionesResource = lookupResource(() => this.service.getAplicaciones(), []);
+  protected readonly aplicacionFilterOptions = computed<TbiSelectOption<number | null>[]>(() => [
     { value: null, label: 'Todas las aplicaciones' },
+    ...(this.aplicacionesResource.value() ?? []).map((a) => ({ value: a.id, label: a.nombre })),
   ]);
   protected readonly aplicacionFilter = new FormControl<number | null>(null);
 
@@ -67,15 +77,6 @@ export class ParametrosListComponent {
   ];
 
   constructor() {
-    this.service
-      .getAplicaciones()
-      .subscribe((aplicaciones) =>
-        this.aplicacionFilterOptions.set([
-          { value: null, label: 'Todas las aplicaciones' },
-          ...aplicaciones.map((a) => ({ value: a.id, label: a.nombre })),
-        ]),
-      );
-
     // El propio `tbi-table` recarga desde la página 0 al cambiar `filters` (su effect interno
     // reacciona al input); llamar `reload()` acá leería el valor VIEJO del input y dispararía un
     // fetch de más.

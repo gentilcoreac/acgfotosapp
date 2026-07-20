@@ -1,5 +1,5 @@
-import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Injectable, computed, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { AllowedRoutesService, AuthStore } from '../../../core/auth';
 
 /**
@@ -19,51 +19,33 @@ import { AllowedRoutesService, AuthStore } from '../../../core/auth';
 export class DashboardContextService {
   private readonly store = inject(AuthStore);
   private readonly allowedRoutes = inject(AllowedRoutesService);
-  private readonly destroyRef = inject(DestroyRef);
 
   readonly isRoot = this.store.isRoot;
   readonly isImpersonating = this.store.isImpersonating;
 
-  /** Paths permitidos del usuario; `null` mientras carga. */
-  private readonly allowedPaths = signal<ReadonlySet<string> | null>(null);
-  /** `true` si no se pudieron determinar (error de red): se falla **abierto** como el guard de rutas. */
-  private readonly allowedFailedOpen = signal(false);
+  /** Refetchea sola al cambiar el contexto efectivo (tenant del token) — coincide con el momento en
+   * que `ImpersonationService` limpia el cache de allowed-routes. `getAllowedPaths()` ya resuelve
+   * `null` internamente ante un error de red (nunca propaga error), así que el resource nunca entra
+   * en estado error acá. */
+  private readonly allowedResource = rxResource({
+    params: () => this.store.tenantId(),
+    stream: () => this.allowedRoutes.getAllowedPaths(),
+  });
   /** Capacidades ya resueltas (cargaron o fallaron-abierto): hasta entonces, los widgets esperan. */
-  readonly ready = computed(() => this.allowedPaths() !== null || this.allowedFailedOpen());
-
-  private sub?: Subscription;
-
-  constructor() {
-    // Recarga las capacidades al cambiar el contexto efectivo (tenant del token). Coincide con el
-    // momento en que ImpersonationService limpia el cache de allowed-routes.
-    effect(() => {
-      this.store.tenantId();
-      this.reloadAllowed();
-    });
-    this.destroyRef.onDestroy(() => this.sub?.unsubscribe());
-  }
-
-  private reloadAllowed(): void {
-    this.sub?.unsubscribe();
-    this.allowedPaths.set(null);
-    this.allowedFailedOpen.set(false);
-    this.sub = this.allowedRoutes.getAllowedPaths().subscribe((paths) => {
-      if (paths === null) {
-        this.allowedFailedOpen.set(true);
-      } else {
-        this.allowedPaths.set(paths);
-      }
-    });
-  }
+  readonly ready = computed(() => this.allowedResource.value() !== undefined);
 
   /**
    * ¿El usuario puede acceder a la sección `path`? Root ve todo; ante error de red falla abierto
    * (coherente con `allowedRoutesGuard`). Reactivo: úsese dentro de `computed`/template.
    */
   canAccess(path: string): boolean {
-    if (this.store.isRoot() || this.allowedFailedOpen()) {
+    if (this.store.isRoot()) {
       return true;
     }
-    return this.allowedPaths()?.has(path) ?? false;
+    const paths = this.allowedResource.value();
+    if (paths === undefined) {
+      return false; // todavía cargando
+    }
+    return paths === null ? true : paths.has(path); // null = falló, fail-open
   }
 }

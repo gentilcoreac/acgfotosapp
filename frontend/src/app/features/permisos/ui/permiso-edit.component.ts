@@ -27,6 +27,7 @@ import {
   TbiTreeNode,
   TbiTreeSelectComponent,
 } from '../../../shared/ui/tbi-tree-select/tbi-tree-select.component';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { PermisosService } from '../data/permisos.service';
 import { ApiHierarchicalItem, Permiso, PermisoDeAplicacion } from '../domain/permiso.model';
 
@@ -72,11 +73,17 @@ export class PermisoEditComponent extends EditComponentBase<Permiso, PermisoForm
   protected readonly isRoot = inject(AuthStore).isRoot;
   private originalEsRestringido = false;
 
-  protected readonly aplicacionOptions = signal<TbiSelectOption<number>[]>([]);
+  private readonly aplicacionesResource = lookupResource(() => this.service.getAplicaciones(), []);
+  protected readonly aplicacionOptions = computed<TbiSelectOption<number>[]>(() =>
+    (this.aplicacionesResource.value() ?? []).map((a) => ({ value: a.id, label: a.nombre })),
+  );
   /** Árbol de permiso padre (single-select), filtrado por la aplicación elegida y sin el propio. */
   protected readonly padreTree = signal<TbiTreeNode[]>([]);
   /** Árbol Módulo→Controller→Endpoint (multi-select); ids sintéticos en los nodos agrupadores. */
-  protected readonly endpointsTree = signal<TbiTreeNode[]>([]);
+  private readonly endpointsResource = lookupResource(() => this.service.getEndpointsTree(), []);
+  protected readonly endpointsTree = computed<TbiTreeNode[]>(() =>
+    this.remapEndpoints(this.endpointsResource.value() ?? []),
+  );
 
   protected readonly model = signal<PermisoFormModel>({
     nombre: '',
@@ -163,18 +170,6 @@ export class PermisoEditComponent extends EditComponentBase<Permiso, PermisoForm
         permisos === null ? [] : this.buildPadreTree(permisos, this.loaded?.id ?? null),
       );
     });
-  }
-
-  override ngOnInit(): void {
-    super.ngOnInit();
-    this.service
-      .getAplicaciones()
-      .subscribe((aplicaciones) =>
-        this.aplicacionOptions.set(aplicaciones.map((a) => ({ value: a.id, label: a.nombre }))),
-      );
-    this.service
-      .getEndpointsTree()
-      .subscribe((items) => this.endpointsTree.set(this.remapEndpoints(items)));
   }
 
   /** Arma la jerarquía de permisos por `permisoPadreId`, excluyendo al propio permiso editado. */

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormField, form, maxLength, required } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -10,8 +10,9 @@ import { EditComponentBase } from '../../../shared/forms/edit-component-base';
 import { TbiButtonComponent } from '../../../shared/ui/tbi-button/tbi-button.component';
 import { TbiTextFieldComponent } from '../../../shared/ui/tbi-text-field/tbi-text-field.component';
 import { toggleInSet } from '../../../shared/util/collections';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { TiposLicenciaService } from '../data/tipos-licencia.service';
-import { RolOption, TipoLicencia } from '../domain/tipo-licencia.model';
+import { TipoLicencia } from '../domain/tipo-licencia.model';
 
 interface TipoLicenciaFormModel {
   codigoTipoLicencia: string;
@@ -46,7 +47,8 @@ export class TiposLicenciaEditComponent extends EditComponentBase<
 
   /** Solo root puede editar `esDefaultParaNuevoTenant` (la API lo valida; acá es UX). */
   protected readonly isRoot = inject(AuthStore).isRoot;
-  protected readonly roles = signal<RolOption[]>([]);
+  private readonly rolesResource = lookupResource(() => this.service.getRoles(), []);
+  protected readonly roles = computed(() => this.rolesResource.value() ?? []);
   protected readonly selectedRoleIds = signal<ReadonlySet<number>>(new Set());
   /** Valor original del flag, para detectar si root lo cambió y disparar el endpoint. */
   private originalEsDefault = false;
@@ -62,11 +64,6 @@ export class TiposLicenciaEditComponent extends EditComponentBase<
     required(path.descripcion, { message: 'Requerido' });
     maxLength(path.descripcion, 100, { message: 'Máximo 100 caracteres' });
   });
-
-  override ngOnInit(): void {
-    super.ngOnInit();
-    this.service.getRoles().subscribe((roles) => this.roles.set(roles));
-  }
 
   protected toggleRole(rolId: number, checked: boolean): void {
     this.selectedRoleIds.update((current) => toggleInSet(current, rolId, checked));

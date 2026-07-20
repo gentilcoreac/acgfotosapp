@@ -1,16 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { ImpersonatableUser, ImpersonationService } from '../../core/auth';
+import { catchError, map, of } from 'rxjs';
+import { ImpersonationService } from '../../core/auth';
 import { TenantService } from '../../features/tenant/data/tenant.service';
-
-interface TenantOption {
-  id: number;
-  nombre: string;
-}
+import { lookupResource } from '../../shared/util/lookup-resource';
 
 /**
  * Selector de impersonalización (ADR-0002): root elige un **tenant** y luego un **usuario** de ese
@@ -19,7 +24,13 @@ interface TenantOption {
 @Component({
   selector: 'tbi-impersonation-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatDialogModule, MatFormFieldModule, MatSelectModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [
+    MatDialogModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+  ],
   template: `
     <h2 mat-dialog-title>Impersonalizar</h2>
     <mat-dialog-content>
@@ -42,7 +53,9 @@ interface TenantOption {
           [disabled]="selectedTenantId() === null || loadingUsers()"
         >
           @for (u of users(); track u.id) {
-            <mat-option [value]="u.id">{{ u.userName }} — {{ u.nombre }} {{ u.apellido }}</mat-option>
+            <mat-option [value]="u.id"
+              >{{ u.userName }} — {{ u.nombre }} {{ u.apellido }}</mat-option
+            >
           }
         </mat-select>
         @if (loadingUsers()) {
@@ -59,7 +72,12 @@ interface TenantOption {
 
     <mat-dialog-actions align="end">
       <button matButton type="button" (click)="cancel()" [disabled]="submitting()">Cancelar</button>
-      <button matButton="filled" type="button" (click)="confirm()" [disabled]="!canConfirm() || submitting()">
+      <button
+        matButton="filled"
+        type="button"
+        (click)="confirm()"
+        [disabled]="!canConfirm() || submitting()"
+      >
         @if (submitting()) {
           <mat-progress-spinner mode="indeterminate" diameter="18" />
         } @else {
@@ -87,45 +105,56 @@ export class ImpersonationDialogComponent {
   private readonly impersonation = inject(ImpersonationService);
   private readonly dialogRef = inject(MatDialogRef<ImpersonationDialogComponent, boolean>);
 
-  protected readonly tenants = signal<TenantOption[]>([]);
-  protected readonly users = signal<ImpersonatableUser[]>([]);
-  protected readonly loadingUsers = signal(false);
+  private readonly tenantsResource = lookupResource(
+    () =>
+      this.tenantService.crud
+        .getAll()
+        .pipe(
+          map((result) =>
+            result.items
+              .filter((t): t is typeof t & { id: number } => t.id != null)
+              .map((t) => ({ id: t.id, nombre: t.nombre })),
+          ),
+        ),
+    null,
+  );
+  protected readonly tenants = computed(() => this.tenantsResource.value() ?? []);
   protected readonly submitting = signal(false);
   protected readonly error = signal<string | null>(null);
 
   protected readonly selectedTenantId = signal<number | null>(null);
   protected readonly selectedUserId = signal<number | null>(null);
 
-  protected readonly canConfirm = computed(() => this.selectedTenantId() !== null && this.selectedUserId() !== null);
+  /** Refetchea sola cuando cambia el tenant elegido (cancela el pedido en vuelo anterior). */
+  private readonly usersResource = rxResource({
+    params: () => this.selectedTenantId() ?? undefined,
+    stream: ({ params }) =>
+      this.impersonation.getImpersonatableUsers(params).pipe(catchError(() => of(null))),
+  });
+  protected readonly users = computed(() => this.usersResource.value() ?? []);
+  protected readonly loadingUsers = computed(() => this.usersResource.isLoading());
+
+  protected readonly canConfirm = computed(
+    () => this.selectedTenantId() !== null && this.selectedUserId() !== null,
+  );
 
   constructor() {
-    this.tenantService.crud.getAll().subscribe({
-      next: (result) =>
-        this.tenants.set(
-          result.items
-            .filter((t): t is typeof t & { id: number } => t.id != null)
-            .map((t) => ({ id: t.id, nombre: t.nombre })),
-        ),
-      error: () => this.error.set('No se pudieron cargar los tenants. Intentá de nuevo más tarde.'),
+    effect(() => {
+      if (this.tenantsResource.value() === null) {
+        this.error.set('No se pudieron cargar los tenants. Intentá de nuevo más tarde.');
+      }
+    });
+    effect(() => {
+      if (this.usersResource.value() === null) {
+        this.error.set('No se pudieron cargar los usuarios del tenant seleccionado.');
+      }
     });
   }
 
   protected onTenantChange(tenantId: number): void {
     this.selectedTenantId.set(tenantId);
     this.selectedUserId.set(null);
-    this.users.set([]);
     this.error.set(null);
-    this.loadingUsers.set(true);
-    this.impersonation.getImpersonatableUsers(tenantId).subscribe({
-      next: (users) => {
-        this.users.set(users);
-        this.loadingUsers.set(false);
-      },
-      error: () => {
-        this.loadingUsers.set(false);
-        this.error.set('No se pudieron cargar los usuarios del tenant seleccionado.');
-      },
-    });
   }
 
   protected confirm(): void {

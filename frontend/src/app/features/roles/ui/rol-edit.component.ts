@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormField, form, maxLength, required } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -9,10 +9,8 @@ import { AuthStore } from '../../../core/auth';
 import { EditComponentBase } from '../../../shared/forms/edit-component-base';
 import { TbiButtonComponent } from '../../../shared/ui/tbi-button/tbi-button.component';
 import { TbiTextFieldComponent } from '../../../shared/ui/tbi-text-field/tbi-text-field.component';
-import {
-  TbiTreeNode,
-  TbiTreeSelectComponent,
-} from '../../../shared/ui/tbi-tree-select/tbi-tree-select.component';
+import { TbiTreeSelectComponent } from '../../../shared/ui/tbi-tree-select/tbi-tree-select.component';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { RolesService } from '../data/roles.service';
 import { Rol } from '../domain/rol.model';
 
@@ -48,7 +46,8 @@ export class RolEditComponent extends EditComponentBase<Rol, RolFormModel> {
 
   /** Solo root puede editar `esDefaultParaNuevoTenant` (la API lo valida; acá es UX). */
   protected readonly isRoot = inject(AuthStore).isRoot;
-  protected readonly permisosTree = signal<TbiTreeNode[]>([]);
+  private readonly permisosTreeResource = lookupResource(() => this.service.getPermisosTree(), []);
+  protected readonly permisosTree = computed(() => this.permisosTreeResource.value() ?? []);
   /** Valor original del flag, para detectar si root lo cambió y disparar el endpoint. */
   private originalEsDefault = false;
 
@@ -62,11 +61,6 @@ export class RolEditComponent extends EditComponentBase<Rol, RolFormModel> {
     required(path.descripcion, { message: 'Requerido' });
     maxLength(path.descripcion, 100, { message: 'Máximo 100 caracteres' });
   });
-
-  override ngOnInit(): void {
-    super.ngOnInit();
-    this.service.getPermisosTree().subscribe((tree) => this.permisosTree.set(tree));
-  }
 
   protected toEntity(): Rol {
     // El request manda los permisos como ids (`permisoIds`); la API sincroniza la colección.

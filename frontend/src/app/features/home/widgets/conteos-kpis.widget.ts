@@ -1,13 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
-import { Observable, Subscription, catchError, forkJoin, of } from 'rxjs';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 import { AuthStore } from '../../../core/auth';
 import { TbiKpiCardComponent } from '../../../shared/ui/tbi-kpi-card/tbi-kpi-card.component';
 import { HomeMetricsService } from '../data/home-metrics.service';
@@ -47,7 +40,6 @@ export class ConteosKpisWidget {
   private readonly ctx = inject(DashboardContextService);
   private readonly metrics = inject(HomeMetricsService);
   private readonly store = inject(AuthStore);
-  private readonly destroyRef = inject(DestroyRef);
 
   private readonly conteos: Conteo[] = [
     {
@@ -70,35 +62,26 @@ export class ConteosKpisWidget {
     this.conteos.filter((c) => this.ctx.canAccess(c.route)),
   );
 
-  private readonly valores = signal<Record<string, number | null>>({});
-  private sub?: Subscription;
-
-  constructor() {
-    // Recarga al cambiar el contexto (tenant) o cuando se resuelven las capacidades (cambia el set
-    // visible). Solo pide los conteos visibles.
-    effect(() => {
-      this.store.tenantId();
-      this.reload(this.visibles());
-    });
-    this.destroyRef.onDestroy(() => this.sub?.unsubscribe());
-  }
-
-  private reload(visibles: Conteo[]): void {
-    this.sub?.unsubscribe();
-    this.valores.set({});
-    if (visibles.length === 0) {
-      return;
-    }
-    const calls: Record<string, Observable<number | null>> = {};
-    for (const c of visibles) {
-      calls[c.route] = c.load().pipe(catchError(() => of<number | null>(null)));
-    }
-    this.sub = forkJoin(calls).subscribe((res) => this.valores.set(res));
-  }
+  /** Refetchea sola al cambiar el contexto (tenant) o cuando se resuelven las capacidades (cambia el
+   * set visible). Sólo pide los conteos visibles. Cancela el pedido en vuelo anterior
+   * automáticamente (antes `Subscription`/`destroyRef` a mano). */
+  private readonly valoresResource = rxResource({
+    params: () => ({ tenantId: this.store.tenantId(), visibles: this.visibles() }),
+    stream: ({ params }) => {
+      if (params.visibles.length === 0) {
+        return of<Record<string, number | null>>({});
+      }
+      const calls: Record<string, Observable<number | null>> = {};
+      for (const c of params.visibles) {
+        calls[c.route] = c.load().pipe(catchError(() => of<number | null>(null)));
+      }
+      return forkJoin(calls);
+    },
+  });
 
   /** Valor del conteo (— mientras carga). */
   protected valor(route: string): string | number {
-    const v = this.valores()[route];
+    const v = this.valoresResource.value()?.[route];
     return v == null ? '—' : v;
   }
 }

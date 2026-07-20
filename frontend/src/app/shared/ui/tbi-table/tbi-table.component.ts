@@ -1,14 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   computed,
   effect,
   input,
   linkedSignal,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,16 +17,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
-import {
-  Observable,
-  Subject,
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  of,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { Observable, Subject, catchError, debounceTime, distinctUntilChanged, of } from 'rxjs';
 import { QueryParams } from '../../../core/models/query-params.model';
 import { QueryResult } from '../../../core/models/query-result.model';
 import { TbiRowAction, TbiRowActionsComponent } from '../tbi-row-actions/tbi-row-actions.component';
@@ -108,7 +98,7 @@ const sameColumns = <T>(a: TbiColumn<T>[], b: TbiColumn<T>[]): boolean =>
   templateUrl: './tbi-table.component.html',
   styleUrl: './tbi-table.component.scss',
 })
-export class TbiTableComponent<T> implements OnInit {
+export class TbiTableComponent<T> {
   readonly columns = input.required<TbiColumn<T>[]>();
   readonly fetch = input.required<TbiTableFetch<T>>();
   /** Acciones de fila declarativas: render responsive (inline-hover desktop / 3-puntos touch) + confirm/spinner. */
@@ -121,19 +111,40 @@ export class TbiTableComponent<T> implements OnInit {
   readonly searchable = input<boolean>(false);
   readonly searchPlaceholder = input<string>('Buscar…');
 
-  protected readonly rows = signal<T[]>([]);
-  protected readonly totalCount = signal(0);
-  /** `true` mientras hay un fetch en curso (público: el padre puede reflejarlo, p. ej. en un botón). */
-  readonly loading = signal(false);
-  /** El último fetch falló (el toast global del interceptor ya avisó); la tabla ofrece reintentar
-   * en vez de mostrar un "Sin resultados" que miente. */
-  protected readonly error = signal(false);
-
-  protected readonly pageIndex = signal(0);
+  /** Vuelve a la primera página cada vez que el padre cambia `filters` (mismo criterio que antes:
+   * un cambio de filtro invalida la página actual) — declarativo vía `linkedSignal`, en vez del
+   * `effect` con flag `firstFilters` (frágil, ver lección de fase 1) de antes: no hay "primer disparo"
+   * que saltear, la propia página inicial (0) ya es el resultado de la primera computación. Sigue
+   * siendo asignable a mano (`onPage`/`onSort`/`onSearch`/`reload`), como cualquier otro signal. */
+  protected readonly pageIndex = linkedSignal({ source: this.filters, computation: () => 0 });
   protected readonly currentPageSize = linkedSignal(() => this.pageSize());
   private readonly sortBy = signal('');
   private readonly descending = signal(false);
   protected readonly searchText = signal('');
+
+  /** Fetchea sola al crearse y cada vez que cambian página/orden/búsqueda/`filters` — reemplaza el
+   * `reload$`+`search$`+el `effect` con flag `firstFilters` (frágil, ver lección de fase 1) de antes:
+   * al no haber un "segundo disparo" artificial que evitar, no hace falta ningún flag. */
+  private readonly dataResource = rxResource({
+    params: () => ({
+      ...this.filters(),
+      searchText: this.searchText() || undefined,
+      page: this.pageIndex(),
+      pageSize: this.currentPageSize(),
+      orderBy: this.sortBy(),
+      descendingOrder: this.descending(),
+    }),
+    stream: ({ params }) =>
+      this.fetch()(params).pipe(catchError(() => of<QueryResult<T> | null>(null))),
+  });
+
+  protected readonly rows = computed(() => this.dataResource.value()?.items ?? []);
+  protected readonly totalCount = computed(() => this.dataResource.value()?.totalCount ?? 0);
+  /** `true` mientras hay un fetch en curso (público: el padre puede reflejarlo, p. ej. en un botón). */
+  readonly loading = computed(() => this.dataResource.isLoading());
+  /** El último fetch falló (el toast global del interceptor ya avisó); la tabla ofrece reintentar
+   * en vez de mostrar un "Sin resultados" que miente. */
+  protected readonly error = computed(() => this.dataResource.value() === null);
 
   /** Columnas que el usuario ocultó desde el menú "Columnas" (sembrado con las `hidden`).
    * Si el padre re-emite `columns` sin cambios reales, se conserva la selección del usuario. */
@@ -152,90 +163,55 @@ export class TbiTableComponent<T> implements OnInit {
     () => this.searchable() || this.optionalColumns().length > 0,
   );
 
-  private readonly reload$ = new Subject<void>();
   private readonly search$ = new Subject<string>();
 
   constructor() {
-    this.reload$
-      .pipe(
-        tap(() => this.loading.set(true)),
-        switchMap(() =>
-          this.fetch()(this.buildQuery()).pipe(catchError(() => of<QueryResult<T> | null>(null))),
-        ),
-        takeUntilDestroyed(),
-      )
-      .subscribe((result) => {
-        if (result === null) {
-          this.error.set(true);
-          this.rows.set([]);
-          this.totalCount.set(0);
-          this.loading.set(false);
-          return;
-        }
-        this.error.set(false);
-        // Página fuera de rango (p. ej. se borró la última fila de la última página): retrocede a
-        // la última página válida y re-consulta, en vez de mostrar "Sin resultados" con datos reales.
-        if (result.items.length === 0 && result.totalCount > 0 && this.pageIndex() > 0) {
-          this.totalCount.set(result.totalCount);
-          this.pageIndex.set(Math.ceil(result.totalCount / this.currentPageSize()) - 1);
-          this.load();
-          return;
-        }
-        this.rows.set(result.items);
-        this.totalCount.set(result.totalCount);
-        this.loading.set(false);
-      });
+    // Página fuera de rango (p. ej. se borró la última fila de la última página): retrocede a la
+    // última página válida (el cambio de `pageIndex` dispara el refetch solo, vía `params`) en vez de
+    // mostrar "Sin resultados" con datos reales. Autolimitado: la próxima corrida ve la MISMA
+    // `totalCount` vieja hasta que el nuevo fetch resuelva, y el valor corregido no vuelve a cambiar
+    // (el signal no notifica si se setea al mismo valor) — no hay loop.
+    effect(() => {
+      const result = this.dataResource.value();
+      if (result && result.items.length === 0 && result.totalCount > 0 && this.pageIndex() > 0) {
+        this.pageIndex.set(Math.ceil(result.totalCount / this.currentPageSize()) - 1);
+      }
+    });
 
-    // Búsqueda con debounce: cada tecla resetea a la primera página y dispara un fetch server-side.
+    // Búsqueda con debounce: cada tecla resetea a la primera página y dispara un fetch server-side
+    // (vía `params`, `searchText`/`pageIndex` son parte de la query combinada de arriba).
     this.search$
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed())
       .subscribe((term) => {
         this.searchText.set(term);
         this.pageIndex.set(0);
-        this.load();
       });
-
-    // Recarga (reseteando a la 1ª página) cuando el padre cambia `filters`. Es la forma confiable de
-    // reaccionar al input: hacerlo desde el padre con `set()` + `reload()` síncrono leería el valor
-    // viejo (el binding del input recién se propaga en el siguiente ciclo de detección). Se saltea la
-    // corrida inicial porque la primera carga ya la hace `ngOnInit` (evita el doble fetch al montar).
-    let firstFilters = true;
-    effect(() => {
-      this.filters();
-      if (firstFilters) {
-        firstFilters = false;
-        return;
-      }
-      this.reload();
-    });
-  }
-
-  ngOnInit(): void {
-    this.load();
   }
 
   /** Recarga reseteando a la primera página (cambio de filtros, operaciones masivas). */
   reload(): void {
-    this.pageIndex.set(0);
-    this.load();
+    if (this.pageIndex() === 0) {
+      // Ya está en página 0: el cambio de página no dispararía un refetch solo.
+      this.dataResource.reload();
+    } else {
+      this.pageIndex.set(0);
+    }
   }
 
   /** Recarga conservando la página actual (post-CRUD: guardar, eliminar). */
   refresh(): void {
-    this.load();
+    this.dataResource.reload();
   }
 
   protected onPage(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
     this.currentPageSize.set(event.pageSize);
-    this.load();
   }
 
   protected onSort(sort: Sort): void {
     this.sortBy.set(sort.direction ? sort.active : '');
     this.descending.set(sort.direction === 'desc');
     this.pageIndex.set(0);
-    this.load();
   }
 
   protected onSearch(value: string): void {
@@ -297,20 +273,5 @@ export class TbiTableComponent<T> implements OnInit {
     }
     const value = (row as Record<string, unknown>)[column.key];
     return value == null ? '' : String(value);
-  }
-
-  private load(): void {
-    this.reload$.next();
-  }
-
-  private buildQuery(): QueryParams {
-    return {
-      ...this.filters(),
-      searchText: this.searchText() || undefined,
-      page: this.pageIndex(),
-      pageSize: this.currentPageSize(),
-      orderBy: this.sortBy(),
-      descendingOrder: this.descending(),
-    };
   }
 }

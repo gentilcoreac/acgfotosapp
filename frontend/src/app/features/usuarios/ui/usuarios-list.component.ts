@@ -1,17 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { Observable, EMPTY, tap } from 'rxjs';
+import { Observable, EMPTY, catchError, of, tap } from 'rxjs';
 import { AuthStore } from '../../../core/auth';
 import { QueryParams } from '../../../core/models/query-params.model';
 import { LicenciasService } from '../../licencias/data/licencias.service';
@@ -45,7 +37,6 @@ export class UsuariosListComponent {
   private readonly licenciasService = inject(LicenciasService);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly table = viewChild.required(TbiTableComponent);
 
@@ -61,16 +52,21 @@ export class UsuariosListComponent {
    * Resumen de licencias del tenant. Una sola consulta alimenta tres cosas: los KPIs del header,
    * el banner de "por vencer" y la columna "Licencia" del listado (resolviendo id→descripción y el
    * tono del chip según vigencia). Por eso se carga acá, no en cada componente hijo.
+   *
+   * Root opera sobre el tenant de sistema, cuyas licencias son de seed (no de negocio): el resumen
+   * devolvería datos que no aportan (p. ej. un Visualizador vencido en 2020) — no se pide (`params`
+   * `undefined` = no fetchea).
    */
-  protected readonly resumen = signal<LicenciaResumen[]>([]);
+  private readonly resumenResource = rxResource({
+    params: () => (this.isRoot() ? undefined : true),
+    stream: () =>
+      this.licenciasService.getResumen().pipe(catchError(() => of<LicenciaResumen[]>([]))),
+  });
+  protected readonly resumen = computed(() => this.resumenResource.value() ?? []);
   /** Índice tipoLicenciaId → resumen, para resolver la celda de licencia de cada fila. */
   private readonly licenciaPorId = computed(
     () => new Map(this.resumen().map((l) => [l.tipoLicenciaId, l])),
   );
-
-  constructor() {
-    this.loadResumen();
-  }
 
   // Listado liviano (UsuarioHeaderDto): sin roles/aplicaciones; el detalle se trae en el edit.
   // `columns` es computed: la columna "Licencia" depende del resumen, así que se rehace cuando éste
@@ -132,29 +128,10 @@ export class UsuariosListComponent {
 
   protected readonly fetch = (query: QueryParams) => this.service.crud.getAllByCriteria(query);
 
-  /** (Re)carga el resumen de licencias del tenant. Se llama al iniciar y tras cada cambio que afecta
-   * las cuentas (alta/edición/baja/desbloqueo de usuarios). */
-  private loadResumen(): void {
-    // Root opera sobre el tenant de sistema, cuyas licencias son de seed (no de negocio): el
-    // resumen devolvería datos que no aportan (p. ej. un Visualizador vencido en 2020). No lo
-    // pedimos.
-    if (this.isRoot()) {
-      this.resumen.set([]);
-      return;
-    }
-    this.licenciasService
-      .getResumen()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (resumen) => this.resumen.set(resumen),
-        error: () => this.resumen.set([]),
-      });
-  }
-
   /** Recarga la grilla y el resumen de licencias juntos (tras un cambio que afecta a ambos). */
   private refresh(): void {
     this.table().refresh();
-    this.loadResumen();
+    this.resumenResource.reload();
   }
 
   // Acciones de fila: Editar siempre; Desbloquear sólo si está bloqueado; Eliminar (destructivo).

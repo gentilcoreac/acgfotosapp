@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import {
   FormField,
@@ -22,6 +29,7 @@ import {
   TbiSelectOption,
 } from '../../../shared/ui/tbi-select/tbi-select.component';
 import { TbiTextFieldComponent } from '../../../shared/ui/tbi-text-field/tbi-text-field.component';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { MenusService } from '../data/menus.service';
 import { Menu } from '../domain/menu.model';
 
@@ -62,7 +70,10 @@ export class MenuEditComponent extends EditComponentBase<Menu, MenuFormModel> {
   protected readonly crud = this.service.crud;
   private loaded?: Menu;
 
-  protected readonly aplicacionOptions = signal<TbiSelectOption<number>[]>([]);
+  private readonly aplicacionesResource = lookupResource(() => this.service.getAplicaciones(), []);
+  protected readonly aplicacionOptions = computed<TbiSelectOption<number>[]>(() =>
+    (this.aplicacionesResource.value() ?? []).map((a) => ({ value: a.id, label: a.nombre })),
+  );
   /** Opciones que dependen de la aplicación elegida (incluyen un "(Ninguno)" porque son opcionales). */
   protected readonly permisoOptions = signal<TbiSelectOption<number | null>[]>([]);
   protected readonly menuPadreOptions = signal<TbiSelectOption<number | null>[]>([]);
@@ -161,15 +172,6 @@ export class MenuEditComponent extends EditComponentBase<Menu, MenuFormModel> {
           .map((m) => ({ value: m.id, label: `${m.codigo} — ${m.nombre}` })),
       ]);
     });
-  }
-
-  override ngOnInit(): void {
-    this.service
-      .getAplicaciones()
-      .subscribe((aplicaciones) =>
-        this.aplicacionOptions.set(aplicaciones.map((a) => ({ value: a.id, label: a.nombre }))),
-      );
-    super.ngOnInit();
   }
 
   protected toEntity(): Menu {

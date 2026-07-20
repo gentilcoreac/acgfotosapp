@@ -1,6 +1,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,14 +10,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { map } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { AplicacionContextStore } from '../../core/aplicacion-context';
 import { AuthService, AuthStore, ImpersonationService } from '../../core/auth';
 import { AppConfigService } from '../../core/config';
 import { TenantStyleStore } from '../../core/tenant-style';
 import { ThemeStore } from '../../core/theme';
 import { ImpersonationDialogComponent } from '../impersonation/impersonation-dialog.component';
-import { MENU_ICON_BY_CODE, MENU_LABELS, MenuItem, MenuNode, MenuSection } from '../menu/menu-item.model';
+import { MENU_LABELS, MenuItem, MenuNode, MenuSection } from '../menu/menu-item.model';
 
 /** Ítem "Inicio" siempre presente (encabeza el sidenav y es el fallback mínimo si el menú falla). */
 const HOME_ITEM: MenuItem = { label: 'Inicio', icon: 'home', route: '/' };
@@ -82,37 +82,33 @@ export class MainLayoutComponent {
     return name ? name.charAt(0).toUpperCase() : '?';
   });
 
+  /** Recarga el menú cuando el contexto de aplicación quedó resuelto (`version`, que bumpea al final
+   * de cada `load()` de login/impersonar/parar/F5) o cuando el usuario cambia de app a mano
+   * (`selectedId`). NO watcheamos `currentUserName` directo: cambia antes (sync, con el token) que
+   * la app (async), y dispararía una primera carga de menú con la aplicación vieja. `version`
+   * garantiza una única recarga, ya con (usuario + app) consistentes. Si el menú del backend falla
+   * (ej. 429, blip), NO cae al menú estático completo: mostraría TODAS las opciones a un usuario
+   * final. Tampoco conserva el anterior (tras impersonar sería el del usuario previo) — sólo
+   * "Inicio" hasta el próximo load exitoso (sentinel del `catchError`). */
+  private readonly menuResource = rxResource({
+    params: () => ({
+      version: this.aplicacionStore.version(),
+      selectedId: this.aplicacionStore.selectedId(),
+    }),
+    stream: () =>
+      this.menuService.getPrincipal().pipe(
+        map((tree) => this.toSections(tree)),
+        catchError(() => of<MenuSection[]>([{ label: null, items: [HOME_ITEM] }])),
+      ),
+  });
   /** Secciones del sidenav, agrupadas desde el menú del backend (por permisos). */
-  protected readonly menuSections = signal<MenuSection[]>([]);
+  protected readonly menuSections = computed(() => this.menuResource.value() ?? []);
   /** Sidenav en modo rail (sólo íconos, 84px) vs expandido (288px). En desktop, el hamburger lo alterna. */
   protected readonly collapsed = signal(false);
   /** Abierto/cerrado del sidenav en modo `over` (mobile). En desktop el sidenav está siempre abierto. */
   protected readonly opened = signal(false);
   /** Spinner del botón "Salir" del banner de impersonalización. */
   protected readonly stopping = signal(false);
-
-  constructor() {
-    // Recarga el menú cuando el contexto de aplicación quedó resuelto (`version`, que bumpea al
-    // final de cada `load()` de login/impersonar/parar/F5) o cuando el usuario cambia de app a mano
-    // (`selectedId`). NO watcheamos `currentUserName` directo: cambia antes (sync, con el token) que
-    // la app (async), y dispararía una primera carga de menú con la aplicación vieja. `version`
-    // garantiza una única recarga, ya con (usuario + app) consistentes.
-    effect(() => {
-      this.aplicacionStore.version();
-      this.aplicacionStore.selectedId();
-      this.loadMenu();
-    });
-  }
-
-  private loadMenu(): void {
-    this.menuService.getPrincipal().subscribe({
-      next: (tree) => this.menuSections.set(this.toSections(tree)),
-      // Si el menú del backend falla (ej. 429, blip), NO caer al menú estático completo: mostraría
-      // TODAS las opciones a un usuario final. Tampoco conservar el anterior (tras impersonar sería
-      // el del usuario previo). Dejamos solo "Inicio" hasta el próximo load exitoso.
-      error: () => this.menuSections.set([{ label: null, items: [HOME_ITEM] }]),
-    });
-  }
 
   /**
    * Hamburger. En mobile (`over`) abre/cierra el overlay; en desktop (`side`) alterna el rail.
@@ -158,9 +154,9 @@ export class MainLayoutComponent {
    * Agrupa el árbol del backend en las secciones del sidenav. La agrupación es **data-driven**: cada
    * menú padre de primer nivel es una sección y sus hojas navegables (rutas con `routePath` que
    * **exista** como ruta registrada en el front) son sus ítems. Antepone "Inicio" en una sección sin
-   * encabezado; etiqueta secciones e ítems vía `MENU_LABELS` (puente hasta i18n) e íconos vía
-   * `MENU_ICON_BY_CODE`; ordena secciones e ítems por el `orden` del backend. Una sección sin hojas
-   * navegables (todas sus features sin migrar) no se renderiza.
+   * encabezado; etiqueta secciones e ítems vía `MENU_LABELS` (puente hasta i18n); el ícono sale
+   * directo de `imagenWeb` (backend). Ordena secciones e ítems por el `orden` del backend. Una
+   * sección sin hojas navegables (todas sus features sin migrar) no se renderiza.
    */
   private toSections(tree: MenuNode[]): MenuSection[] {
     const registered = this.registeredRoutes();
@@ -174,7 +170,7 @@ export class MainLayoutComponent {
           leaves.push({
             item: {
               label: MENU_LABELS[n.codigo] ?? n.nombre,
-              icon: MENU_ICON_BY_CODE[n.codigo] ?? n.imagenWeb ?? 'chevron_right',
+              icon: n.imagenWeb ?? 'chevron_right',
               // Normalizado a slash inicial: el `routerLink` resuelve igual (la ruta es absoluta
               // desde la raíz autenticada) y el `data-testid` queda estable (`nav-/usuarios`),
               // alineado con el `href` que renderiza el `<a>`.
@@ -200,7 +196,8 @@ export class MainLayoutComponent {
         continue;
       }
       const route = node.routePath ?? '';
-      const isNavigableLeaf = !!route && registered.has(route.replace(/^\//, '')) && !node.menuHijos?.length;
+      const isNavigableLeaf =
+        !!route && registered.has(route.replace(/^\//, '')) && !node.menuHijos?.length;
       if (isNavigableLeaf) {
         rootless.push(leaves[0]);
       } else {

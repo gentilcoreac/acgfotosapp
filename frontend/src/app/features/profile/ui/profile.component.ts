@@ -1,8 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -20,6 +20,7 @@ import { TbiButtonComponent } from '../../../shared/ui/tbi-button/tbi-button.com
 import { TbiStatusChipComponent } from '../../../shared/ui/tbi-status-chip/tbi-status-chip.component';
 import { TbiTextFieldComponent } from '../../../shared/ui/tbi-text-field/tbi-text-field.component';
 import { NotificationService } from '../../../shared/feedback/notification.service';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { ProfileService } from '../data/profile.service';
 import { Perfil } from '../domain/profile.model';
 
@@ -50,12 +51,15 @@ function passwordsMatch(group: AbstractControl): Record<string, boolean> | null 
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent {
   private readonly service = inject(ProfileService);
   private readonly notify = inject(NotificationService);
 
+  private readonly perfilResource = lookupResource(() => this.service.getPerfil(), null);
+  protected readonly loading = computed(() => this.perfilResource.isLoading());
+  /** Signal propia (no un `computed` del resource): `save()` la actualiza localmente tras un update
+   * exitoso, sin depender de un refetch. */
   protected readonly perfil = signal<Perfil | null>(null);
-  protected readonly loading = signal(true);
   protected readonly saving = signal(false);
   protected readonly changingPassword = signal(false);
 
@@ -99,19 +103,18 @@ export class ProfileComponent implements OnInit {
     { validators: passwordsMatch },
   );
 
-  ngOnInit(): void {
-    this.service.getPerfil().subscribe({
-      next: (perfil) => {
-        this.perfil.set(perfil);
-        this.datosForm.patchValue({
-          nombre: perfil.nombre ?? '',
-          apellido: perfil.apellido ?? '',
-          telefono: perfil.telefono != null ? String(perfil.telefono) : '',
-        });
-        this.loading.set(false);
-      },
-      // El errorInterceptor ya notifica; solo dejamos de mostrar el spinner de carga.
-      error: () => this.loading.set(false),
+  constructor() {
+    effect(() => {
+      const perfil = this.perfilResource.value();
+      if (!perfil) {
+        return;
+      }
+      this.perfil.set(perfil);
+      this.datosForm.patchValue({
+        nombre: perfil.nombre ?? '',
+        apellido: perfil.apellido ?? '',
+        telefono: perfil.telefono != null ? String(perfil.telefono) : '',
+      });
     });
   }
 

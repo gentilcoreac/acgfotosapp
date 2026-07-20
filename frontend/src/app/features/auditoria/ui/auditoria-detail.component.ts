@@ -1,10 +1,10 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { AuditoriaService } from '../data/auditoria.service';
-import { Auditoria } from '../domain/auditoria.model';
 
 /**
  * Detalle de un registro de auditoría (diálogo read-only). Carga el registro completo por id
@@ -18,20 +18,14 @@ import { Auditoria } from '../domain/auditoria.model';
   templateUrl: './auditoria-detail.component.html',
   styleUrl: './auditoria-detail.component.scss',
 })
-export class AuditoriaDetailComponent implements OnInit {
+export class AuditoriaDetailComponent {
   private readonly service = inject(AuditoriaService);
   private readonly data = inject<{ id: number }>(MAT_DIALOG_DATA);
 
-  protected readonly registro = signal<Auditoria | null>(null);
-  protected readonly loading = signal(true);
-
-  ngOnInit(): void {
-    this.service.getById(this.data.id).subscribe({
-      next: (registro) => {
-        this.registro.set(registro);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
-  }
+  private readonly registroResource = lookupResource(
+    () => this.service.getById(this.data.id),
+    null,
+  );
+  protected readonly registro = computed(() => this.registroResource.value() ?? null);
+  protected readonly loading = computed(() => this.registroResource.isLoading());
 }

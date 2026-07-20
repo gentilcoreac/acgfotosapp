@@ -67,8 +67,8 @@ contexto y cada widget observan el `tenantId` del token.
 | `ActividadChartWidget`  | Gráfico de activos + altas por mes       | `canAccess('/usuarios')`                 | 1 (`getActividadMensual`) |
 
 > `AccesosDirectosWidget` es lo más útil para el **usuario común** (su lanzadera): `menus/dashboard`
-> ya devuelve solo los menús que puede ver, marcados `VisibleDash`. Label/ícono salen del `codigo`
-> (`MENU_LABELS`/`MENU_ICON_BY_CODE`, igual que el sidenav).
+> ya devuelve solo los menús que puede ver, marcados `VisibleDash`. El label sale del `codigo`
+> (`MENU_LABELS`, igual que el sidenav); el ícono sale directo de `imagenWeb`.
 
 ## Cómo agregar…
 

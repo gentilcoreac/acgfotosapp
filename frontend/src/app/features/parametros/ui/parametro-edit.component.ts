@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormField, disabled, form, maxLength, required } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,6 +19,7 @@ import {
   TbiSelectOption,
 } from '../../../shared/ui/tbi-select/tbi-select.component';
 import { TbiTextFieldComponent } from '../../../shared/ui/tbi-text-field/tbi-text-field.component';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { ParametrosService } from '../data/parametros.service';
 import { Parametro, TIPO_DATO_OPTIONS } from '../domain/parametro.model';
 
@@ -47,7 +55,10 @@ export class ParametroEditComponent extends EditComponentBase<Parametro, Paramet
   private loaded?: Parametro;
 
   protected readonly tipoDatoOptions = TIPO_DATO_OPTIONS;
-  protected readonly aplicacionOptions = signal<TbiSelectOption<number>[]>([]);
+  private readonly aplicacionesResource = lookupResource(() => this.service.getAplicaciones(), []);
+  protected readonly aplicacionOptions = computed<TbiSelectOption<number>[]>(() =>
+    (this.aplicacionesResource.value() ?? []).map((a) => ({ value: a.id, label: a.nombre })),
+  );
   protected readonly permisoOptions = signal<TbiSelectOption<number>[]>([]);
 
   protected readonly model = signal<ParametroFormModel>({
@@ -112,15 +123,6 @@ export class ParametroEditComponent extends EditComponentBase<Parametro, Paramet
         permisos === null ? [] : permisos.map((p) => ({ value: p.id, label: p.nombre })),
       );
     });
-  }
-
-  override ngOnInit(): void {
-    super.ngOnInit();
-    this.service
-      .getAplicaciones()
-      .subscribe((aplicaciones) =>
-        this.aplicacionOptions.set(aplicaciones.map((a) => ({ value: a.id, label: a.nombre }))),
-      );
   }
 
   protected toEntity(): Parametro {

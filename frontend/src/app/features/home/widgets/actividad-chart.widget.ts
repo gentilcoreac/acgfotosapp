@@ -1,13 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
-import { Subscription, catchError, of } from 'rxjs';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 import { AuthStore } from '../../../core/auth';
 import { UsuariosService } from '../../usuarios/data/usuarios.service';
 import { ACTIVIDAD_MENSUAL_MESES, UsuarioActividadMes } from '../../usuarios/domain/usuario.model';
@@ -99,44 +92,32 @@ const MESES_ABBR = [
 export class ActividadChartWidget {
   private readonly usuariosService = inject(UsuariosService);
   private readonly store = inject(AuthStore);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly mesesVentana = ACTIVIDAD_MENSUAL_MESES;
 
-  private readonly serieData = signal<UsuarioActividadMes[] | null>(null);
+  /** Refetchea sola al cambiar el contexto (tenant del token: login / impersonar / parar). Cancela
+   * el pedido en vuelo anterior automáticamente (antes `Subscription`/`destroyRef` a mano). */
+  private readonly dataResource = rxResource({
+    params: () => this.store.tenantId(),
+    stream: () =>
+      this.usuariosService
+        .getActividadMensual()
+        .pipe(catchError(() => of<UsuarioActividadMes[]>([]))),
+  });
   /** Expuesto al template (la serie cargada, o null mientras carga). */
-  protected readonly serie = this.serieData.asReadonly();
-  private sub?: Subscription;
+  protected readonly serie = computed(() => this.dataResource.value() ?? null);
 
   protected readonly categorias = computed(() =>
-    (this.serieData() ?? []).map((m) => MESES_ABBR[m.mes - 1]),
+    (this.serie() ?? []).map((m) => MESES_ABBR[m.mes - 1]),
   );
   protected readonly series = computed<TbiBarSeries[]>(() => {
-    const serie = this.serieData() ?? [];
+    const serie = this.serie() ?? [];
     return [
       { name: 'Activos', tone: 'primary', values: serie.map((m) => m.activos) },
       { name: 'Altas', tone: 'tertiary', values: serie.map((m) => m.altas) },
     ];
   });
   protected readonly vacia = computed(() =>
-    (this.serieData() ?? []).every((m) => m.activos === 0 && m.altas === 0),
+    (this.serie() ?? []).every((m) => m.activos === 0 && m.altas === 0),
   );
-
-  constructor() {
-    // Recarga al cambiar el contexto (tenant del token: login / impersonar / parar).
-    effect(() => {
-      this.store.tenantId();
-      this.reload();
-    });
-    this.destroyRef.onDestroy(() => this.sub?.unsubscribe());
-  }
-
-  private reload(): void {
-    this.sub?.unsubscribe();
-    this.serieData.set(null);
-    this.sub = this.usuariosService
-      .getActividadMensual()
-      .pipe(catchError(() => of<UsuarioActividadMes[]>([])))
-      .subscribe((s) => this.serieData.set(s));
-  }
 }

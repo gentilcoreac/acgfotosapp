@@ -1,19 +1,12 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { Subscription, catchError, of } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { AuthStore } from '../../../core/auth';
 import { MenusService } from '../../menu/data/menus.service';
 import { MenuDash } from '../../menu/domain/menu.model';
-import { MENU_ICON_BY_CODE, MENU_LABELS } from '../../../layout/menu/menu-item.model';
+import { MENU_LABELS } from '../../../layout/menu/menu-item.model';
 
 /** Un acceso directo ya resuelto a presentación (label + ícono + ruta). */
 interface Acceso {
@@ -26,7 +19,8 @@ interface Acceso {
  * Widget de **accesos directos**: tiles sutiles a las secciones marcadas `VisibleDash`. La API
  * (`menus/dashboard`) ya las filtra por los permisos del usuario, así que no hace falta gatear acá
  * — se muestra lo que vuelve (si hay). Es lo más útil para el usuario común (su "lanzadera").
- * Label e ícono se resuelven por `codigo`, igual que el sidenav (`MENU_LABELS`/`MENU_ICON_BY_CODE`).
+ * Label se resuelve por `codigo` (`MENU_LABELS`), igual que el sidenav; el ícono sale directo de
+ * `imagenWeb` (backend).
  *
  * `:host { display: contents }` + sección a todo el ancho del grid del home.
  */
@@ -100,36 +94,22 @@ interface Acceso {
 export class AccesosDirectosWidget {
   private readonly menus = inject(MenusService);
   private readonly store = inject(AuthStore);
-  private readonly destroyRef = inject(DestroyRef);
 
-  private readonly data = signal<MenuDash[]>([]);
-  private sub?: Subscription;
+  /** Refetchea sola al cambiar el contexto (login / impersonar / parar): cambia el menú del usuario.
+   * Cancela el pedido en vuelo anterior automáticamente (antes `Subscription`/`destroyRef` a mano). */
+  private readonly dataResource = rxResource({
+    params: () => this.store.tenantId(),
+    stream: () => this.menus.getAccesosDirectos().pipe(catchError(() => of<MenuDash[]>([]))),
+  });
 
   /** Tiles a mostrar: descarta contenedores sin ruta y resuelve label/ícono por código. */
   protected readonly accesos = computed<Acceso[]>(() =>
-    this.data()
+    (this.dataResource.value() ?? [])
       .filter((m): m is MenuDash & { routePath: string } => m.routePath != null)
       .map((m) => ({
         label: MENU_LABELS[m.codigo] ?? m.nombre,
-        icon: MENU_ICON_BY_CODE[m.codigo] ?? m.imagenWeb ?? 'chevron_right',
+        icon: m.imagenWeb ?? 'chevron_right',
         route: m.routePath,
       })),
   );
-
-  constructor() {
-    // Recarga al cambiar el contexto (login / impersonar / parar): cambia el menú del usuario.
-    effect(() => {
-      this.store.tenantId();
-      this.reload();
-    });
-    this.destroyRef.onDestroy(() => this.sub?.unsubscribe());
-  }
-
-  private reload(): void {
-    this.sub?.unsubscribe();
-    this.sub = this.menus
-      .getAccesosDirectos()
-      .pipe(catchError(() => of<MenuDash[]>([])))
-      .subscribe((items) => this.data.set(items));
-  }
 }

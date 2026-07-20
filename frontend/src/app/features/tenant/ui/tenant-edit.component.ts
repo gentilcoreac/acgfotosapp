@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import {
   FormField,
   disabled,
@@ -19,6 +27,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
+import { catchError, of } from 'rxjs';
 import { EditComponentBase } from '../../../shared/forms/edit-component-base';
 import { NotificationService } from '../../../shared/feedback/notification.service';
 import { TbiButtonComponent } from '../../../shared/ui/tbi-button/tbi-button.component';
@@ -32,15 +41,9 @@ import {
 } from '../../../shared/ui/tbi-select/tbi-select.component';
 import { TbiTextFieldComponent } from '../../../shared/ui/tbi-text-field/tbi-text-field.component';
 import { plusOneYear, toDateInput, todayLocalIso } from '../../../shared/util/dates';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { TenantService } from '../data/tenant.service';
-import {
-  AplicacionOption,
-  Tenant,
-  TenantAdminInfo,
-  TenantLicencia,
-  TenantResource,
-  TipoLicenciaOption,
-} from '../domain/tenant.model';
+import { Tenant, TenantLicencia, TenantResource, TipoLicenciaOption } from '../domain/tenant.model';
 
 /** Slots de imagen del tenant (cada uno mapea a `${slot}Url` + `${slot}File` del modelo). */
 type ImageSlot =
@@ -115,12 +118,36 @@ export class TenantEditComponent extends EditComponentBase<Tenant, TenantFormMod
   protected readonly crud = this.service.crud;
   private loaded?: Tenant;
 
-  protected readonly aplicaciones = signal<AplicacionOption[]>([]);
-  protected readonly tiposLicencia = signal<TipoLicenciaOption[]>([]);
+  private readonly aplicacionesResource = lookupResource(() => this.service.getAplicaciones(), []);
+  protected readonly aplicaciones = computed(() => this.aplicacionesResource.value() ?? []);
+  private readonly tiposLicenciaResource = lookupResource(
+    () => this.service.getTiposLicencia(),
+    [],
+  );
+  protected readonly tiposLicencia = computed(() => this.tiposLicenciaResource.value() ?? []);
   protected readonly selectedAppIds = signal<ReadonlySet<number>>(new Set());
   protected readonly licenses = signal<TenantLicencia[]>([]);
-  /** Admin(es) del tenant en edición (solo lectura; se traen del endpoint dedicado). */
-  protected readonly adminUsuarios = signal<TenantAdminInfo[]>([]);
+  /** Admin(es) del tenant en edición (solo lectura; se traen del endpoint dedicado). `undefined`
+   * en alta: el resource no fetchea (`patchForm` setea esto sólo en edición). */
+  private readonly adminUsuariosTenantId = signal<number | undefined>(undefined);
+  private readonly adminUsuariosResource = rxResource({
+    params: () => this.adminUsuariosTenantId(),
+    stream: ({ params }) => this.service.getAdministradores(params).pipe(catchError(() => of([]))),
+  });
+  protected readonly adminUsuarios = computed(() => this.adminUsuariosResource.value() ?? []);
+
+  constructor() {
+    super();
+    // En alta, precargar las licencias default del nuevo tenant apenas se conocen los tipos.
+    effect(() => {
+      const tipos = this.tiposLicenciaResource.value();
+      if (tipos !== undefined && !this.isEdit && this.licenses().length === 0) {
+        this.licenses.set(
+          tipos.filter((t) => t.esDefaultParaNuevoTenant).map((t) => this.newLicenseRow(t.id)),
+        );
+      }
+    });
+  }
 
   protected readonly model = signal<TenantFormModel>({
     codigo: '',
@@ -232,30 +259,6 @@ export class TenantEditComponent extends EditComponentBase<Tenant, TenantFormMod
           .map((t) => t.id),
       ),
   );
-
-  override ngOnInit(): void {
-    super.ngOnInit();
-
-    this.service.getAplicaciones().subscribe({
-      next: (apps) => this.aplicaciones.set(apps),
-      // el toast de error lo emite el errorInterceptor (global)
-      error: () => undefined,
-    });
-
-    this.service.getTiposLicencia().subscribe({
-      next: (tipos) => {
-        this.tiposLicencia.set(tipos);
-        // En alta, precargar las licencias default del nuevo tenant (una vez tenemos los tipos).
-        if (!this.isEdit && this.licenses().length === 0) {
-          this.licenses.set(
-            tipos.filter((t) => t.esDefaultParaNuevoTenant).map((t) => this.newLicenseRow(t.id)),
-          );
-        }
-      },
-      // el toast de error lo emite el errorInterceptor (global)
-      error: () => undefined,
-    });
-  }
 
   // ---- Aplicaciones -----------------------------------------------------------------------------
   protected toggleApp(aplicacionId: number, checked: boolean): void {
@@ -432,13 +435,7 @@ export class TenantEditComponent extends EditComponentBase<Tenant, TenantFormMod
     this.loaded = entity;
 
     // Admin(es) del tenant: endpoint dedicado (solo lectura). No viene en el detalle ni se reenvía.
-    if (entity.id != null) {
-      this.service.getAdministradores(entity.id).subscribe({
-        next: (admins) => this.adminUsuarios.set(admins),
-        // el toast de error lo emite el errorInterceptor (global)
-        error: () => undefined,
-      });
-    }
+    this.adminUsuariosTenantId.set(entity.id ?? undefined);
 
     this.model.update((m) => ({
       ...m,

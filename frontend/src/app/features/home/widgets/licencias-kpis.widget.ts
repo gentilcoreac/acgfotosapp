@@ -1,13 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
-import { Subscription, catchError, of } from 'rxjs';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 import { AuthStore } from '../../../core/auth';
 import { LicenciasService } from '../../licencias/data/licencias.service';
 import { LicenciaResumen } from '../../licencias/domain/licencia-resumen.model';
@@ -56,13 +49,17 @@ interface LicenciaKpi {
 export class LicenciasKpisWidget {
   private readonly licenciasService = inject(LicenciasService);
   private readonly store = inject(AuthStore);
-  private readonly destroyRef = inject(DestroyRef);
 
-  private readonly resumen = signal<LicenciaResumen[] | null>(null);
-  private sub?: Subscription;
+  /** Refetchea sola al cambiar el contexto (tenant del token: login / impersonar / parar). Cancela
+   * el pedido en vuelo anterior automáticamente (antes `Subscription`/`destroyRef` a mano). */
+  private readonly resumenResource = rxResource({
+    params: () => this.store.tenantId(),
+    stream: () =>
+      this.licenciasService.getResumen().pipe(catchError(() => of<LicenciaResumen[]>([]))),
+  });
 
   protected readonly cards = computed<LicenciaKpi[]>(() => {
-    const resumen = this.resumen();
+    const resumen = this.resumenResource.value();
     if (resumen == null) {
       return [];
     }
@@ -81,22 +78,4 @@ export class LicenciasKpisWidget {
     }
     return cards;
   });
-
-  constructor() {
-    // Recarga al cambiar el contexto (tenant del token: login / impersonar / parar).
-    effect(() => {
-      this.store.tenantId();
-      this.reload();
-    });
-    this.destroyRef.onDestroy(() => this.sub?.unsubscribe());
-  }
-
-  private reload(): void {
-    this.sub?.unsubscribe();
-    this.resumen.set(null);
-    this.sub = this.licenciasService
-      .getResumen()
-      .pipe(catchError(() => of<LicenciaResumen[]>([])))
-      .subscribe((r) => this.resumen.set(r));
-  }
 }

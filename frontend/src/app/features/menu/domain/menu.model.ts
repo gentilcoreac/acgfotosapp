@@ -69,7 +69,8 @@ export interface Menu extends EditableEntity {
 /**
  * Acceso directo del home (`GET menus/dashboard`): un menú marcado `VisibleDash`, ya **filtrado por
  * los permisos del usuario** en el backend. `routePath` null = contenedor sin pantalla (se descarta).
- * El label/ícono se resuelven por `codigo` (igual que el sidenav) vía `MENU_LABELS`/`MENU_ICON_BY_CODE`.
+ * El label se resuelve por `codigo` (igual que el sidenav) vía `MENU_LABELS`; el ícono sale directo
+ * de `imagenWeb`.
  */
 export interface MenuDash {
   id: number;

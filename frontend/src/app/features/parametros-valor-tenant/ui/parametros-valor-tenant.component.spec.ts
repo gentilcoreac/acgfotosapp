@@ -120,7 +120,7 @@ describe('ParametrosValorTenantComponent', () => {
   });
 
   it('al elegir tenant carga las aplicaciones del tenant', async () => {
-    const { cmp } = await setup();
+    const { fixture, cmp } = await setup();
     service.getAplicacionesPorTenant.mockReturnValue(
       of([
         { id: 1, nombre: 'General' },
@@ -129,15 +129,21 @@ describe('ParametrosValorTenantComponent', () => {
     );
 
     cmp.tenantControl.setValue(4);
+    fixture.detectChanges();
 
     expect(service.getAplicacionesPorTenant).toHaveBeenCalledWith(4);
     expect(cmp.aplicaciones().length).toBe(2);
   });
 
   it('si el tenant tiene una sola aplicación la autoselecciona y carga los parámetros', async () => {
-    const { cmp } = await setup();
+    const { fixture, cmp } = await setup();
 
     cmp.tenantControl.setValue(4);
+    fixture.detectChanges();
+    // La autoselección de la única aplicación dispara un segundo ciclo de reactividad (nuevo valor
+    // de `aplicacionControl` → `parametrosResource` refetchea) — una sola pasada de detectChanges
+    // no alcanza a propagar ambos.
+    fixture.detectChanges();
 
     expect(cmp.aplicacionControl.value).toBe(1);
     expect(service.getParametros).toHaveBeenCalledWith(4, 1);
@@ -146,8 +152,10 @@ describe('ParametrosValorTenantComponent', () => {
   });
 
   it('guardar un valor hace upsert (id ausente = alta) y actualiza la fila con el id del override', async () => {
-    const { cmp } = await setup();
+    const { fixture, cmp } = await setup();
     cmp.tenantControl.setValue(4);
+    fixture.detectChanges();
+    fixture.detectChanges();
     const row = cmp.rows()[0];
 
     cmp.startEdit(row);
@@ -167,9 +175,11 @@ describe('ParametrosValorTenantComponent', () => {
   });
 
   it('guardar un booleano envía "true"/"false"', async () => {
-    const { cmp } = await setup();
+    const { fixture, cmp } = await setup();
     service.getParametros.mockReturnValue(of([overriddenBoolRow()]));
     cmp.tenantControl.setValue(4);
+    fixture.detectChanges();
+    fixture.detectChanges();
     const row = cmp.rows()[0];
 
     cmp.startEdit(row);
@@ -185,9 +195,11 @@ describe('ParametrosValorTenantComponent', () => {
   });
 
   it('restaurar borra el override y deja el valor por defecto', async () => {
-    const { cmp } = await setup();
+    const { fixture, cmp } = await setup();
     service.getParametros.mockReturnValue(of([overriddenBoolRow()]));
     cmp.tenantControl.setValue(4);
+    fixture.detectChanges();
+    fixture.detectChanges();
     const row = cmp.rows()[0];
 
     cmp.restoreFn(row)().subscribe();

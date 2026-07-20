@@ -85,10 +85,11 @@ describe('ImpersonationDialogComponent', () => {
   });
 
   it('onTenantChange carga los usuarios del tenant elegido', async () => {
-    const { cmp } = await setup();
+    const { fixture, cmp } = await setup();
     impersonation.getImpersonatableUsers.mockReturnValue(of([sampleUser]));
 
     cmp.onTenantChange(4);
+    fixture.detectChanges();
 
     expect(impersonation.getImpersonatableUsers).toHaveBeenCalledWith(4);
     expect(cmp.users()).toEqual([sampleUser]);
@@ -97,25 +98,28 @@ describe('ImpersonationDialogComponent', () => {
   });
 
   it('si falla la carga de usuarios muestra un error y corta el loading', async () => {
-    const { cmp } = await setup();
+    const { fixture, cmp } = await setup();
     impersonation.getImpersonatableUsers.mockReturnValue(throwError(() => new Error('boom')));
 
     cmp.onTenantChange(4);
+    fixture.detectChanges();
 
     expect(cmp.loadingUsers()).toBe(false);
     expect(cmp.error()).toBe('No se pudieron cargar los usuarios del tenant seleccionado.');
   });
 
   it('al cambiar de tenant limpia el error previo', async () => {
-    const { cmp } = await setup();
+    const { fixture, cmp } = await setup();
     impersonation.getImpersonatableUsers
       .mockReturnValueOnce(throwError(() => new Error('boom')))
       .mockReturnValueOnce(of([sampleUser]));
 
     cmp.onTenantChange(4);
+    fixture.detectChanges();
     expect(cmp.error()).not.toBeNull();
 
     cmp.onTenantChange(7);
+    fixture.detectChanges();
     expect(cmp.error()).toBeNull();
     expect(cmp.users()).toEqual([sampleUser]);
   });

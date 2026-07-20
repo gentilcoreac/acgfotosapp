@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
+  computed,
   inject,
   signal,
   viewChild,
@@ -15,6 +15,7 @@ import { Observable, EMPTY, tap } from 'rxjs';
 import { QueryParams } from '../../../core/models/query-params.model';
 import { NotificationService } from '../../../shared/feedback/notification.service';
 import { TbiRowAction } from '../../../shared/ui/tbi-row-actions/tbi-row-actions.component';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import {
   TbiSelectComponent,
   TbiSelectOption,
@@ -42,7 +43,7 @@ import { MenuEditComponent } from './menu-edit.component';
   templateUrl: './menus-list.component.html',
   styleUrl: './menus-list.component.scss',
 })
-export class MenusListComponent implements OnInit {
+export class MenusListComponent {
   private readonly service = inject(MenusService);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
@@ -69,7 +70,11 @@ export class MenusListComponent implements OnInit {
 
   /** Filtro opcional por aplicación (la API lo soporta en el criteria). `null` = todas. */
   protected readonly aplicacionFilter = new FormControl<number | null>(null);
-  protected readonly aplicacionOptions = signal<TbiSelectOption<number | null>[]>([]);
+  private readonly aplicacionesResource = lookupResource(() => this.service.getAplicaciones(), []);
+  protected readonly aplicacionOptions = computed<TbiSelectOption<number | null>[]>(() => [
+    { value: null, label: 'Todas las aplicaciones' },
+    ...(this.aplicacionesResource.value() ?? []).map((a) => ({ value: a.id, label: a.nombre })),
+  ]);
   protected readonly filters = signal<QueryParams>({});
 
   protected readonly fetch = (query: QueryParams) => this.service.crud.getAllByCriteria(query);
@@ -92,17 +97,6 @@ export class MenusListComponent implements OnInit {
     this.aplicacionFilter.valueChanges.pipe(takeUntilDestroyed()).subscribe((aplicacionId) => {
       this.filters.set(aplicacionId == null ? {} : { aplicacionId });
     });
-  }
-
-  ngOnInit(): void {
-    this.service
-      .getAplicaciones()
-      .subscribe((aplicaciones) =>
-        this.aplicacionOptions.set([
-          { value: null, label: 'Todas las aplicaciones' },
-          ...aplicaciones.map((a) => ({ value: a.id, label: a.nombre })),
-        ]),
-      );
   }
 
   protected add(): void {

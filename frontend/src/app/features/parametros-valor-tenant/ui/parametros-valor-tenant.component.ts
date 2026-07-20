@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
+import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,7 +14,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { EMPTY, Observable, catchError, tap } from 'rxjs';
+import { EMPTY, Observable, catchError, of, tap } from 'rxjs';
 import { ConfirmData } from '../../../shared/feedback/confirm-dialog.component';
 import { NotificationService } from '../../../shared/feedback/notification.service';
 import { TbiCellInputComponent } from '../../../shared/ui/tbi-cell-input/tbi-cell-input.component';
@@ -16,6 +23,7 @@ import {
   TbiSelectComponent,
   TbiSelectOption,
 } from '../../../shared/ui/tbi-select/tbi-select.component';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { ParametrosValorTenantService } from '../data/parametros-valor-tenant.service';
 import {
   ParametroValorRow,
@@ -70,15 +78,48 @@ export class ParametrosValorTenantComponent {
     disabled: true,
   });
 
-  protected readonly tenantOptions = signal<TbiSelectOption<number>[]>([]);
-  protected readonly aplicaciones = signal<{ id: number; nombre: string }[]>([]);
+  private readonly tenantsResource = lookupResource(() => this.service.getTenants(), []);
+  protected readonly tenantOptions = computed(() =>
+    (this.tenantsResource.value() ?? []).map(toTenantOption),
+  );
+
+  /** Señal de los `FormControl` (Reactive Forms, no Signal Forms acá) — alimenta los `rxResource`
+   * dependientes de abajo. */
+  private readonly tenantId = toSignal(this.tenantControl.valueChanges, {
+    initialValue: this.tenantControl.value,
+  });
+  private readonly aplicacionId = toSignal(this.aplicacionControl.valueChanges, {
+    initialValue: this.aplicacionControl.value,
+  });
+
+  /** Refetchea sola cuando cambia el tenant elegido (cancela el pedido en vuelo anterior). */
+  private readonly aplicacionesResource = rxResource({
+    params: () => this.tenantId() ?? undefined,
+    stream: ({ params }) =>
+      this.service.getAplicacionesPorTenant(params).pipe(catchError(() => of([]))),
+  });
+  protected readonly aplicaciones = computed(() => this.aplicacionesResource.value() ?? []);
   protected readonly aplicacionOptions = computed<TbiSelectOption<number>[]>(() =>
     this.aplicaciones().map((a) => ({ value: a.id, label: a.nombre })),
   );
+  protected readonly loadingApps = computed(() => this.aplicacionesResource.isLoading());
 
+  /** Refetchea sola cuando cambia tenant o aplicación (cancela el pedido en vuelo anterior). */
+  private readonly parametrosResource = rxResource({
+    params: () => {
+      const tenantId = this.tenantId();
+      const aplicacionId = this.aplicacionId();
+      return tenantId != null && aplicacionId != null ? { tenantId, aplicacionId } : undefined;
+    },
+    stream: ({ params }) =>
+      this.service
+        .getParametros(params.tenantId, params.aplicacionId)
+        .pipe(catchError(() => of([]))),
+  });
+  /** Signal propia (no un `computed` del resource): se edita en el momento tras guardar/restaurar,
+   * sin depender de un refetch. */
   protected readonly rows = signal<ParametroValorRow[]>([]);
-  protected readonly loading = signal(false);
-  protected readonly loadingApps = signal(false);
+  protected readonly loading = computed(() => this.parametrosResource.isLoading());
   /** `true` una vez que se ejecutó una búsqueda (para diferenciar "vacío" de "todavía no buscó"). */
   protected readonly searched = signal(false);
 
@@ -88,32 +129,49 @@ export class ParametrosValorTenantComponent {
   protected readonly boolEdit = signal(false);
 
   constructor() {
-    this.service.getTenants().subscribe({
-      next: (tenants) => this.tenantOptions.set(tenants.map(toTenantOption)),
-      // el toast de error lo emite el errorInterceptor (global)
-      error: () => undefined,
+    // Vuelca el resultado del fetch de parámetros a la signal propia (editable localmente).
+    effect(() => {
+      const rows = this.parametrosResource.value();
+      if (rows !== undefined) {
+        this.rows.set(rows);
+        this.searched.set(true);
+      }
     });
 
-    // Cambio de tenant: resetea aplicación/grilla y recarga las aplicaciones habilitadas del tenant.
+    // Si el tenant tiene una sola aplicación, la autoselecciona (dispara el fetch de parámetros
+    // solo, vía `aplicacionId`) — comparado contra el valor VIGENTE del control, no un flag
+    // "consumido" (mismo criterio que toda la migración a rxResource).
+    effect(() => {
+      const apps = this.aplicacionesResource.value();
+      if (apps && apps.length === 1 && this.aplicacionControl.value !== apps[0].id) {
+        this.aplicacionControl.setValue(apps[0].id);
+      }
+    });
+
+    // Habilita el selector de aplicación apenas hay una respuesta (éxito o fail-open a vacío).
+    effect(() => {
+      if (this.tenantId() != null && this.aplicacionesResource.value() !== undefined) {
+        this.aplicacionControl.enable({ emitEvent: false });
+      }
+    });
+
+    // Cambio de tenant: resetea aplicación/grilla (estado de UI, no fetch — `aplicacionesResource`
+    // refetchea sola vía `tenantId`).
     this.tenantControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((tenantId) => {
       this.resetSeleccion();
       if (tenantId == null) {
         this.aplicacionControl.disable({ emitEvent: false });
-        return;
       }
-      this.loadAplicaciones(tenantId);
     });
 
-    // Cambio de aplicación: con tenant + app elegidos, carga los parámetros.
+    // Cambio de aplicación: limpia la edición en curso; si se deselecciona, limpia la grilla
+    // (`parametrosResource` refetchea sola vía `aplicacionId` cuando se elige una).
     this.aplicacionControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((aplicacionId) => {
       this.editingId.set(null);
-      const tenantId = this.tenantControl.value;
-      if (tenantId == null || aplicacionId == null) {
+      if (aplicacionId == null) {
         this.rows.set([]);
         this.searched.set(false);
-        return;
       }
-      this.loadParametros(tenantId, aplicacionId);
     });
   }
 
@@ -192,43 +250,6 @@ export class ParametrosValorTenantComponent {
     };
   }
 
-  private loadAplicaciones(tenantId: number): void {
-    this.loadingApps.set(true);
-    this.service.getAplicacionesPorTenant(tenantId).subscribe({
-      next: (apps) => {
-        this.aplicaciones.set(apps);
-        this.loadingApps.set(false);
-        this.aplicacionControl.enable({ emitEvent: false });
-        // Si el tenant tiene una sola aplicación, la elegimos y disparamos la carga (como el original).
-        if (apps.length === 1) {
-          this.aplicacionControl.setValue(apps[0].id);
-        }
-      },
-      error: () => {
-        this.loadingApps.set(false);
-        this.aplicaciones.set([]);
-        this.aplicacionControl.disable({ emitEvent: false });
-      },
-    });
-  }
-
-  private loadParametros(tenantId: number, aplicacionId: number): void {
-    this.loading.set(true);
-    this.searched.set(false);
-    this.service.getParametros(tenantId, aplicacionId).subscribe({
-      next: (rows) => {
-        this.rows.set(rows);
-        this.loading.set(false);
-        this.searched.set(true);
-      },
-      error: () => {
-        this.rows.set([]);
-        this.loading.set(false);
-        this.searched.set(true);
-      },
-    });
-  }
-
   /** Actualiza una fila inmutablemente (el resto de la grilla no se re-renderiza de más). */
   private patchRow(parametroId: number, patch: Partial<ParametroValorRow>): void {
     this.rows.update((list) => list.map((r) => (r.id === parametroId ? { ...r, ...patch } : r)));
@@ -237,7 +258,6 @@ export class ParametrosValorTenantComponent {
   /** Limpia aplicación y grilla al cambiar de tenant. */
   private resetSeleccion(): void {
     this.aplicacionControl.setValue(null, { emitEvent: false });
-    this.aplicaciones.set([]);
     this.rows.set([]);
     this.searched.set(false);
     this.editingId.set(null);

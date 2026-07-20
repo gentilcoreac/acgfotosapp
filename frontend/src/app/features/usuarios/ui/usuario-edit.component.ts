@@ -6,7 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { rxResource } from '@angular/core/rxjs-interop';
 import {
   FormField,
   disabled,
@@ -43,14 +43,13 @@ import {
   TbiSelectOption,
 } from '../../../shared/ui/tbi-select/tbi-select.component';
 import { TbiTextFieldComponent } from '../../../shared/ui/tbi-text-field/tbi-text-field.component';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { toggleInSet } from '../../../shared/util/collections';
 import { UsuariosService } from '../data/usuarios.service';
 import {
-  AplicacionOption,
   RolEfectivo,
   ROLES_USUARIO_DESCRIPCION,
   RolOption,
-  TipoLicenciaOption,
   Usuario,
 } from '../domain/usuario.model';
 
@@ -102,12 +101,23 @@ export class UsuarioEditComponent extends EditComponentBase<Usuario, UsuarioForm
   protected readonly isRoot = inject(AuthStore).isRoot;
   private originalAdministrador = false;
 
-  protected readonly tiposLicencia = signal<TipoLicenciaOption[]>([]);
+  private readonly tiposLicenciaResource = lookupResource(
+    () => this.service.getTiposLicencia(),
+    [],
+  );
+  protected readonly tiposLicencia = computed(() => this.tiposLicenciaResource.value() ?? []);
   /** Roles que habilita la licencia elegida (la lista a asignar depende de la licencia). */
   protected readonly licenseRoles = signal<RolOption[]>([]);
 
-  /** Resumen de licencias del tenant (estado de vencimiento por tipo) para avisar en el ABM. */
-  private readonly resumenLicencias = signal<LicenciaResumen[]>([]);
+  /** Resumen de licencias del tenant (estado de vencimiento por tipo) para avisar en el ABM. Root no
+   * tiene licencias de negocio (ver `UsuariosListComponent`), así que no se pide (`params`
+   * `undefined` = no fetchea). */
+  private readonly resumenLicenciasResource = rxResource({
+    params: () => (this.isRoot() ? undefined : true),
+    stream: () =>
+      this.licenciasService.getResumen().pipe(catchError(() => of<LicenciaResumen[]>([]))),
+  });
+  private readonly resumenLicencias = computed(() => this.resumenLicenciasResource.value() ?? []);
 
   protected readonly model = signal<UsuarioFormModel>({
     userName: '',
@@ -209,7 +219,8 @@ export class UsuarioEditComponent extends EditComponentBase<Usuario, UsuarioForm
         return 'none';
     }
   });
-  protected readonly aplicaciones = signal<AplicacionOption[]>([]);
+  private readonly aplicacionesResource = lookupResource(() => this.service.getAplicaciones(), []);
+  protected readonly aplicaciones = computed(() => this.aplicacionesResource.value() ?? []);
   protected readonly selectedRoleIds = signal<ReadonlySet<number>>(new Set());
   protected readonly selectedAppIds = signal<ReadonlySet<number>>(new Set());
 
@@ -218,10 +229,29 @@ export class UsuarioEditComponent extends EditComponentBase<Usuario, UsuarioForm
    * se guardan acá: se derivan del form (`selectedRoleIds`) para que la tab sea reactiva a lo que se
    * edita sin guardar. Solo en edición.
    */
-  private readonly grupoRolesEfectivos = signal<RolEfectivo[]>([]);
+  /** Usuario cargado (edición): dispara `rolesEfectivosResource`. `undefined` en alta (no fetchea). */
+  private readonly rolesEfectivosUsuarioId = signal<number | undefined>(undefined);
+  /** Roles efectivos del back, para el usuario ya cargado — reemplaza al `subscribe()` imperativo de
+   * `loadRolesEfectivos` (ahora portado a `rxResource`). */
+  private readonly rolesEfectivosResource = rxResource({
+    params: () => this.rolesEfectivosUsuarioId(),
+    stream: ({ params: usuarioId }) =>
+      this.service
+        .getRolesEfectivos(usuarioId)
+        // el toast de error lo emite el errorInterceptor (global)
+        .pipe(catchError(() => of<RolEfectivo[]>([]))),
+  });
+  /** Origen **grupo** únicamente (los directos los aporta el form) — combinado con éstos en
+   * `rolesEfectivos` (computed más abajo). */
+  private readonly grupoRolesEfectivos = computed(() =>
+    (this.rolesEfectivosResource.value() ?? []).filter((r) => r.origen === 'Grupo'),
+  );
   /** Descripciones de rol cacheadas del fetch (cubre roles que no estén en la licencia actual). */
-  private readonly rolDescripciones = signal<ReadonlyMap<number, string>>(new Map());
-  protected readonly loadingEfectivos = signal(false);
+  private readonly rolDescripciones = computed(
+    () =>
+      new Map((this.rolesEfectivosResource.value() ?? []).map((r) => [r.rolId, r.rolDescripcion])),
+  );
+  protected readonly loadingEfectivos = computed(() => this.rolesEfectivosResource.isLoading());
 
   /**
    * Roles efectivos a mostrar = **directos** (del form, reactivos) ∪ **de grupo** (del back), cada uno
@@ -315,32 +345,6 @@ export class UsuarioEditComponent extends EditComponentBase<Usuario, UsuarioForm
     });
   }
 
-  override ngOnInit(): void {
-    super.ngOnInit();
-    this.service.getTiposLicencia().subscribe({
-      next: (tipos) => this.tiposLicencia.set(tipos),
-      // el toast de error lo emite el errorInterceptor (global)
-      error: () => undefined,
-    });
-    this.service.getAplicaciones().subscribe({
-      next: (apps) => this.aplicaciones.set(apps),
-      // el toast de error lo emite el errorInterceptor (global)
-      error: () => undefined,
-    });
-
-    // Resumen de licencias del tenant para el aviso de vencimiento. Root no tiene licencias de
-    // negocio (ver UsuariosListComponent), así que no lo pedimos.
-    if (!this.isRoot()) {
-      this.licenciasService
-        .getResumen()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (resumen) => this.resumenLicencias.set(resumen),
-          error: () => this.resumenLicencias.set([]),
-        });
-    }
-  }
-
   protected toggleRole(rolId: number, checked: boolean): void {
     this.selectedRoleIds.update((current) => toggleInSet(current, rolId, checked));
   }
@@ -417,28 +421,7 @@ export class UsuarioEditComponent extends EditComponentBase<Usuario, UsuarioForm
     });
     this.selectedAppIds.set(new Set((entity.usuarioAplicaciones ?? []).map((a) => a.aplicacionId)));
     this.selectedRoleIds.set(new Set((entity.roles ?? []).map((r) => r.rolId)));
-    this.loadRolesEfectivos(entity.id);
-  }
-
-  /**
-   * Trae del back los roles efectivos del usuario. Solo conserva los de **origen grupo** (los directos
-   * los aporta el form, reactivos) y cachea las descripciones. La tab (`rolesEfectivos`, computed) los
-   * combina con los directos del form.
-   */
-  private loadRolesEfectivos(usuarioId?: number): void {
-    if (usuarioId == null) {
-      this.grupoRolesEfectivos.set([]);
-      return;
-    }
-    this.loadingEfectivos.set(true);
-    this.service.getRolesEfectivos(usuarioId).subscribe({
-      next: (roles) => {
-        this.grupoRolesEfectivos.set(roles.filter((r) => r.origen === 'Grupo'));
-        this.rolDescripciones.set(new Map(roles.map((r) => [r.rolId, r.rolDescripcion])));
-        this.loadingEfectivos.set(false);
-      },
-      error: () => this.loadingEfectivos.set(false),
-    });
+    this.rolesEfectivosUsuarioId.set(entity.id);
   }
 
   /** Bloquea/desbloquea por el endpoint dedicado (sólo en edición; necesita el userName). */

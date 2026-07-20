@@ -1,10 +1,10 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { LogsService } from '../data/logs.service';
-import { LogInfo } from '../domain/log.model';
 
 /**
  * Detalle de una entrada de log (diálogo read-only). Carga el registro COMPLETO por id (el listado va
@@ -17,20 +17,14 @@ import { LogInfo } from '../domain/log.model';
   templateUrl: './log-detail.component.html',
   styleUrl: './log-detail.component.scss',
 })
-export class LogDetailComponent implements OnInit {
+export class LogDetailComponent {
   private readonly service = inject(LogsService);
   private readonly data = inject<{ id: number }>(MAT_DIALOG_DATA);
 
-  protected readonly log = signal<LogInfo | null>(null);
-  protected readonly loading = signal(true);
-
-  ngOnInit(): void {
-    this.service.getByIdAllTenants(this.data.id).subscribe({
-      next: (log) => {
-        this.log.set(log);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
-  }
+  private readonly logResource = lookupResource(
+    () => this.service.getByIdAllTenants(this.data.id),
+    null,
+  );
+  protected readonly log = computed(() => this.logResource.value() ?? null);
+  protected readonly loading = computed(() => this.logResource.isLoading());
 }

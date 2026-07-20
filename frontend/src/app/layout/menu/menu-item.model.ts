@@ -59,24 +59,3 @@ export const MENU_LABELS: Readonly<Record<string, string>> = {
   Grupos: 'Grupos',
   Endpoints: 'Endpoints',
 };
-
-/**
- * Íconos del sidenav por `codigo` de menú (Material Icons). Override visual del diseño M3: el seed
- * trae `imagenWeb`, pero varios apuntan a íconos pobres o repetidos (p. ej. `Parametros` = `home`).
- * Para códigos no listados se cae a `imagenWeb` y, si tampoco hay, a `chevron_right`. No rompe los
- * menús dinámicos: un código nuevo simplemente usa su `imagenWeb`.
- */
-export const MENU_ICON_BY_CODE: Readonly<Record<string, string>> = {
-  Tenants: 'apartment',
-  Aplicaciones: 'apps',
-  TiposLicencias: 'badge',
-  Roles: 'shield',
-  Permisos: 'verified_user',
-  Menus: 'list',
-  Parametros: 'tune',
-  ParametroValorTenant: 'settings_suggest',
-  UsuariosRoot: 'group',
-  Usuarios: 'group',
-  Grupos: 'groups',
-  Endpoints: 'api',
-};

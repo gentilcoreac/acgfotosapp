@@ -22,8 +22,9 @@ import {
 } from '../../../shared/ui/tbi-search-select/tbi-search-select.component';
 import { TbiTextFieldComponent } from '../../../shared/ui/tbi-text-field/tbi-text-field.component';
 import { toggleInSet } from '../../../shared/util/collections';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { GruposService, UsuarioBusqueda } from '../data/grupos.service';
-import { Grupo, RolOption, UsuarioGrupo } from '../domain/grupo.model';
+import { Grupo, UsuarioGrupo } from '../domain/grupo.model';
 
 interface GrupoFormModel {
   nombre: string;
@@ -56,7 +57,8 @@ export class GrupoEditComponent extends EditComponentBase<Grupo, GrupoFormModel>
   private loaded?: Grupo;
 
   /** Roles disponibles (lookup) y los que otorga el grupo (checkboxes). El grupo los hereda a sus miembros. */
-  protected readonly roles = signal<RolOption[]>([]);
+  private readonly rolesResource = lookupResource(() => this.service.getRoles(), []);
+  protected readonly roles = computed(() => this.rolesResource.value() ?? []);
   protected readonly selectedRolIds = signal<ReadonlySet<number>>(new Set());
 
   protected readonly model = signal<GrupoFormModel>({
@@ -101,11 +103,6 @@ export class GrupoEditComponent extends EditComponentBase<Grupo, GrupoFormModel>
   /** Búsqueda server-side de usuarios (typeahead); de paso registra la licencia de cada resultado. */
   protected readonly searchUsuarios = (term: string): Observable<UsuarioBusqueda[]> =>
     this.service.searchUsuarios(term).pipe(tap((usuarios) => this.registrarLicencias(usuarios)));
-
-  override ngOnInit(): void {
-    super.ngOnInit();
-    this.service.getRoles().subscribe((roles) => this.roles.set(roles));
-  }
 
   /** Mergea en el mapa la licencia de cada usuario (de búsqueda o de los miembros cargados). */
   private registrarLicencias(

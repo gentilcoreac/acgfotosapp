@@ -9,7 +9,6 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -27,8 +26,9 @@ import {
   TbiTableComponent,
 } from '../../../shared/ui/tbi-table/tbi-table.component';
 import { TbiRowAction } from '../../../shared/ui/tbi-row-actions/tbi-row-actions.component';
+import { lookupResource } from '../../../shared/util/lookup-resource';
 import { LogsService } from '../data/logs.service';
-import { LogInfo, TenantLookup } from '../domain/log.model';
+import { LogInfo } from '../domain/log.model';
 import { LogDetailComponent } from './log-detail.component';
 
 /** Tono del chip según el nivel del log (Error/Fatal rojo, Warning ámbar, resto neutro). */
@@ -92,7 +92,8 @@ export class LogsListComponent {
   ];
 
   /** Tenants para el filtro y para resolver el nombre en la columna (root ve todos). */
-  private readonly tenants = signal<TenantLookup[]>([]);
+  private readonly tenantsResource = lookupResource(() => this.service.getTenants(), []);
+  private readonly tenants = computed(() => this.tenantsResource.value() ?? []);
   private readonly tenantNombre = computed(
     () => new Map(this.tenants().map((t) => [t.id, t.nombre])),
   );
@@ -132,11 +133,6 @@ export class LogsListComponent {
   ];
 
   constructor() {
-    this.service
-      .getTenants()
-      .pipe(takeUntilDestroyed())
-      .subscribe({ next: (t) => this.tenants.set(t), error: () => this.tenants.set([]) });
-
     // Apaga el spinner del botón "Filtrar" cuando la tabla termina de cargar.
     effect(() => {
       if (this.table()?.loading() === false) {
