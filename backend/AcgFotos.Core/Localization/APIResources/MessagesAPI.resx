@@ -249,6 +249,9 @@
   <data name="ErrorEmailNotValid" xml:space="preserve">
     <value>Formato de Email Inválido</value>
   </data>
+  <data name="ErrorEmailCredentials" xml:space="preserve">
+    <value>Usuario y Password de email deben estar ambos vacíos (login anónimo) o ambos completos</value>
+  </data>
   <data name="ErrorEmailPort" xml:space="preserve">
     <value>El parametro Port debe tener un valor</value>
   </data>

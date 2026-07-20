@@ -239,42 +239,47 @@ namespace AcgFotos.Core.Email
                     }
                 }
 
-                if (_usaLoginAnonimo || (String.IsNullOrEmpty(_usuario) && String.IsNullOrEmpty(_contrasenia)))
-                {
-                    smtpClient.Credentials = null;
-                    smtpClient.UseDefaultCredentials = false;
-                }
-                else
-                {
-                    smtpClient.Credentials = new NetworkCredential(_usuario, _contrasenia);
-                }
-
-                if (_puerto == 0)
-                {
-                    throw new BusinessValidationException(MessagesAPI.ErrorEmailPort);
-                }
-
-                smtpClient.Port = _puerto;
-                if (string.IsNullOrEmpty(_servidorSMTP))
-                {
-                    throw new BusinessValidationException(MessagesAPI.ErrorEmailSmtpServer);
-                }
-
-                smtpClient.Host = _servidorSMTP;
-                smtpClient.EnableSsl = _ssl;
-
-                if (_bypassCertificadoSsl)
-                {
-                    // SYSLIB0014: ServicePointManager está obsoleto en net6+ y no afecta a HttpClient.
-                    // Acá se mantiene porque sigue siendo el mecanismo válido para bypass de cert SSL con SmtpClient legacy.
-                    // TODO: migrar todo Correo.cs a MailKit cuando se priorice el refactor de email.
-#pragma warning disable SYSLIB0014
-                    ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
-#pragma warning restore SYSLIB0014
-                }
-
                 if (_enabled)
                 {
+                    if (_usaLoginAnonimo)
+                    {
+                        // Anónimo requiere el flag explícito — no se infiere de credenciales vacías.
+                        smtpClient.Credentials = null;
+                        smtpClient.UseDefaultCredentials = false;
+                    }
+                    else if (!String.IsNullOrEmpty(_usuario) && !String.IsNullOrEmpty(_contrasenia))
+                    {
+                        smtpClient.Credentials = new NetworkCredential(_usuario, _contrasenia);
+                    }
+                    else
+                    {
+                        throw new BusinessValidationException(MessagesAPI.ErrorEmailCredentials);
+                    }
+
+                    if (_puerto == 0)
+                    {
+                        throw new BusinessValidationException(MessagesAPI.ErrorEmailPort);
+                    }
+
+                    smtpClient.Port = _puerto;
+                    if (string.IsNullOrEmpty(_servidorSMTP))
+                    {
+                        throw new BusinessValidationException(MessagesAPI.ErrorEmailSmtpServer);
+                    }
+
+                    smtpClient.Host = _servidorSMTP;
+                    smtpClient.EnableSsl = _ssl;
+
+                    if (_bypassCertificadoSsl)
+                    {
+                        // SYSLIB0014: ServicePointManager está obsoleto en net6+ y no afecta a HttpClient.
+                        // Acá se mantiene porque sigue siendo el mecanismo válido para bypass de cert SSL con SmtpClient legacy.
+                        // TODO: migrar todo Correo.cs a MailKit cuando se priorice el refactor de email.
+#pragma warning disable SYSLIB0014
+                        ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+#pragma warning restore SYSLIB0014
+                    }
+
                     await smtpClient.SendMailAsync(mailMessage);
                 }
             }

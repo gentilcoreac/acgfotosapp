@@ -608,7 +608,16 @@ namespace AcgFotos.Core.Localization.APIResources {
                 return ResourceManager.GetString("ErrorEmailNotValid", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Usuario y Password de email deben estar ambos vacíos (login anónimo) o ambos completos.
+        /// </summary>
+        public static string ErrorEmailCredentials {
+            get {
+                return ResourceManager.GetString("ErrorEmailCredentials", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to El parametro Port debe tener un valor.
         /// </summary>
