@@ -125,6 +125,7 @@ VALUES
     (102, N'Grupos',                N'FotosGrupos',           1, N'people',                2, 100,  1, 1, 1, 1, N'/fotos/grupos'),
     (104, N'Galería',               N'FotosGaleria',          1, N'photo_library',         3, 100,  1, 1, 1, 1, N'/fotos/galeria'),
     (105, N'Tarjetas',              N'FotosTarjetas',         1, N'qr_code_2',             4, 100,  1, 1, 1, 1, N'/fotos/tarjetas'),
+    (103, N'Pedidos',               N'FotosPedidos',          1, N'receipt_long',          5, 100,  1, 1, 1, 1, N'/fotos/pedidos'),
     -- Administracion (usuarios/tenants/roles/licencias: lo que pide el alta real del negocio)
     (110, N'Administración',        N'Administracion',        1, N'settings',              2, NULL, 1, 1, 1, 0, NULL),
     (111, N'Usuarios',              N'Usuarios',              1, N'group',                 1, 110,  1, 1, 1, 1, N'/usuarios'),

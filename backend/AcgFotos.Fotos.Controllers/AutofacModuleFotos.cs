@@ -50,6 +50,10 @@ namespace AcgFotos.Fotos.Controllers
                 .As<IFotoRepository>()
                 .InstancePerLifetimeScope();
 
+            builder.RegisterType<PedidoRepository>()
+                .As<IPedidoRepository>()
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<CodigoAccesoRepository>()
                 .As<ICodigoAccesoRepository>()
                 .InstancePerLifetimeScope();

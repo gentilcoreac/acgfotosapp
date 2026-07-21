@@ -104,6 +104,14 @@ export const routes: Routes = [
           ),
       },
       {
+        // Admin de pedidos: listado por evento/estado, detalle y cambio de estado.
+        path: 'fotos/pedidos',
+        loadComponent: () =>
+          import('./features/fotos/pedidos/ui/pedidos-list.component').then(
+            (m) => m.PedidosListComponent,
+          ),
+      },
+      {
         path: 'tipos-licencias',
         loadComponent: () =>
           import('./features/tipos-licencias/ui/tipos-licencias-list.component').then(

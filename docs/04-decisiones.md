@@ -151,3 +151,34 @@ se llama al inicio de todos los métodos públicos de `EventoAppService`, `Grupo
 test manual (una sesión de familia lograba borrar la foto de otro participante por el endpoint
 admin) y con `FamiliaSessionAdminGuardTests` (reproduce el hallazgo, corre con authz OFF a
 propósito).
+
+## ADR-12 — Cambio de estado del pedido: cualquier estado salvo no-op, sin workflow forzado
+
+**Contexto**: el admin de pedidos (Fase 2) modela un flujo "normal" lineal (Pendiente/Pagado →
+Impreso → Entregado). La primera versión validaba ESE workflow estrictamente (rechazaba saltos y
+retrocesos con 400). Alberto lo probó y pidió más flexibilidad: un click equivocado (o querer
+corregir un estado mal puesto) no debía quedar bloqueado — "me gusta la idea de usabilidad [de los
+botones guiados], pero algo más flexible para algún caso excepcional" (2026-07-20).
+
+**Decisión**: `PedidoAppService.CambiarEstadoAsync` acepta cualquier `EstadoPedido` destino distinto
+del actual (incluye `Pagado`/`Cancelado`, hoy sin flujo automático que los produzca, pero
+alcanzables a mano). Lo único que rechaza con 400 es "cambiar" al mismo estado en el que ya está
+(no-op sin sentido). La guía queda del lado de la UI, no del backend: el admin de pedidos ofrece dos
+botones contextuales para el camino normal (`Marcar impreso` / `Marcar entregado`, sin confirmación)
+y un selector "Corregir a otro estado…" aparte, con confirmación, para el caso excepcional.
+
+**Vuelta y vuelta el mismo día sobre CUÁNDO se ve el selector** (front únicamente, el backend no
+cambió en ninguna de las dos): primero se probó ocultarlo salvo que NINGÚN botón guiado aplicara
+(solo con pedido `Entregado`) — Alberto lo probó con un pedido `Pendiente` y no podía usarlo
+("no puedo usar el corregir estado... no funciona ni para salir de pendiente"), y aclaró que la
+idea original era la correcta: el botón simple de un click (`Marcar impreso`/`Marcar entregado`) le
+gustaba, pero necesitaba la corrección manual disponible SIEMPRE, sin condicionarla al estado —
+"la desventaja [del botón simple] era que no podía cambiar el estado por si me equivoqué y quería
+volver atrás". **Quedó**: el selector "Corregir a otro estado…" se muestra siempre, en cualquier
+estado, junto con los botones guiados (que también se muestran siempre que apliquen) — ambos
+caminos conviven, no son mutuamente excluyentes.
+
+**Consecuencias**: no hay ninguna protección de backend contra un estado "ilógico" (p. ej. Entregado
+→ Pendiente): es una herramienta admin interna de un solo fotógrafo por tenant, así que se prioriza
+poder corregir errores por sobre impedir estados raros. Si en Fase 3 (Mercado Pago) `Pagado` empieza
+a fijarse automáticamente al confirmar el webhook, este mismo endpoint sigue sirviendo sin cambios.

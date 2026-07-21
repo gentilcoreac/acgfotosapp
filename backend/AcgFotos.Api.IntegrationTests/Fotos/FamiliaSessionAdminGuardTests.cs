@@ -136,5 +136,18 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
 
             await (await familia.GetAsync("/api/fotos/familia/fotos")).ShouldBeOk();
         }
+
+        [Fact] // FAMGUARD-05 — tampoco el admin de pedidos (listado/detalle/cambio de estado)
+        public async Task Familia_no_puede_usar_el_admin_de_pedidos()
+        {
+            var (eventoId, _, _, familia) = await ArmarSesionAsync();
+
+            await (await familia.GetAsync($"/api/fotos/pedidos?eventoId={eventoId}"))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+            await (await familia.GetAsync("/api/fotos/pedidos/1"))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+            await (await familia.PostAsJsonAsync("/api/fotos/pedidos/1/estado", new { estado = (int)EstadoPedido.Impreso }))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+        }
     }
 }

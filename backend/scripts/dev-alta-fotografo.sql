@@ -44,7 +44,7 @@ DECLARE @permisoFotos BIGINT = (SELECT [Id] FROM [dbo].[gen_Permisos] WHERE [Cod
 
 UPDATE [dbo].[gen_Menus]
 SET [PermisoId] = @permisoFotos
-WHERE [Codigo] IN (N'Fotos', N'FotosEventos', N'FotosGrupos', N'FotosGaleria', N'FotosTarjetas');
+WHERE [Codigo] IN (N'Fotos', N'FotosEventos', N'FotosGrupos', N'FotosGaleria', N'FotosTarjetas', N'FotosPedidos');
 
 -- Rol default para nuevo tenant (patron seed.sql de CodigoBase: rol "Administrador Cliente"
 -- EsDefaultParaNuevoTenant=1). Sin un rol con este flag, el alta de tenant desde el ABM crea el

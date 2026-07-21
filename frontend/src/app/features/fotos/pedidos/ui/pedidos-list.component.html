@@ -1,0 +1,29 @@
+<section class="list">
+  <header class="list__header">
+    <h1>Pedidos</h1>
+  </header>
+
+  <div class="list__filters">
+    <tbi-select
+      class="list__filter-evento"
+      label="Evento"
+      [options]="eventoFiltroOptions()"
+      [(value)]="eventoFiltro"
+    />
+    <tbi-select
+      class="list__filter-estado"
+      label="Estado"
+      [options]="estadoFiltroOptions"
+      [(value)]="estadoFiltro"
+    />
+  </div>
+
+  <tbi-table
+    [columns]="columns"
+    [fetch]="fetch"
+    [rowActions]="rowActions"
+    [filters]="filtros()"
+    [searchable]="true"
+    searchPlaceholder="Buscar por contacto o participante…"
+  />
+</section>
