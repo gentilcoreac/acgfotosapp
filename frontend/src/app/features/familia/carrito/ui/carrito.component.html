@@ -31,7 +31,7 @@
           <ul class="carrito__tamanos-lista">
             @for (linea of grupo.lineas; track linea.tamanoPrecioId) {
               <li class="carrito__tamano-linea">
-                <span class="carrito__tamano-nombre">{{ linea.tamano.nombre }}</span>
+                <tbi-tamano-chip [label]="linea.tamano.nombre" />
 
                 <div class="carrito__cantidad" role="group" aria-label="Cantidad">
                   <button matIconButton type="button" (click)="restar(linea)" aria-label="Quitar una copia">

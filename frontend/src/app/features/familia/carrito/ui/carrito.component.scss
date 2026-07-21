@@ -115,17 +115,10 @@
     padding: 0.375rem 0 0.375rem 4.25rem; // alineado bajo el nombre de archivo, no bajo el thumb
   }
 
-  // Mismo tratamiento visual que el chip de tamaño de "Ya en tu carrito"
-  // (`AgregarCarritoComponent.agregar-carrito__resumen-item`, grilla/preview): el tipo/tamaño se
-  // colorea siempre igual en toda la app, nada más de la línea lleva color (pedido de Alberto).
-  &__tamano-nombre {
+  // El chip de tamaño es `tbi-tamano-chip` (shared/ui): mismo tratamiento visual en toda la app,
+  // nada más de la línea lleva color (pedido de Alberto). Acá solo el layout (no crece con el flex).
+  tbi-tamano-chip {
     flex: none;
-    padding: 0.0625rem 0.5rem;
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
-    color: var(--mat-sys-on-surface-variant);
-    font-size: 0.8125rem;
-    font-weight: 500;
   }
 
   &__cantidad {

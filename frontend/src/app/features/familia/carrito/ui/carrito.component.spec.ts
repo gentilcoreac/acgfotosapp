@@ -122,8 +122,8 @@ describe('CarritoComponent', () => {
     expect(el.querySelectorAll('.carrito__grupo').length).toBe(1);
     const filas = el.querySelectorAll('.carrito__tamano-linea');
     expect(filas.length).toBe(2);
-    expect(filas[0].querySelector('.carrito__tamano-nombre')?.textContent).toBe('10x15');
-    expect(filas[1].querySelector('.carrito__tamano-nombre')?.textContent).toBe('20x30');
+    expect(filas[0].querySelector('tbi-tamano-chip')?.textContent?.trim()).toBe('10x15');
+    expect(filas[1].querySelector('tbi-tamano-chip')?.textContent?.trim()).toBe('20x30');
   });
 
   it('fotos distintas quedan en cards separadas', () => {

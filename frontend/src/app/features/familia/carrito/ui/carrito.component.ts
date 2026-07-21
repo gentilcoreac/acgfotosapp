@@ -22,6 +22,7 @@ import {
   FotoFamiliaPreviewDialogData,
 } from '../../mi-album/ui/foto-familia-preview-dialog.component';
 import { TbiButtonComponent } from '../../../../shared/ui/tbi-button/tbi-button.component';
+import { TbiTamanoChipComponent } from '../../../../shared/ui/tbi-tamano-chip/tbi-tamano-chip.component';
 import { TbiTextFieldComponent } from '../../../../shared/ui/tbi-text-field/tbi-text-field.component';
 
 /** Línea del carrito ya cruzada con la foto y el tamaño para mostrarla. */
@@ -58,6 +59,7 @@ interface GrupoCarritoFoto {
     MatIconModule,
     FotoFamiliaImgComponent,
     TbiButtonComponent,
+    TbiTamanoChipComponent,
     TbiTextFieldComponent,
   ],
   templateUrl: './carrito.component.html',

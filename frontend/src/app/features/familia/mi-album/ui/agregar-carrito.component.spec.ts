@@ -94,10 +94,10 @@ describe('AgregarCarritoComponent', () => {
       { nombre: '20x30', cantidad: 1 },
     ]);
 
-    const chips = (fixture.nativeElement as HTMLElement).querySelectorAll('.agregar-carrito__resumen-item');
+    const chips = (fixture.nativeElement as HTMLElement).querySelectorAll('tbi-tamano-chip');
     expect(chips.length).toBe(2);
-    expect(chips[0].textContent).toBe('10x15 ×2');
-    expect(chips[1].textContent).toBe('20x30 ×1');
+    expect(chips[0].textContent?.trim()).toBe('10x15 ×2');
+    expect(chips[1].textContent?.trim()).toBe('20x30 ×1');
   });
 
   it('BUG corregido: al cambiar de foto (carrusel) la cantidad no arrastra el valor de la foto anterior', () => {

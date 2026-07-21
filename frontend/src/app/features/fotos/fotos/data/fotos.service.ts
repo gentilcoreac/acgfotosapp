@@ -5,8 +5,12 @@ import { ApiClient } from '../../../../core/http';
 import { QueryParams } from '../../../../core/models/query-params.model';
 import { Foto } from '../domain/foto.model';
 
-/** Derivados con watermark que sirve la API (`{id}/thumb` para la grilla, `{id}/preview` ampliado). */
-export type VarianteDerivado = 'thumb' | 'preview';
+/**
+ * Derivados con watermark que sirve la API (`{id}/thumb` para la grilla, `{id}/preview` ampliado) +
+ * `original` (solo admin, sin watermark — mismo endpoint que `descargarOriginal`, con la misma ruta
+ * `{id}/{variante}`: se puede pedir como blob para RENDERIZAR inline, no solo para descargar).
+ */
+export type VarianteDerivado = 'thumb' | 'preview' | 'original';
 
 /**
  * Fotos del vertical (`api/fotos/fotos`). No es un CRUD Extended: la foto se sube (multipart) y se

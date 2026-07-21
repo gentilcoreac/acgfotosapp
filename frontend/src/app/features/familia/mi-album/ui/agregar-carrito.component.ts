@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CarritoStore, TamanoPrecio } from '../../../../core/familia';
 import { TbiSelectComponent, toSelectOptions } from '../../../../shared/ui/tbi-select/tbi-select.component';
+import { TbiTamanoChipComponent } from '../../../../shared/ui/tbi-tamano-chip/tbi-tamano-chip.component';
 
 /**
  * Selector de tamaño + cantidad para UNA foto (Fase 2). Recibe el catálogo ya cargado (no hace su
@@ -25,7 +26,7 @@ import { TbiSelectComponent, toSelectOptions } from '../../../../shared/ui/tbi-s
 @Component({
   selector: 'tbi-agregar-carrito',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule, TbiSelectComponent],
+  imports: [MatButtonModule, MatIconModule, TbiSelectComponent, TbiTamanoChipComponent],
   template: `
     @if (tamanosPrecios().length === 0) {
       <p class="agregar-carrito__hint">Todavía no hay tamaños disponibles para pedir.</p>
@@ -35,7 +36,7 @@ import { TbiSelectComponent, toSelectOptions } from '../../../../shared/ui/tbi-s
           <div class="agregar-carrito__resumen">
             <span class="agregar-carrito__resumen-label">Ya en tu carrito:</span>
             @for (item of resumenEnCarrito(); track item.nombre) {
-              <span class="agregar-carrito__resumen-item">{{ item.nombre }} ×{{ item.cantidad }}</span>
+              <tbi-tamano-chip [label]="item.nombre + ' ×' + item.cantidad" />
             }
           </div>
         }
@@ -99,15 +100,6 @@ import { TbiSelectComponent, toSelectOptions } from '../../../../shared/ui/tbi-s
     }
 
     .agregar-carrito__resumen-label {
-      color: var(--mat-sys-on-surface-variant);
-    }
-
-    // Chip sutil por tamaño: separa "10x15 ×2" de "20x30 ×1" con un poco de color, nada llamativo
-    // (mismo tinte que el chip "Grande/Chico" activo del header).
-    .agregar-carrito__resumen-item {
-      padding: 0.0625rem 0.375rem;
-      border-radius: 6px;
-      background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
       color: var(--mat-sys-on-surface-variant);
     }
 
