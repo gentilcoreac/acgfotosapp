@@ -197,6 +197,11 @@ export class MiAlbumComponent {
     this.router.navigateByUrl('/carrito');
   }
 
+  protected cerrarSesion(): void {
+    this.session.clearSession();
+    this.router.navigateByUrl('/canje');
+  }
+
   protected nombreParticipante(foto: FotoFamilia): string {
     if (foto.participanteId == null) {
       return 'Grupal';
