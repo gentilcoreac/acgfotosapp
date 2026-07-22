@@ -4,6 +4,7 @@ using AcgFotos.Core.Controllers;
 using AcgFotos.Fotos.Application.Criterias;
 using AcgFotos.Fotos.Application.Dtos;
 using AcgFotos.Fotos.Application.IServices;
+using AcgFotos.Fotos.Domain.Entities;
 
 namespace AcgFotos.Fotos.Controllers.Api
 {
@@ -42,6 +43,23 @@ namespace AcgFotos.Fotos.Controllers.Api
         public async Task<ActionResult<PedidoHeaderDto>> CambiarEstado(long id, [FromBody] PedidoCambiarEstadoInputDto input)
         {
             return this.Ok(await _pedidoAppService.CambiarEstadoAsync(id, input.Estado));
+        }
+
+        /// <summary>
+        /// `estados` viaja como CSV (ej. "1,0") en vez de una lista con binding nativo: el
+        /// `QueryParams`/`toHttpParams` del front solo admite valores escalares, así que el contrato
+        /// más simple de ambos lados es un string parseado a mano.
+        /// </summary>
+        [HttpGet]
+        [Route("lista-impresion")]
+        public async Task<ActionResult<ListaImpresionDto>> GetListaImpresion(long eventoId, string? estados)
+        {
+            var estadosParseados = (estados ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => (EstadoPedido)int.Parse(s))
+                .ToList();
+
+            return this.Ok(await _pedidoAppService.GetListaImpresionAsync(eventoId, estadosParseados));
         }
     }
 }

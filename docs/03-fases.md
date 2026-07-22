@@ -5,7 +5,7 @@ Cada fase termina en algo usable. No empezar una fase sin cerrar la anterior.
 > **Este documento ES el roadmap vivo del proyecto**: al completar un ítem se tilda acá; esta
 > sección de estado se actualiza al cerrar cada bloque de trabajo.
 
-## Estado (2026-07-18) y próximos pasos
+## Estado (2026-07-21) y próximos pasos
 
 **Dónde estamos**: Fase 0 cerrada. **FASE 1 TERMINADA** (2026-07-16) — API (468 tests) y
 front admin: ABMs de Eventos y Grupos/Participantes, pantalla única de Fotos (`/fotos/galeria`:
@@ -18,14 +18,14 @@ entidades, tablas (migración `RenombrarGrupoParticipante`), API (`api/fotos/gru
 desarrollar y probar Fase 2; el alta DEFINITIVA del tenant del fotógrafo queda pendiente para
 antes de lanzar a producción real (ver Deploy).
 
-**Fase 2, en curso**: canje ✅, galería mobile-first con anti-copia ✅ (2026-07-18), carrito +
-confirmación de pedido ✅ (2026-07-18), admin de pedidos ✅ (2026-07-20, ver el ítem de Fase 2 más
-abajo). Queda: lista de impresión exportable.
+**FASE 2 TERMINADA** (2026-07-21): canje ✅, galería mobile-first con anti-copia ✅ (2026-07-18),
+carrito + confirmación de pedido ✅ (2026-07-18), admin de pedidos ✅ (2026-07-20), lista de
+impresión exportable ✅ (2026-07-21, ver el ítem de Fase 2 más abajo).
 
 **Próximos pasos, en orden**:
 
-1. **Fase 2** (familias): lista de impresión exportable (agregado por foto/tamaño/cantidad, agrupada por álbum).
-2. Al final de Fase 2: decisiones de **deploy** (PostgreSQL, hosting, R2, dominio) — incluye el alta definitiva del tenant del fotógrafo.
+1. Decisiones de **deploy** (PostgreSQL, hosting, R2, dominio) — incluye el alta definitiva del tenant del fotógrafo.
+2. **Fase 3** (pagos y comunicación): Mercado Pago, pago en efectivo, paquetes/promos, WhatsApp, expiración de álbumes.
 
 ## Fase 0 — Fundaciones (actual)
 
@@ -81,7 +81,26 @@ Objetivo: una familia real puede hacer un pedido de punta a punta. **Con esto ya
   - **Segunda vuelta, feedback de Alberto el mismo día tras probarlo**: (a) *"me gusta la idea de usabilidad [de los botones guiados], pero algo más flexible para algún caso excepcional"* → el workflow estricto se relajó a "cualquier estado salvo no-op" (ADR-12 en docs/04): los botones contextuales siguen siendo el camino guiado, y se agregó un selector "Corregir a otro estado…" + botón Aplicar (con confirmación) para el caso excepcional — así también quedan alcanzables `Pagado`/`Cancelado`, que hoy ningún flujo automático produce (Alberto notó que había estados sin usar). (b) *"en el pedido debería poder ver las fotos con una interfaz parecida al carrito, tanto la foto original como la que vio el cliente, reutilizando código donde se pueda"* → el detalle se rediseñó agrupado por foto (antes: lista plana de líneas) reusando tres piezas ya existentes en vez de duplicar: `FotoPreviewDialogComponent` (el preview admin de la galería, al que se le agregó un toggle "Vista del cliente" ⇄ "Original" — `VarianteDerivado` del `FotosService` ganó `'original'`, mismo endpoint/mecanismo blob que thumb/preview, solo amplía el tipo) y un nuevo `tbi-tamano-chip` (`shared/ui`) que reemplaza el CSS de chip de tamaño que estaba duplicado en `/carrito` y en el resumen de `tbi-agregar-carrito`. Tests: 9 en `PedidoAdminTests` (503/503 con el resto de la suite) + 12 specs nuevos/actualizados de front (469/469) + build + lint + segunda verificación manual (toggle original/vista-cliente, corrección de estado hacia atrás, `/carrito` sigue viéndose igual tras el refactor del chip).
   - **Tercera vuelta, mismo día, Alberto probó la segunda vuelta**: (a) *"el 'Corregir a otro estado…' aparece ya desde el minuto 0... mi caso era cuando llegábamos al final y no podíamos cambiarlo"* → se probó ocultar el selector manual salvo que NINGÚN botón guiado aplicara (`puedeCorregirManualmente`, solo con pedido `Entregado`). (b) *"la vista por defecto desde el pedido debe ser la original... la del cliente algo secundario solo opcional"* → `FotoPreviewDialogData` ganó `varianteInicial` (opcional): el admin de pedidos abre el preview pidiendo `'original'` primero; la galería (que no pasa el campo) sigue abriendo en `'preview'` como antes — mismo diálogo compartido, cada contexto define su propio default (esto quedó firme, no se tocó en la vuelta siguiente). (c) Total y el bloque de Estado (chip + corrector) subieron al encabezado del diálogo, junto a Participante/Contacto; abajo queda solo el listado de fotos.
   - **Cuarta vuelta, mismo día — Alberto probó la tercera y el punto (a) resultó un malentendido**: con un pedido `Pendiente` no podía usar la corrección manual en absoluto ("no puedo usar el corregir estado... no funciona ni para salir de pendiente"). Aclaró la idea original: el botón simple de un click (`Marcar impreso`/`Marcar entregado`) le gustaba tal cual, pero la corrección manual tenía que estar SIEMPRE disponible — la excepción no es "solo al final", es "en cualquier momento que me equivoque". Se sacó `puedeCorregirManualmente`: el selector "Corregir a otro estado…" vuelve a mostrarse siempre, conviviendo con los botones guiados (no son excluyentes). ADR-12 actualizado con la vuelta completa para no repetir el mismo malentendido. Tests: specs de visibilidad reescritos (471/471) + build + lint.
-- [ ] Lista de impresión exportable (agregado por foto/tamaño/cantidad, agrupada por álbum)
+- [x] **Lista de impresión exportable** (hecho 2026-07-21, ADR-13): por evento, agrega los pedidos
+  que entran en el filtro de estado (checkboxes en el diálogo del front, Pagado preseleccionado;
+  Cancelado nunca se ofrece) en dos vistas — agregado por foto+tamaño (para el laboratorio, con
+  cantidad total sumada) y detalle agrupado por participante (para repartir). Nuevo
+  `IPedidoRepository.GetItemsParaImpresionAsync` (EF LINQ, mismo patrón que el resto del repo) trae
+  los `PedidoItem` del evento con Foto/TamanoPrecio/Participante materializados; el agrupado se arma
+  en memoria en `PedidoAppService.GetListaImpresionAsync` (`FamiliaSessionGuard` primero, igual que
+  el resto del AppService). Endpoint `GET api/fotos/pedidos/lista-impresion?eventoId=&estados=1,0`
+  (CSV de estados parseado a mano, no `[FromQuery] List<T>` — sin precedente en el repo y el
+  `QueryParams` del front no admite arrays). Front: botón "Exportar lista de impresión" en
+  `/fotos/pedidos` (habilitado solo con un evento puntual elegido, la agregación es por evento) que
+  abre `ListaImpresionDialogComponent` — reusa el patrón de ventana imprimible de `/fotos/tarjetas`
+  (`window.open` + `print()`, "Guardar como PDF" para adjuntar por mail) más un botón aparte
+  "Descargar CSV" del agregado (client-side, sin endpoint propio). Aviso de proporciones
+  best-effort: `detectarDesajusteProporcion` parsea el nombre del tamaño ("10x15") por regex y lo
+  compara contra el ancho/alto real de la foto; sin match, no avisa. Tests: 5 nuevos en
+  `PedidoAdminTests` (LI-01 a LI-05: suma de cantidades entre pedidos, agrupado por participante,
+  filtro por evento, filtro por estado, `eventoId` obligatorio) + 1 caso nuevo en
+  `FamiliaSessionAdminGuardTests` (508/508 con el resto de la suite) + 27 tests nuevos/actualizados
+  de front (493/493) + build + lint.
 
 **Terminada cuando**: se corre un evento piloto real con al menos una familia de prueba.
 

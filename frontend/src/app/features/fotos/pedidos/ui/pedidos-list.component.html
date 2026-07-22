@@ -16,6 +16,16 @@
       [options]="estadoFiltroOptions"
       [(value)]="estadoFiltro"
     />
+    <button
+      matButton
+      type="button"
+      [disabled]="!puedeExportarListaImpresion()"
+      [matTooltip]="puedeExportarListaImpresion() ? '' : 'Elegí un evento para exportar'"
+      (click)="exportarListaImpresion()"
+    >
+      <mat-icon>print</mat-icon>
+      Exportar lista de impresión
+    </button>
   </div>
 
   <tbi-table

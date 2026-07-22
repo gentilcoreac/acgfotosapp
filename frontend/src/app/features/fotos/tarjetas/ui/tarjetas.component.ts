@@ -15,6 +15,7 @@ import {
   TbiSelectComponent,
   TbiSelectOption,
 } from '../../../../shared/ui/tbi-select/tbi-select.component';
+import { escapeHtml } from '../../../../shared/util/escape-html';
 import { GruposService } from '../../grupos/data/grupos.service';
 import { TarjetaParticipante } from '../../grupos/domain/grupo.model';
 import { EventosService } from '../../eventos/data/eventos.service';
@@ -154,10 +155,3 @@ function armarHtmlImprimible(evento: string, grupo: string, tarjetas: TarjetaPar
 </html>`;
 }
 
-function escapeHtml(texto: string): string {
-  return texto
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;');
-}

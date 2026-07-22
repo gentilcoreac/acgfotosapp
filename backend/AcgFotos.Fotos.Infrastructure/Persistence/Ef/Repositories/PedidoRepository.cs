@@ -62,4 +62,13 @@ public class PedidoRepository : EntityBaseRepository<Pedido>, IPedidoRepository
             .Include(p => p.Items).ThenInclude(i => i.TamanoPrecio)
             .Include(p => p.Items).ThenInclude(i => i.Foto)
             .FirstOrDefaultAsync(p => p.Id == id);
+
+    public Task<List<PedidoItem>> GetItemsParaImpresionAsync(long eventoId, IReadOnlyCollection<EstadoPedido> estados) =>
+        this.DbContext.Set<PedidoItem>()
+            .AsNoTracking()
+            .Include(i => i.Foto)
+            .Include(i => i.TamanoPrecio)
+            .Include(i => i.Pedido).ThenInclude(p => p.Participante)
+            .Where(i => i.Pedido.Participante.Grupo.EventoId == eventoId && estados.Contains(i.Pedido.Estado))
+            .ToListAsync();
 }

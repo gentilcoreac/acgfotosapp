@@ -84,4 +84,63 @@ public class PedidoAppService : IPedidoAppService
             throw new BusinessValidationException($"El pedido ya está en estado \"{actual}\".");
         }
     }
+
+    public async Task<ListaImpresionDto> GetListaImpresionAsync(long eventoId, List<EstadoPedido> estados)
+    {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(_appContext);
+
+        if (eventoId <= 0)
+        {
+            throw new BusinessValidationException("Debe seleccionar un evento.");
+        }
+
+        var items = await _pedidoRepository.GetItemsParaImpresionAsync(eventoId, estados);
+        return ArmarListaImpresion(items);
+    }
+
+    /// <summary>
+    /// Arma las dos vistas en memoria (volumen bajo: un evento tiene cientos de fotos, no miles de
+    /// items — no justifica traducir el GroupBy a SQL). El detalle agrupa por (foto, tamaño) DENTRO
+    /// de cada participante, sumando cantidades, para que un participante con dos pedidos separados
+    /// pidiendo la misma foto+tamaño no salga duplicado.
+    /// </summary>
+    private static ListaImpresionDto ArmarListaImpresion(List<PedidoItem> items)
+    {
+        var agregado = items
+            .GroupBy(i => (i.FotoId, i.TamanoPrecioId))
+            .Select(g => new LineaAgregadoImpresionDto
+            {
+                FotoId = g.Key.FotoId,
+                NombreArchivoOriginal = g.First().Foto.NombreArchivoOriginal,
+                AnchoFoto = g.First().Foto.Ancho,
+                AltoFoto = g.First().Foto.Alto,
+                TamanoPrecioNombre = g.First().TamanoPrecio.Nombre,
+                CantidadTotal = g.Sum(i => i.Cantidad),
+            })
+            .OrderBy(l => l.NombreArchivoOriginal).ThenBy(l => l.TamanoPrecioNombre)
+            .ToList();
+
+        var detalle = items
+            .GroupBy(i => i.Pedido.ParticipanteId)
+            .Select(g => new GrupoParticipanteImpresionDto
+            {
+                ParticipanteId = g.Key,
+                ParticipanteNombre = g.First().Pedido.Participante.Nombre,
+                Lineas = g
+                    .GroupBy(i => (i.FotoId, i.TamanoPrecioId))
+                    .Select(gi => new LineaParticipanteImpresionDto
+                    {
+                        FotoId = gi.Key.FotoId,
+                        NombreArchivoOriginal = gi.First().Foto.NombreArchivoOriginal,
+                        TamanoPrecioNombre = gi.First().TamanoPrecio.Nombre,
+                        Cantidad = gi.Sum(i => i.Cantidad),
+                    })
+                    .OrderBy(l => l.NombreArchivoOriginal).ThenBy(l => l.TamanoPrecioNombre)
+                    .ToList(),
+            })
+            .OrderBy(g => g.ParticipanteNombre)
+            .ToList();
+
+        return new ListaImpresionDto { Agregado = agregado, Detalle = detalle };
+    }
 }

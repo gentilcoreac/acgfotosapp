@@ -67,3 +67,33 @@ export interface Pedido {
   /** Solo en el detalle (getById). */
   items?: PedidoItem[];
 }
+
+/** Fila del agregado por foto+tamaño (para el laboratorio): cuánto producir en total. */
+export interface LineaAgregadoImpresion {
+  fotoId: number;
+  nombreArchivoOriginal: string;
+  anchoFoto: number;
+  altoFoto: number;
+  tamanoPrecioNombre: string;
+  cantidadTotal: number;
+}
+
+/** Fotos+tamaños de un participante (para armar el sobre de entrega). */
+export interface LineaParticipanteImpresion {
+  fotoId: number;
+  nombreArchivoOriginal: string;
+  tamanoPrecioNombre: string;
+  cantidad: number;
+}
+
+export interface GrupoParticipanteImpresion {
+  participanteId: number;
+  participanteNombre: string;
+  lineas: LineaParticipanteImpresion[];
+}
+
+/** Las dos vistas de la lista de impresión de un evento, en un solo export. */
+export interface ListaImpresion {
+  agregado: LineaAgregadoImpresion[];
+  detalle: GrupoParticipanteImpresion[];
+}

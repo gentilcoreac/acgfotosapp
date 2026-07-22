@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>Lista de impresión — {{ data.eventoNombre }}</h2>
+<mat-dialog-content class="lista-impresion">
+  @if (generando()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  <p class="lista-impresion__ayuda">
+    Elegí qué pedidos incluir y generá la lista. Podés imprimirla / guardarla como PDF para
+    adjuntar por mail, o descargar el agregado en CSV.
+  </p>
+
+  <div class="lista-impresion__estados">
+    @for (estado of estadosOfrecidos; track estado) {
+      <mat-checkbox [checked]="estaSeleccionado(estado)" (change)="toggleEstado(estado)">
+        {{ etiquetaEstado(estado) }}
+      </mat-checkbox>
+    }
+  </div>
+
+  <button matButton="filled" type="button" [disabled]="!puedeGenerar() || generando()" (click)="generar()">
+    <mat-icon>refresh</mat-icon>
+    Generar
+  </button>
+
+  @if (resultado(); as lista) {
+    <div class="lista-impresion__resumen">
+      <span>{{ lista.agregado.length }} líneas para el laboratorio</span>
+      <span>{{ lista.detalle.length }} participantes</span>
+    </div>
+
+    <div class="lista-impresion__salida">
+      <button matButton="filled" type="button" (click)="imprimir()">
+        <mat-icon>print</mat-icon>
+        Imprimir / Guardar PDF
+      </button>
+      <button matButton type="button" (click)="descargarCsv()">
+        <mat-icon>download</mat-icon>
+        Descargar CSV
+      </button>
+    </div>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button matButton (click)="cerrar()">Cerrar</button>
+</mat-dialog-actions>

@@ -148,6 +148,8 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
                 .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
             await (await familia.PostAsJsonAsync("/api/fotos/pedidos/1/estado", new { estado = (int)EstadoPedido.Impreso }))
                 .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+            await (await familia.GetAsync($"/api/fotos/pedidos/lista-impresion?eventoId={eventoId}&estados=1"))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
         }
     }
 }

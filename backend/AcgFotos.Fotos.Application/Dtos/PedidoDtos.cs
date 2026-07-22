@@ -76,3 +76,42 @@ public class PedidoCambiarEstadoInputDto
 {
     public EstadoPedido Estado { get; set; }
 }
+
+// --- Lista de impresión (agregado para el laboratorio + detalle para repartir) ----------------
+
+/// <summary>Las dos vistas de la lista de impresión de un evento, en un solo export.</summary>
+public class ListaImpresionDto
+{
+    public List<LineaAgregadoImpresionDto> Agregado { get; set; } = new();
+    public List<GrupoParticipanteImpresionDto> Detalle { get; set; } = new();
+}
+
+/// <summary>
+/// Fila del agregado por foto+tamaño (para el laboratorio): cuánto producir en total.
+/// Ancho/Alto viajan para que el front calcule el aviso de proporción contra el nombre del tamaño.
+/// </summary>
+public class LineaAgregadoImpresionDto
+{
+    public long FotoId { get; set; }
+    public string NombreArchivoOriginal { get; set; } = string.Empty;
+    public int AnchoFoto { get; set; }
+    public int AltoFoto { get; set; }
+    public string TamanoPrecioNombre { get; set; } = string.Empty;
+    public int CantidadTotal { get; set; }
+}
+
+/// <summary>Fotos+tamaños de un participante (para armar el sobre de entrega).</summary>
+public class GrupoParticipanteImpresionDto
+{
+    public long ParticipanteId { get; set; }
+    public string ParticipanteNombre { get; set; } = string.Empty;
+    public List<LineaParticipanteImpresionDto> Lineas { get; set; } = new();
+}
+
+public class LineaParticipanteImpresionDto
+{
+    public long FotoId { get; set; }
+    public string NombreArchivoOriginal { get; set; } = string.Empty;
+    public string TamanoPrecioNombre { get; set; } = string.Empty;
+    public int Cantidad { get; set; }
+}

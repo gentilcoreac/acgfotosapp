@@ -16,4 +16,11 @@ public interface IPedidoRepository : IEntityBaseRepository<Pedido>
 
     /// <summary>Detalle read-only con las líneas y su tamaño (para GetById).</summary>
     Task<Pedido?> GetByIdWithDetalleAsync(long id);
+
+    /// <summary>
+    /// Items de pedidos de un evento en alguno de los <paramref name="estados"/> dados, con Foto,
+    /// TamanoPrecio y Pedido.Participante materializados — insumo para la lista de impresión (el
+    /// agrupado por foto+tamaño y por participante se arma en memoria en el AppService).
+    /// </summary>
+    Task<List<PedidoItem>> GetItemsParaImpresionAsync(long eventoId, IReadOnlyCollection<EstadoPedido> estados);
 }

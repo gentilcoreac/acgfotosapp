@@ -167,6 +167,34 @@ alcanzables a mano). Lo único que rechaza con 400 es "cambiar" al mismo estado 
 botones contextuales para el camino normal (`Marcar impreso` / `Marcar entregado`, sin confirmación)
 y un selector "Corregir a otro estado…" aparte, con confirmación, para el caso excepcional.
 
+## ADR-13 — Lista de impresión: dos vistas en un export, sin PDF real server-side, proporciones por regex best-effort
+
+**Contexto**: último ítem de Fase 2. El laboratorio externo del fotógrafo pide los originales en una
+medida específica sin nomenclatura propia, y algunos lo reciben por correo con una descripción —
+necesita, por evento, tanto cuánto producir de cada foto+tamaño (para el laboratorio) como cómo
+repartir esas copias entre las familias al volver.
+
+**Decisión**:
+- **Dos vistas en un solo export**: agregado por foto+tamaño (`PedidoItem` agrupado por
+  `FotoId+TamanoPrecioId`, sumando `Cantidad`) y detalle agrupado por participante/álbum. Se arman
+  en memoria en `PedidoAppService.GetListaImpresionAsync` (volumen bajo por evento, no justifica
+  traducir el `GroupBy` a SQL).
+- **Filtro de estados sin default forzado en el backend**: el endpoint recibe la lista de
+  `EstadoPedido` a incluir (CSV en el query string — `estados=1,0` — porque el `QueryParams` del
+  front solo admite valores escalares, no arrays) y filtra exactamente por eso; una lista vacía da
+  resultado vacío. El default "Pagado preseleccionado" es una decisión de UX del diálogo del front,
+  no una regla de negocio del backend.
+- **Salida sin generar PDF real server-side**: se reusa el patrón ya validado en `/fotos/tarjetas`
+  (HTML autocontenido en una ventana nueva vía `window.open` + `print()`, "Guardar como PDF" del
+  navegador) en vez de sumar una librería de PDF nueva — más un botón aparte de CSV del agregado
+  (generado client-side) para los laboratorios que piden planilla en vez de PDF/imagen.
+- **Proporciones — best-effort, sin tocar el catálogo todavía**: `TamanoPrecio.Nombre` es texto
+  libre por evento (ej. "10x15"), sin ancho/alto numéricos. El aviso de desajuste (recorte fuerte al
+  imprimir) parsea el nombre con regex `NxM` y lo compara contra `Foto.Ancho/Alto` (que sí existen,
+  en píxeles); si el nombre no matchea, no avisa — no bloquea. Agregar ancho/alto estructurados al
+  catálogo de tamaños (cambio de entidad + ABM de Eventos) queda como mejora futura si el
+  best-effort resulta insuficiente en uso real (ver docs/05-notas-abiertas.md).
+
 **Vuelta y vuelta el mismo día sobre CUÁNDO se ve el selector** (front únicamente, el backend no
 cambió en ninguna de las dos): primero se probó ocultarlo salvo que NINGÚN botón guiado aplicara
 (solo con pedido `Entregado`) — Alberto lo probó con un pedido `Pendiente` y no podía usarlo

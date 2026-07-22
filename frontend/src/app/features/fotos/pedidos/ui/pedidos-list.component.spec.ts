@@ -109,4 +109,40 @@ describe('PedidosListComponent', () => {
     expect(cambiarEstado).toHaveBeenCalledWith(pedidoBase.id, ESTADO_PEDIDO.Impreso);
     expect(notify.success).toHaveBeenCalledWith('Pedido marcado como impreso.');
   });
+
+  it('"Exportar lista de impresión" está deshabilitado con "Todos los eventos"', async () => {
+    await setup();
+    expect(fixture.componentInstance['puedeExportarListaImpresion']()).toBe(false);
+  });
+
+  it('"Exportar lista de impresión" se habilita al elegir un evento puntual', async () => {
+    await setup();
+    fixture.componentInstance['eventoFiltro'].set(7);
+    expect(fixture.componentInstance['puedeExportarListaImpresion']()).toBe(true);
+  });
+
+  it('exportarListaImpresion abre el diálogo con el evento y nombre elegidos', async () => {
+    await setup();
+    fixture.componentInstance['eventoFiltro'].set(7);
+    const dialog = TestBed.inject(MatDialog);
+    const openSpy = vi.spyOn(dialog, 'open').mockReturnValue({ afterClosed: () => of(null) } as ReturnType<
+      MatDialog['open']
+    >);
+
+    fixture.componentInstance['exportarListaImpresion']();
+
+    expect(openSpy).toHaveBeenCalled();
+    const [, config] = openSpy.mock.calls[0];
+    expect((config as { data: unknown }).data).toEqual({ eventoId: 7, eventoNombre: 'Graduación 2026' });
+  });
+
+  it('exportarListaImpresion no hace nada sin un evento puntual elegido', async () => {
+    await setup();
+    const dialog = TestBed.inject(MatDialog);
+    const openSpy = vi.spyOn(dialog, 'open');
+
+    fixture.componentInstance['exportarListaImpresion']();
+
+    expect(openSpy).not.toHaveBeenCalled();
+  });
 });

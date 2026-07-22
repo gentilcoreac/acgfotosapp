@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient, injectCrudClient } from '../../../../core/http';
-import { EstadoPedido, Pedido } from '../domain/pedido.model';
+import { EstadoPedido, ListaImpresion, Pedido } from '../domain/pedido.model';
 
 /**
  * Servicio de datos de Pedidos (admin, Fase 2). El CRUD base (`api/fotos/pedidos`) cubre
@@ -18,5 +18,13 @@ export class PedidosService {
   /** Transición de estado (Pendiente/Pagado → Impreso → Entregado); la API valida el salto. */
   cambiarEstado(id: number, estado: EstadoPedido): Observable<Pedido> {
     return this.api.post<Pedido, { estado: EstadoPedido }>(`fotos/pedidos/${id}/estado`, { estado });
+  }
+
+  /** Lista de impresión de un evento: agregado por foto+tamaño + detalle por participante. */
+  getListaImpresion(eventoId: number, estados: EstadoPedido[]): Observable<ListaImpresion> {
+    return this.api.get<ListaImpresion>('fotos/pedidos/lista-impresion', {
+      eventoId,
+      estados: estados.join(','),
+    });
   }
 }

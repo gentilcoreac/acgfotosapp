@@ -21,4 +21,11 @@ public interface IPedidoAppService
     /// manual excepcional) salvo "cambiar" al mismo estado en el que ya está.
     /// </summary>
     Task<PedidoHeaderDto> CambiarEstadoAsync(long id, EstadoPedido nuevoEstado);
+
+    /// <summary>
+    /// Lista de impresión de un evento: agregado por foto+tamaño (para el laboratorio) y detalle
+    /// agrupado por participante (para repartir), sobre los pedidos en alguno de <paramref
+    /// name="estados"/>. Sin default implícito: una lista vacía da resultado vacío.
+    /// </summary>
+    Task<ListaImpresionDto> GetListaImpresionAsync(long eventoId, List<EstadoPedido> estados);
 }

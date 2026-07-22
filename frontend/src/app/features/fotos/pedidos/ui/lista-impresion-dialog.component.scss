@@ -1,0 +1,30 @@
+.lista-impresion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 320px;
+}
+
+.lista-impresion__ayuda {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+}
+
+.lista-impresion__estados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+.lista-impresion__resumen {
+  display: flex;
+  gap: 1rem;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+}
+
+.lista-impresion__salida {
+  display: flex;
+  gap: 0.5rem;
+}

@@ -7,8 +7,10 @@ import {
   viewChild,
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Observable, catchError, map, of, tap } from 'rxjs';
 import { formatearPrecio } from '../../../../core/familia';
 import { QueryParams } from '../../../../core/models/query-params.model';
@@ -23,6 +25,7 @@ import { EventosService } from '../../eventos/data/eventos.service';
 import { Evento } from '../../eventos/domain/evento.model';
 import { PedidosService } from '../data/pedidos.service';
 import { ESTADO_PEDIDO, ESTADO_PEDIDO_LABEL, EstadoPedido, Pedido, estadoPedidoChip } from '../domain/pedido.model';
+import { ListaImpresionDialogComponent } from './lista-impresion-dialog.component';
 import { PedidoDetalleComponent } from './pedido-detalle.component';
 
 /** Valor del filtro que significa "todos los eventos" (PedidoCriteria.EventoId = 0). */
@@ -32,7 +35,7 @@ const TODOS_LOS_EVENTOS = 0;
 @Component({
   selector: 'tbi-pedidos-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule, TbiSelectComponent, TbiTableComponent],
+  imports: [MatButtonModule, MatIconModule, MatTooltipModule, TbiSelectComponent, TbiTableComponent],
   templateUrl: './pedidos-list.component.html',
   styleUrl: './pedidos-list.component.scss',
 })
@@ -144,6 +147,23 @@ export class PedidosListComponent {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+    });
+  }
+
+  /** La agregación de la lista de impresión es por evento: hace falta uno puntual, no "todos". */
+  protected readonly puedeExportarListaImpresion = computed(() => this.eventoFiltro() !== TODOS_LOS_EVENTOS);
+
+  protected exportarListaImpresion(): void {
+    const eventoId = this.eventoFiltro();
+    if (!eventoId || eventoId === TODOS_LOS_EVENTOS) {
+      return;
+    }
+    const eventoNombre = this.eventoFiltroOptions().find((o) => o.value === eventoId)?.label ?? '';
+    this.dialog.open(ListaImpresionDialogComponent, {
+      data: { eventoId, eventoNombre },
+      width: '520px',
+      maxWidth: '95vw',
+      autoFocus: false,
     });
   }
 
