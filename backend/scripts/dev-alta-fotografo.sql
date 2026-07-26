@@ -99,6 +99,21 @@ BEGIN
       AND u.Administrador = true
       AND NOT EXISTS (SELECT 1 FROM gen_UsuarioRoles ur WHERE ur.UsuarioId = u.Id AND ur.RolId = rol_fotografo);
 
+    -- Reparacion (mismo criterio, hallazgo 2026-07-24): admin de un tenant cliente ACTIVO sin
+    -- ninguna fila en gen_UsuarioAplicaciones no puede resolver AplicacionId (viene de un header que
+    -- el front arma a partir de esta tabla) → MenuAppService.ArmarMenuUsuarioSegunPermisosAsync
+    -- devuelve [] SIEMPRE para ese usuario, aunque tenga el rol y el permiso correctos (se vio
+    -- impersonando adminb2: mismo rol que fotografo, pero sin fila acá quedaba sin menú). Se le da
+    -- la app general (1) como default; solo tenants activos (el tenant inactivo de prueba, Id 3,
+    -- queda a propósito sin esto — no es un caso real a navegar). Idempotente por el NOT EXISTS.
+    INSERT INTO gen_UsuarioAplicaciones (UsuarioId, AplicacionId, "default", TenantId)
+    SELECT u.Id, 1, true, u.TenantId
+    FROM gen_Usuarios u
+    INNER JOIN gen_Tenants t ON t.Id = u.TenantId AND t.Activo = true
+    WHERE u.TenantId <> 1
+      AND u.Administrador = true
+      AND NOT EXISTS (SELECT 1 FROM gen_UsuarioAplicaciones ua WHERE ua.UsuarioId = u.Id AND ua.AplicacionId = 1);
+
     -- Usuario fotografo (tenant 2, admin del tenant, email confirmado, mismo hash del seed).
     IF NOT EXISTS (SELECT 1 FROM gen_Usuarios WHERE NormalizedUserName = 'FOTOGRAFO') THEN
         INSERT INTO gen_Usuarios
