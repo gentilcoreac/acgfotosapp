@@ -84,7 +84,7 @@ Formato corto: contexto → decisión → consecuencias. Si una decisión se rev
 
 **Consecuencias**:
 - Semanas de plataforma gratis, y patrones/convenciones ya documentados en el propio código.
-- **SQL Server de forma transitoria** (el Core está clavado a `UseSqlServer` y en dev ya está instalado). **Decisión acordada: migrar a PostgreSQL antes del deploy productivo** (era la recomendación original por costo de hosting). La migración implica: proveedor configurable en `DatabaseFactory` (+ paquete Npgsql), regenerar migraciones, adaptar el SQL crudo (vistas), Respawn a PostgresAdapter y el sink de Serilog. Mientras tanto: no escribir SQL crudo con sintaxis exclusiva de SQL Server en el vertical Fotos.
+- ~~**SQL Server de forma transitoria**~~ **MIGRADO A POSTGRESQL (2026-07-24, ver ADR-14)**: el Core corría sobre `UseSqlServer`; ya corre sobre Npgsql, con la suite de integración completa (508/508) verificada contra Postgres local.
 - Sin MinIO/Docker en dev: el Core trae `IStorageProvider` con FileSystem. Actualiza ADR-05.
 - Se hereda complejidad que AcgFotos no usa hoy (multi-tenant, licencias, grupos): se ACEPTA y no se poda — multi-tenant mapea al futuro "otros fotógrafos" y podar la plataforma rompería la posibilidad de traer fixes del código base.
 - Verificación del fork: suite de integración 419/419, Vitest 325/325, lint OK.
@@ -210,3 +210,68 @@ caminos conviven, no son mutuamente excluyentes.
 → Pendiente): es una herramienta admin interna de un solo fotógrafo por tenant, así que se prioriza
 poder corregir errores por sobre impedir estados raros. Si en Fase 3 (Mercado Pago) `Pagado` empieza
 a fijarse automáticamente al confirmar el webhook, este mismo endpoint sigue sirviendo sin cambios.
+
+## ADR-14 — Migración SQL Server → PostgreSQL: cutover directo, sin capa de compatibilidad dual
+
+**Contexto**: ADR-09 dejaba pendiente migrar de SQL Server a PostgreSQL antes del deploy productivo
+(decisión ya acordada, no se re-discute acá — ver docs/06-deploy.md por el contexto de costos/hosting
+que la motivó). Se ejecutó completa en una sesión (2026-07-23/24): backend, migraciones, seeds de
+test/dev y la suite de integración completa, verificada en verde contra Postgres local.
+
+**Decisión — alcance y forma**:
+- **Cutover directo**, no un *switch* de proveedor en runtime: `DatabaseFactory.ConfigureEFProvider`
+  pasó de `UseSqlServer` a `UseNpgsql` sin dejar SQL Server como alternativa configurable. Simplifica
+  contra la idea original de "proveedor configurable" — no hay caso de uso real para correr con ambos
+  proveedores a la vez, y mantenerlo hubiese sido complejidad sin beneficio (YAGNI).
+- **`EFCore.NamingConventions` con `UseLowerCaseNamingConvention()`**: decisión clave para no reescribir
+  a mano cientos de referencias de SQL crudo heredado (`TestSeed.sql`, seeds de dev, decenas de queries
+  de test) que asumen identificadores case-insensitive (comportamiento de SQL Server). Postgres pliega
+  a minúscula cualquier identificador SIN comillas; forzando que las tablas/columnas se CREEN en
+  minúscula, todo ese SQL crudo (que ya las referencia sin comillas, en PascalCase o no) seguía
+  funcionando sin tocarlo. Los nombres de tabla fijados a mano con `ToTable(...)` (EFConfig del código
+  base + Identity) no los toca la convention (gana la config explícita) — se normalizan aparte con un
+  loop en `AcgFotosDbContext.OnModelCreating` que baja a minúscula `GetTableName()`/`GetViewName()` de
+  cada entidad tras registrar el modelo completo.
+- **Vista `vw_UsuarioRolesEfectivos`** (SQL crudo, ADR-11): reescrita a mano en la migración regenerada
+  (EF no la reconstruye sola al regenerar migraciones — queda documentado igual que antes en el propio
+  archivo de migración). Traducción: sin `dbo.`, `CAST(... AS bit)` → `EXISTS(...)` directo (booleano
+  nativo), todo en minúscula sin comillas.
+- **Respawn** (reseteo de DB entre tests): `DbAdapter.Postgres`, esquema `public` en vez de `dbo`. El
+  overload de `Respawner.CreateAsync`/`ResetAsync` por *connection string* sólo soporta SQL Server —
+  hay que pasar un `NpgsqlConnection` ya abierto.
+- **Serilog → `Serilog.Sinks.PostgreSQL`**: reemplaza `Serilog.Sinks.MSSqlServer`, mismo patrón de
+  `columnOptions` apuntado a las columnas reales de `gen_LogInfos` (vía `configurationPath` en el JSON,
+  ya que el sink no tiene el mismo autoconfig por convención que traía el de MSSQL).
+- **`Npgsql.EnableLegacyTimestampBehavior`** (switch global, `[ModuleInitializer]` en `DatabaseFactory`):
+  el código heredado usa `DateTime.Now` (Kind=Local) en decenas de lugares para columnas mapeadas a
+  `timestamp with time zone`; Npgsql 6+ rechaza en runtime cualquier `DateTime` que no sea Kind=Utc
+  contra ese tipo. Se restaura el comportamiento tolerante anterior en vez de auditar cada call site
+  de una sola vez — **deuda documentada**: lo correcto a mediano plazo es migrar a `DateTime.UtcNow`
+  gradualmente y eventualmente sacar el switch.
+- **`ConfigureWarnings` ignora `PendingModelChangesWarning`**: falso positivo conocido de
+  `EFCore.NamingConventions` (el diff modelo-vivo-vs-snapshot no es 100% estable entre el tooling de
+  diseño y runtime con este plugin) — no indica una migración real pendiente.
+- **`SELECT COUNT(*)` vía ADO crudo**: Postgres devuelve `bigint` (no `int` como SQL Server) — los
+  `(int)ExecuteScalar()` de `UsuarioAppService.EmailExists` y `LogInfoAppService.GetForAllTenants`
+  tiraban `InvalidCastException` en runtime (no se detecta en compilación, `ExecuteScalar` devuelve
+  `object`). Corregido a castear `long` primero.
+- **Boolean literal**: SQL Server no distingue `bit` de `int` en comparaciones (`Activo = 1` funciona);
+  Postgres sí — cualquier `= 1`/`= 0` contra una columna boolean tira `42804 (la columna es de tipo
+  boolean pero la expresión es de tipo integer)`. Se tradujo a `= true`/`= false` en todo el SQL crudo
+  encontrado (producción y tests). Relacionado: `CONCAT()`/cast de un boolean a texto en Postgres da
+  `'t'`/`'f'` (un carácter), no `'true'`/`'false'` como en SQL Server — algunas aserciones de test que
+  comparaban el resultado de un `CONCAT` con un booleano tuvieron que ajustarse.
+- **Identity/secuencias**: a diferencia de `SET IDENTITY_INSERT` (SQL Server, que si avanza el contador
+  interno tras un insert explícito), la identity `GENERATED BY DEFAULT AS IDENTITY` de Postgres permite
+  insertar valores explícitos SIN wrapper especial, pero **no resincroniza la secuencia** — el seed de
+  tests (`TestSeed.sql`) inserta filas con Id fijo y bajo, así que sin un `setval(pg_get_serial_sequence(...))`
+  explícito al final del seed, el próximo insert "automático" de la app terminaba repitiendo un Id ya
+  usado y violando la PK.
+
+**Consecuencias**: la migración quedó verificada end-to-end (suite de integración 508/508 contra
+Postgres local — subió de los 419 originales por tests nuevos de fases posteriores). Pendiente y
+fuera del alcance de esta sesión: la base de dev (`AcgFotos`, distinta de `AcgFotos_Tests`) quedó con
+el esquema aplicado pero sin datos — sembrar root/tenant/fotógrafo es un paso aparte, no específico de
+esta migración (la base de SQL Server ya tenía esos datos acumulados de sesiones anteriores). Deuda
+documentada: migrar `DateTime.Now` → `DateTime.UtcNow` en el código heredado para poder sacar el switch
+legacy de timestamps.
