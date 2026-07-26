@@ -105,6 +105,29 @@ namespace AcgFotos.Base.Infrastructure.Data
             // Identity: su config es un método estático (no IEntityTypeConfiguration) → explícita.
             IdentityRoleEDConfig.Configure(modelBuilder);
 
+            // EFCore.NamingConventions (DatabaseFactory.ConfigureEFProvider) no pisa nombres de
+            // tabla/vista fijados EXPLÍCITO por ToTable/ToView (los EFConfig del código base y las de
+            // Identity los fijan en PascalCase, pensados para SQL Server) — la config explícita
+            // siempre le gana a una convention de model-building. Postgres pliega a minúscula
+            // cualquier identificador SIN comillas, así que sin normalizar esto a mano el nombre real
+            // de la tabla ("fot_Eventos") no matchearía el SQL crudo heredado, que las referencia sin
+            // comillas (TestSeed.sql, seeds de dev, queries de tests). Se corre una vez, tras registrar
+            // TODAS las entidades (incluidas las de Identity).
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                var tableName = entityType.GetTableName();
+                if (tableName != null)
+                {
+                    entityType.SetTableName(tableName.ToLowerInvariant());
+                }
+
+                var viewName = entityType.GetViewName();
+                if (viewName != null)
+                {
+                    entityType.SetViewName(viewName.ToLowerInvariant());
+                }
+            }
+
             // IMPORTANTE: el filtro multi-tenant se aplica DESPUÉS de registrar TODAS las entidades,
             // porque recorre el modelo ya poblado (una entity no registrada aún no recibiría el filtro).
             this.SetupMultitenantFilter(modelBuilder);

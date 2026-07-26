@@ -20,14 +20,14 @@ namespace AcgFotos.Api.IntegrationTests.Parametros
         // Siembra una aplicación global y devuelve su Id.
         private async Task<long> InsertAppAsync(string codigo)
         {
-            await Factory.ExecuteSqlAsync($"INSERT INTO gen_Aplicaciones (Codigo, Nombre, Activo) VALUES (N'{codigo}', N'{codigo}', 1)");
+            await Factory.ExecuteSqlAsync($"INSERT INTO gen_Aplicaciones (Codigo, Nombre, Activo) VALUES ('{codigo}', '{codigo}', true)");
             return await Factory.QueryScalarAsync<long>($"SELECT Id FROM gen_Aplicaciones WHERE Codigo = '{codigo}'");
         }
 
         private Task SeedParamAsync(string nombre, long aplicacionId, string? valor) =>
             Factory.ExecuteSqlAsync(
                 "INSERT INTO gen_Parametros (AplicacionId, PermisoId, TipoDato, Nombre, Descripcion, Valor) " +
-                $"VALUES ({aplicacionId}, NULL, 3, N'{nombre}', N'{nombre}', {(valor == null ? "NULL" : $"N'{valor}'")})");
+                $"VALUES ({aplicacionId}, NULL, 3, '{nombre}', '{nombre}', {(valor == null ? "NULL" : $"'{valor}'")})");
 
         [Fact] // PAR-01 — listado paginado happy: ParametroDto con AplicacionNombre aplanado (Include Aplicacion)
         public async Task Listado_paginado_happy()

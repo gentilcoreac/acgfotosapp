@@ -1160,7 +1160,7 @@ namespace AcgFotos.Core.Localization.APIResources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error de SQL Server: {0}.
+        ///   Looks up a localized string similar to Error de base de datos: {0}.
         /// </summary>
         public static string ErrorSqlServer {
             get {

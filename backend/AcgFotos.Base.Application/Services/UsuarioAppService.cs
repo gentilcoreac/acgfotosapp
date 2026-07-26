@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SixLabors.ImageSharp;
@@ -746,31 +746,33 @@ namespace AcgFotos.Base.Application.Services
             return serie;
         }
 
-        // EmailExists: consulta directa con SqlConnection para evitar materializar la entidad.
+        // EmailExists: consulta directa con NpgsqlConnection para evitar materializar la entidad.
         // Sync intencional — no se justifica async para una consulta tan acotada.
         private bool EmailExists(string email, long id)
         {
             var connectionString = _configuration.GetConnectionString("SqlModuleConnection");
-            // Suppress: esta SqlConnection cruda NO debe enlistarse en el TransactionScope ambiente
-            // (p.ej. el del alta de tenant). Si lo hiciera, sería una 2ª conexión dentro del scope
-            // —la 1ª es la de EF— y promovería la transacción a distribuida (MSDTC), no soportada por
-            // defecto en .NET moderno. Es una lectura de unicidad sobre datos committeados → correcta
-            // fuera de la transacción.
+            // Suppress: esta conexión cruda NO debe enlistarse en el TransactionScope ambiente (p.ej.
+            // el del alta de tenant). Si lo hiciera, sería una 2ª conexión dentro del scope —la 1ª es
+            // la de EF— y Npgsql no soporta transacciones distribuidas/promotable (a diferencia de
+            // SQL Server con MSDTC): sin Suppress, esto directamente tira una excepción en vez de
+            // promoverse. Es una lectura de unicidad sobre datos committeados → correcta fuera de la
+            // transacción.
             using var suppress = new TransactionScope(TransactionScopeOption.Suppress);
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new NpgsqlConnection(connectionString);
             try
             {
                 connection.Open();
                 const string query = @"SELECT COUNT(*)
-                                       FROM dbo.gen_Usuarios
+                                       FROM gen_Usuarios
                                        WHERE Email = @Email AND Id != @Id";
 
-                using var command = new SqlCommand(query, connection);
+                using var command = new NpgsqlCommand(query, connection);
                 command.Parameters.AddWithValue("@Id", id);
                 command.Parameters.AddWithValue("@Email", email);
                 command.CommandTimeout = _configuration.GetValue<int>("SqlCommandTimeout");
 
-                var count = (int)command.ExecuteScalar();
+                // COUNT(*) en Postgres devuelve bigint (Int64), a diferencia de SQL Server (int).
+                var count = (long)command.ExecuteScalar();
                 return count > 0;
             }
             finally

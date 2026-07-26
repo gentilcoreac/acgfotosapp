@@ -47,9 +47,9 @@ namespace AcgFotos.Api.IntegrationTests.Usuarios
             // Logins del mes actual: 1 usuario distinto en tenant 2 (10) y 2 en tenant 3 (11, 12).
             await Factory.ExecuteSqlAsync(@"
                 INSERT INTO gen_UsuariosHistorial (UsuarioId, Periodo, FechaLastLogin, TenantId) VALUES
-                    (10, 'p', SYSDATETIME(), 2),
-                    (11, 'p', SYSDATETIME(), 3),
-                    (12, 'p', SYSDATETIME(), 3);");
+                    (10, 'p', now(), 2),
+                    (11, 'p', now(), 3),
+                    (12, 'p', now(), 3);");
 
             using (var t2 = await CreateAuthenticatedClientAsync(TestData.UserB))   // tenant 2
             {
@@ -72,8 +72,8 @@ namespace AcgFotos.Api.IntegrationTests.Usuarios
             // 2 logins del MISMO usuario (10) en el tenant 2, mes actual.
             await Factory.ExecuteSqlAsync($@"
                 INSERT INTO gen_UsuariosHistorial (UsuarioId, Periodo, FechaLastLogin, TenantId) VALUES
-                    ({TestData.UserBId}, 'p', SYSDATETIME(), {TestData.ActiveTenantId}),
-                    ({TestData.UserBId}, 'p', SYSDATETIME(), {TestData.ActiveTenantId});");
+                    ({TestData.UserBId}, 'p', now(), {TestData.ActiveTenantId}),
+                    ({TestData.UserBId}, 'p', now(), {TestData.ActiveTenantId});");
 
             using var client = await CreateAuthenticatedClientAsync(TestData.UserB); // único user del t2 que loguea
             var serie = await (await client.GetAsync("/api/general/usuarios/actividad-mensual"))
@@ -86,7 +86,7 @@ namespace AcgFotos.Api.IntegrationTests.Usuarios
         public async Task Altas_cuentan_por_datecreated_del_mes()
         {
             // userb2 (t2) "dado de alta" este mes.
-            await Factory.ExecuteSqlAsync($"UPDATE gen_Usuarios SET DateCreated = SYSDATETIME() WHERE Id = {TestData.UserB2Id}");
+            await Factory.ExecuteSqlAsync($"UPDATE gen_Usuarios SET DateCreated = now() WHERE Id = {TestData.UserB2Id}");
 
             using var client = await CreateAuthenticatedClientAsync(TestData.UserB);
             var serie = await (await client.GetAsync("/api/general/usuarios/actividad-mensual"))

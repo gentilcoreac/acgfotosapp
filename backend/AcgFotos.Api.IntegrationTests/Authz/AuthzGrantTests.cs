@@ -25,7 +25,7 @@ namespace AcgFotos.Api.IntegrationTests.Authz
             var resp = await root.GetAsync("/api/general/discover");
 
             await resp.ShouldBeStatus(HttpStatusCode.OK);
-            var endpoints = await Factory.QueryScalarAsync<int>("SELECT COUNT(*) FROM gen_Endpoints WHERE Activo = 1");
+            var endpoints = await Factory.QueryScalarAsync<int>("SELECT COUNT(*) FROM gen_Endpoints WHERE Activo = true");
             Assert.True(endpoints > 0, "discover deberia dejar endpoints activos en el catalogo");
         }
 

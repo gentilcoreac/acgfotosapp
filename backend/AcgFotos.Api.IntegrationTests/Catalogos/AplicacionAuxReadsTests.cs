@@ -23,7 +23,7 @@ namespace AcgFotos.Api.IntegrationTests.Catalogos
 
         // gen_UsuarioAplicaciones es multi-tenant (TenantId NOT NULL) → se sella con el tenant del usuario.
         private Task SeedUsuarioAppAsync(long usuarioId, long aplicacionId, long tenantId = TestData.ActiveTenantId) =>
-            Factory.ExecuteSqlAsync($"INSERT INTO gen_UsuarioAplicaciones (UsuarioId, AplicacionId, TenantId, [Default]) VALUES ({usuarioId}, {aplicacionId}, {tenantId}, 0)");
+            Factory.ExecuteSqlAsync($"INSERT INTO gen_UsuarioAplicaciones (UsuarioId, AplicacionId, TenantId, \"default\") VALUES ({usuarioId}, {aplicacionId}, {tenantId}, false)");
 
         private Task SeedTenantAppAsync(long tenantId, long aplicacionId) =>
             Factory.ExecuteSqlAsync($"INSERT INTO gen_TenantAplicaciones (TenantId, AplicacionId) VALUES ({tenantId}, {aplicacionId})");

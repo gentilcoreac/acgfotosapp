@@ -33,7 +33,7 @@ namespace AcgFotos.Api.IntegrationTests.Catalogos
         [Fact] // ROL-32 — root apaga el flag (vuelve a false)
         public async Task Root_apaga_flag_false()
         {
-            await Factory.ExecuteSqlAsync("UPDATE gen_Roles SET EsDefaultParaNuevoTenant = 1 WHERE Id = 1");
+            await Factory.ExecuteSqlAsync("UPDATE gen_Roles SET EsDefaultParaNuevoTenant = true WHERE Id = 1");
 
             using var client = await CreateAuthenticatedClientAsync(); // root
             var resp = await client.PostAsJsonAsync("/api/general/roles/1/set-default-tenant",

@@ -40,7 +40,7 @@ namespace AcgFotos.Api.IntegrationTests.Authz
             {
                 await Factory.ExecuteSqlAsync(
                     "INSERT INTO gen_Endpoints (ActionName, ControllerName, Namespace, ModuleName, Route, HttpMethod, Activo) " +
-                    $"VALUES ('A{i}','C','N','M','api/test/e{i}','GET',1)");
+                    $"VALUES ('A{i}','C','N','M','api/test/e{i}','GET',true)");
                 ids[i] = await Factory.QueryScalarAsync<long>(
                     $"SELECT Id FROM gen_Endpoints WHERE Route = 'api/test/e{i}' AND HttpMethod = 'GET'");
             }
@@ -73,7 +73,7 @@ namespace AcgFotos.Api.IntegrationTests.Authz
         [Fact] // AUTHZ-44 — set-es-restringido como root cambia el flag
         public async Task SetEsRestringido_como_root_cambia_el_flag()
         {
-            await Factory.ExecuteSqlAsync("UPDATE gen_Permisos SET EsRestringido = 0 WHERE Id = 1");
+            await Factory.ExecuteSqlAsync("UPDATE gen_Permisos SET EsRestringido = false WHERE Id = 1");
 
             using var root = await CreateAuthenticatedClientAsync();
             var resp = await root.PostAsJsonAsync("/api/general/permisos/1/set-es-restringido", new { esRestringido = true });
@@ -134,10 +134,8 @@ namespace AcgFotos.Api.IntegrationTests.Authz
         {
             // Permisos 2 y 3 (globales) + Rol 1 con RolPermisos {1,2}.
             await Factory.ExecuteSqlAsync(@"
-                SET IDENTITY_INSERT gen_Permisos ON;
                 INSERT INTO gen_Permisos (Id, Nombre, CodigoPermiso, Descripcion, Activo, AplicacionId, EsRestringido)
-                    VALUES (2,'P2','P2','d',1,1,0),(3,'P3','P3','d',1,1,0);
-                SET IDENTITY_INSERT gen_Permisos OFF;
+                    VALUES (2,'P2','P2','d',true,1,false),(3,'P3','P3','d',true,1,false);
                 INSERT INTO gen_RolPermisos (RolId, PermisoId) VALUES (1,1),(1,2);");
 
             using var root = await CreateAuthenticatedClientAsync();
@@ -146,7 +144,7 @@ namespace AcgFotos.Api.IntegrationTests.Authz
 
             await resp.ShouldBeOk();
             var permisos = await Factory.QueryScalarAsync<string>(
-                "SELECT STRING_AGG(CAST(PermisoId AS varchar), ',') WITHIN GROUP (ORDER BY PermisoId) FROM gen_RolPermisos WHERE RolId = 1");
+                "SELECT STRING_AGG(CAST(PermisoId AS varchar), ',' ORDER BY PermisoId) FROM gen_RolPermisos WHERE RolId = 1");
             Assert.Equal("2,3", permisos); // quito p1, agrego p3, dejo p2
         }
 

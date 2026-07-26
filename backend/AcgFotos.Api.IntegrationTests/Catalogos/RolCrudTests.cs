@@ -33,7 +33,7 @@ namespace AcgFotos.Api.IntegrationTests.Catalogos
         {
             await Factory.ExecuteSqlAsync(
                 $"INSERT INTO gen_Permisos (Nombre, CodigoPermiso, Descripcion, Activo, PermisoPadreId, AplicacionId, EsRestringido) " +
-                $"VALUES (N'{codigo}', N'{codigo}', N'{codigo}', 1, NULL, 1, 0)");
+                $"VALUES ('{codigo}', '{codigo}', '{codigo}', true, NULL, 1, false)");
             return await Factory.QueryScalarAsync<long>($"SELECT Id FROM gen_Permisos WHERE CodigoPermiso = '{codigo}'");
         }
 

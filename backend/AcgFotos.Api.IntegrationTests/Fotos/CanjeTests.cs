@@ -100,7 +100,7 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             var (_, grupo) = await CrearEventoConParticipanteAsync(admin);
             var codigo = grupo.Participantes.Single().CodigoAcceso!;
 
-            await Factory.ExecuteSqlAsync($"UPDATE fot_CodigosAcceso SET Activo = 0 WHERE Codigo = '{codigo}'");
+            await Factory.ExecuteSqlAsync($"UPDATE fot_CodigosAcceso SET Activo = false WHERE Codigo = '{codigo}'");
 
             using var anonimo = CreateClient();
             var resp = await anonimo.PostAsJsonAsync("/api/fotos/canje", new { codigo });

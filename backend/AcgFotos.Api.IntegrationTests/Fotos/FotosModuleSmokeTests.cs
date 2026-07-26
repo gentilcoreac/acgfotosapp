@@ -35,8 +35,9 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
         [InlineData("fot_PedidoItems")]
         public async Task La_tabla_del_vertical_existe(string tabla)
         {
+            // Postgres guarda los nombres de tabla en minúscula (UseLowerCaseNamingConvention).
             var count = await CountAsync(
-                $"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{tabla}'");
+                $"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = LOWER('{tabla}')");
 
             Assert.Equal(1, count);
         }

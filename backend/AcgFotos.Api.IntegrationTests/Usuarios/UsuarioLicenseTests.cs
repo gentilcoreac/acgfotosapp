@@ -27,7 +27,7 @@ namespace AcgFotos.Api.IntegrationTests.Usuarios
             var asignada = await Factory.QueryScalarAsync<int>($@"
                 SELECT COUNT(*) FROM gen_UsuarioTipoLicencia l
                 JOIN gen_Usuarios u ON u.Id = l.UsuarioId
-                WHERE u.UserName = 'nuevo-lic' AND l.TipoLicenciaId = 1 AND l.IsActive = 1 AND l.TenantId = {TestData.ActiveTenantId}");
+                WHERE u.UserName = 'nuevo-lic' AND l.TipoLicenciaId = 1 AND l.IsActive = true AND l.TenantId = {TestData.ActiveTenantId}");
             Assert.Equal(1, asignada);
         }
 

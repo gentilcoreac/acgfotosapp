@@ -44,7 +44,7 @@ namespace AcgFotos.Api.IntegrationTests.Authz
             var resp = await client.GetAsync("/api/general/discover");
 
             await resp.ShouldBeStatus(HttpStatusCode.OK);
-            var activos = await Factory.QueryScalarAsync<int>("SELECT COUNT(*) FROM gen_Endpoints WHERE Activo = 1");
+            var activos = await Factory.QueryScalarAsync<int>("SELECT COUNT(*) FROM gen_Endpoints WHERE Activo = true");
             Assert.True(activos > 0, "discover sin auth deberia poblar el catalogo");
         }
     }

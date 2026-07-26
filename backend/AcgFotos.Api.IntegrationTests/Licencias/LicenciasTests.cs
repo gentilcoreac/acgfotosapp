@@ -37,7 +37,7 @@ namespace AcgFotos.Api.IntegrationTests.Licencias
         private Task SeedUserLicenseAsync(long usuarioId, long tipoLicenciaId, long tenantId, bool activa) =>
             Factory.ExecuteSqlAsync(
                 $@"INSERT INTO gen_UsuarioTipoLicencia (UsuarioId, TipoLicenciaId, CreatedDatetime, TenantId, IsActive)
-                   VALUES ({usuarioId}, {tipoLicenciaId}, SYSDATETIME(), {tenantId}, {(activa ? 1 : 0)})");
+                   VALUES ({usuarioId}, {tipoLicenciaId}, now(), {tenantId}, {(activa ? "true" : "false")})");
 
         // ---------------- get-cantidad-licencias-asignadas ----------------
 
@@ -71,7 +71,7 @@ namespace AcgFotos.Api.IntegrationTests.Licencias
             using var client = await CreateAuthenticatedClientAsync(TestData.AdminB2); // login con licencia vigente
             // Vence DESPUES del login (el gate de licencia es solo en login/refresh; el GET recomputa en vivo).
             await Factory.ExecuteSqlAsync(
-                $"UPDATE gen_TenantLicencias SET ExpireDatetime = DATEADD(day, -1, SYSDATETIME()) WHERE TenantId = {TestData.ActiveTenantId} AND TipoLicenciaId = 1");
+                $"UPDATE gen_TenantLicencias SET ExpireDatetime = now() - interval '1 day' WHERE TenantId = {TestData.ActiveTenantId} AND TipoLicenciaId = 1");
 
             var tipo1 = Assert.Single(await GetResumenAsync(client), c => c.TipoLicenciaId == Tipo1);
             Assert.True(tipo1.IsExpired);
@@ -83,7 +83,7 @@ namespace AcgFotos.Api.IntegrationTests.Licencias
         {
             using var client = await CreateAuthenticatedClientAsync(TestData.AdminB2);
             await Factory.ExecuteSqlAsync(
-                $"UPDATE gen_TenantLicencias SET ExpireDatetime = DATEADD(day, 10, SYSDATETIME()) WHERE TenantId = {TestData.ActiveTenantId} AND TipoLicenciaId = 1");
+                $"UPDATE gen_TenantLicencias SET ExpireDatetime = now() + interval '10 days' WHERE TenantId = {TestData.ActiveTenantId} AND TipoLicenciaId = 1");
 
             var tipo1 = Assert.Single(await GetResumenAsync(client), c => c.TipoLicenciaId == Tipo1);
             Assert.False(tipo1.IsExpired);
@@ -96,7 +96,7 @@ namespace AcgFotos.Api.IntegrationTests.Licencias
             // Tenant 2 contrata tipo2 (cupo 4) pero nadie lo tiene asignado.
             await Factory.ExecuteSqlAsync($@"
                 INSERT INTO gen_TenantLicencias (TenantId, TipoLicenciaId, Cantidad, StartDatetime, ExpireDatetime, ModifiedDatetime)
-                VALUES ({TestData.ActiveTenantId}, 2, 4, SYSDATETIME(), '2099-12-31', SYSDATETIME())");
+                VALUES ({TestData.ActiveTenantId}, 2, 4, now(), '2099-12-31', now())");
 
             using var client = await CreateAuthenticatedClientAsync(TestData.AdminB2);
 

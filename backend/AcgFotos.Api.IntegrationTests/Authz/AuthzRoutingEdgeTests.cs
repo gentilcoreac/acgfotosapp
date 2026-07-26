@@ -55,7 +55,7 @@ namespace AcgFotos.Api.IntegrationTests.Authz
                 INSERT INTO gen_PermisoEndpoints (PermisoId, EndpointId) VALUES (1, {getEndpointId});");
 
             // Un id real cualquiera para la ruta (el filtro chequea la firma, no la existencia del recurso).
-            var algunId = await Factory.QueryScalarAsync<long>("SELECT TOP 1 Id FROM gen_Endpoints WHERE Activo = 1");
+            var algunId = await Factory.QueryScalarAsync<long>("SELECT Id FROM gen_Endpoints WHERE Activo = true LIMIT 1");
 
             using var client = await CreateAuthenticatedClientAsync(TestData.UserB);
 

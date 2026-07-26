@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using AcgFotos.Core.AuditLog;
@@ -83,7 +83,7 @@ namespace AcgFotos.Core.Exceptions
                     response.StatusCode = (int)HttpStatusCode.BadRequest;
                 }
                 // ADO SQL Exceptions
-                else if (ex is SqlException)
+                else if (ex is PostgresException)
                 {
                     message = string.Format(MessagesAPI.ErrorSqlServer, ex.Message);
                 }
@@ -92,30 +92,32 @@ namespace AcgFotos.Core.Exceptions
                 {
                     response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-                    if (ex.InnerException is SqlException sqlEx)
+                    // SqlState: código SQLSTATE de Postgres (equivalente al Number de SqlException de
+                    // SQL Server). Referencia: https://www.postgresql.org/docs/current/errcodes-appendix.html
+                    if (ex.InnerException is PostgresException pgEx)
                     {
-                        switch (sqlEx.Number)
+                        switch (pgEx.SqlState)
                         {
-                            case 547:
+                            case "23503": // foreign_key_violation
                                 message = MessagesAPI.SqlError547;
                                 break;
-                            case 2601:
-                            case 2627:
+                            case "23505": // unique_violation
                                 message = MessagesAPI.SqlError2627;
                                 break;
-                            case 4060:
+                            case "3D000": // invalid_catalog_name
                                 message = MessagesAPI.SqlError4060;
                                 break;
-                            case 18456:
+                            case "28P01": // invalid_password
+                            case "28000": // invalid_authorization_specification
                                 message = MessagesAPI.SqlError18456;
                                 break;
-                            case 515:
+                            case "23502": // not_null_violation
                                 message = MessagesAPI.SqlError515;
                                 break;
-                            case 8152:
+                            case "22001": // string_data_right_truncation
                                 message = MessagesAPI.SqlError8152;
                                 break;
-                            case 208:
+                            case "42P01": // undefined_table
                                 message = MessagesAPI.SqlError208;
                                 break;
                             default:

@@ -25,7 +25,7 @@ namespace AcgFotos.Api.IntegrationTests.Authz
         /// <summary>Arma el grafo de grant de userb (id 10, tenant 2) sobre un endpoint sintetico Activo=1.</summary>
         private Task SeedGrantForUserBAsync() => Factory.ExecuteSqlAsync(@"
             INSERT INTO gen_Endpoints (ActionName, ControllerName, Namespace, ModuleName, Route, HttpMethod, Activo)
-                VALUES ('X','C','N','M','api/test/x','GET',1);
+                VALUES ('X','C','N','M','api/test/x','GET',true);
             INSERT INTO gen_TipoLicenciaRoles (RolId, TipoLicenciaId) VALUES (1, 1);
             INSERT INTO gen_UsuarioRoles (UsuarioId, RolId, TenantId) VALUES (10, 1, 2);
             INSERT INTO gen_RolPermisos (RolId, PermisoId) VALUES (1, 1);

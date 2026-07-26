@@ -31,7 +31,7 @@ namespace AcgFotos.Api.IntegrationTests.Usuarios
 
             var row = await Factory.QueryScalarAsync<string>(@"
                 SELECT CONCAT(TenantId, '|',
-                              CASE WHEN CAST(DateCreated AS date) = CAST(GETDATE() AS date) THEN 1 ELSE 0 END, '|',
+                              CASE WHEN CAST(DateCreated AS date) = CURRENT_DATE THEN 1 ELSE 0 END, '|',
                               CASE WHEN LockoutEnd IS NULL THEN 1 ELSE 0 END)
                 FROM gen_Usuarios WHERE UserName = 'nuevo-ok'");
             Assert.Equal($"{TestData.RootTenantId}|1|1", row); // tenant del contexto, DateCreated hoy, sin bloqueo

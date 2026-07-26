@@ -35,7 +35,7 @@ namespace AcgFotos.Api.IntegrationTests.Tenants
         public async Task Administradores_cross_tenant_via_ignore_filters()
         {
             // "Admin" = usuario con un rol EsDefaultParaNuevoTenant. Sembramos eso para adminb2 (tenant 2).
-            await Factory.ExecuteSqlAsync("UPDATE gen_Roles SET EsDefaultParaNuevoTenant = 1 WHERE Id = 1");
+            await Factory.ExecuteSqlAsync("UPDATE gen_Roles SET EsDefaultParaNuevoTenant = true WHERE Id = 1");
             await Factory.ExecuteSqlAsync(
                 $"INSERT INTO gen_UsuarioRoles (UsuarioId, RolId, TenantId) VALUES ({TestData.AdminB2Id}, 1, {TestData.ActiveTenantId})"); // adminb2 -> Rol 1
 
@@ -50,7 +50,7 @@ namespace AcgFotos.Api.IntegrationTests.Tenants
         [Fact] // TEN-38 — tenant sin admins -> lista vacía (no 404)
         public async Task Administradores_tenant_sin_admins_vacio()
         {
-            await Factory.ExecuteSqlAsync("UPDATE gen_Roles SET EsDefaultParaNuevoTenant = 1 WHERE Id = 1");
+            await Factory.ExecuteSqlAsync("UPDATE gen_Roles SET EsDefaultParaNuevoTenant = true WHERE Id = 1");
             // Nadie del tenant 3 tiene el rol default.
 
             using var client = await CreateAuthenticatedClientAsync(); // root

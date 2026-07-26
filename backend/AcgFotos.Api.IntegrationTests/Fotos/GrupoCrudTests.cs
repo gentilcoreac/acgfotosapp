@@ -62,8 +62,8 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
                 INSERT INTO fot_Fotos (TenantId, EventoId, GrupoId, ParticipanteId, StorageKey,
                                        NombreArchivoOriginal, Ancho, Alto, TamanoBytes,
                                        EstadoProcesamiento, CreadoEn)
-                VALUES ({tenantId}, {eventoId}, {grupoId}, {(participanteId?.ToString() ?? "NULL")}, NEWID(),
-                        'foto.jpg', 100, 100, 1000, 0, GETUTCDATE())");
+                VALUES ({tenantId}, {eventoId}, {grupoId}, {(participanteId?.ToString() ?? "NULL")}, gen_random_uuid(),
+                        'foto.jpg', 100, 100, 1000, 0, now())");
 
         [Fact] // CUR-01 — alta happy: persiste grupo + participantes con tenant y genera un código activo por participante
         public async Task Alta_persiste_grupo_con_participantes_y_genera_codigos()
@@ -79,7 +79,7 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             Assert.Equal(2, await CountAsync(
                 $@"SELECT COUNT(*) FROM fot_CodigosAcceso ca
                    JOIN fot_Participantes a ON a.Id = ca.ParticipanteId
-                   WHERE a.GrupoId = {dto.Id} AND ca.Activo = 1 AND ca.TenantId = 2"));
+                   WHERE a.GrupoId = {dto.Id} AND ca.Activo = true AND ca.TenantId = 2"));
 
             Assert.Equal(2, dto.Participantes.Count);
             Assert.All(dto.Participantes, a => Assert.Matches(FormatoCodigo, a.CodigoAcceso!));

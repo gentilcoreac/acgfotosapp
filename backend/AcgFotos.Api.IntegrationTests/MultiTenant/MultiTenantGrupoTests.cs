@@ -60,7 +60,7 @@ namespace AcgFotos.Api.IntegrationTests.MultiTenant
 
             await resp.ShouldBeOk();
             var childTenant = await Factory.QueryScalarAsync<long>(
-                "SELECT TOP 1 TenantId FROM gen_GrupoRoles WHERE GrupoId = (SELECT Id FROM gen_Grupos WHERE Nombre = 'g-mt5')");
+                "SELECT TenantId FROM gen_GrupoRoles WHERE GrupoId = (SELECT Id FROM gen_Grupos WHERE Nombre = 'g-mt5') LIMIT 1");
             Assert.Equal(TestData.ActiveTenantId, childTenant); // el GrupoRol hijo quedo en el tenant 2
         }
     }

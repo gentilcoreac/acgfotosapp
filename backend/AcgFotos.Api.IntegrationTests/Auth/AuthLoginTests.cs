@@ -79,7 +79,7 @@ namespace AcgFotos.Api.IntegrationTests.Auth
         [Fact] // AUTH-08
         public async Task Login_con_email_no_confirmado_devuelve_400()
         {
-            await Factory.ExecuteSqlAsync("UPDATE gen_Usuarios SET EmailConfirmed = 0 WHERE UserName = 'userb'");
+            await Factory.ExecuteSqlAsync("UPDATE gen_Usuarios SET EmailConfirmed = false WHERE UserName = 'userb'");
             using var client = CreateClient();
 
             var resp = await client.PostAsJsonAsync("/api/auth/token",
@@ -145,7 +145,7 @@ namespace AcgFotos.Api.IntegrationTests.Auth
         public async Task Login_con_cuenta_bloqueada_corta_antes_de_chequear_password()
         {
             await Factory.ExecuteSqlAsync(
-                $"UPDATE gen_Usuarios SET LockoutEnd = DATEADD(hour, 1, SYSDATETIMEOFFSET()) WHERE Id = {TestData.UserBId}");
+                $"UPDATE gen_Usuarios SET LockoutEnd = now() + interval '1 hour' WHERE Id = {TestData.UserBId}");
             using var client = CreateClient();
 
             // Hasta con la password correcta debe responder "bloqueada".

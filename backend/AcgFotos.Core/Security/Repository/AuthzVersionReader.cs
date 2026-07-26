@@ -25,7 +25,7 @@ namespace AcgFotos.Core.Security.Repository
             using (var connection = DatabaseFactory.CreateCrossCuttingDbConnection(_configuration))
             {
                 var sb = new StringBuilder();
-                sb.AppendLine("SELECT TOP 1 Version FROM gen_AuthzVersion ORDER BY Id");
+                sb.AppendLine("SELECT Version FROM gen_AuthzVersion ORDER BY Id LIMIT 1");
 
                 using (var command = connection.CreateCommand())
                 {

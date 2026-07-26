@@ -98,7 +98,7 @@ namespace AcgFotos.Api.IntegrationTests.Auth
             // Simula que pasó la ventana de gracia: atrasa la revocacion de A 30s.
             var hashA = RefreshTokenCrypto.Hash(rawA);
             await Factory.ExecuteSqlAsync(
-                $"UPDATE gen_RefreshTokens SET RevokedAt = DATEADD(second, -30, RevokedAt) WHERE TokenHash = '{hashA}'");
+                $"UPDATE gen_RefreshTokens SET RevokedAt = RevokedAt - interval '30 seconds' WHERE TokenHash = '{hashA}'");
 
             // Replay de A fuera de ventana: 401 y se revoca la cadena activa (incluido B) por replay.
             using var c2 = CreateClient();
@@ -216,7 +216,7 @@ namespace AcgFotos.Api.IntegrationTests.Auth
         {
             var (_, rawA) = await LoginCapturingRefreshAsync(TestData.UserB);
             await Factory.ExecuteSqlAsync(
-                $"UPDATE gen_Usuarios SET LockoutEnd = DATEADD(hour, 1, SYSDATETIMEOFFSET()) WHERE Id = {TestData.UserBId}");
+                $"UPDATE gen_Usuarios SET LockoutEnd = now() + interval '1 hour' WHERE Id = {TestData.UserBId}");
 
             using var client = CreateClient();
             client.DefaultRequestHeaders.Add("Cookie", $"{RefreshCookie}={rawA}");
@@ -229,7 +229,7 @@ namespace AcgFotos.Api.IntegrationTests.Auth
         public async Task Refresh_no_root_con_tenant_inactivo_devuelve_401()
         {
             var (_, rawA) = await LoginCapturingRefreshAsync(TestData.UserB);
-            await Factory.ExecuteSqlAsync($"UPDATE gen_Tenants SET Activo = 0 WHERE Id = {TestData.ActiveTenantId}");
+            await Factory.ExecuteSqlAsync($"UPDATE gen_Tenants SET Activo = false WHERE Id = {TestData.ActiveTenantId}");
 
             using var client = CreateClient();
             client.DefaultRequestHeaders.Add("Cookie", $"{RefreshCookie}={rawA}");

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,7 +36,7 @@ namespace AcgFotos.Api.IntegrationTests.Infrastructure
         // DB de tests PROPIA de AcgFotos (no compartir con otras bases de tests del mismo localhost:
         // distinto historial de migraciones ⇒ compartir la base las rompe a ambas).
         public const string TestConnectionString =
-            "server=localhost;database=AcgFotos_Tests;Integrated Security=True;TrustServerCertificate=True";
+            "Host=localhost;Port=5432;Database=AcgFotos_Tests;Username=postgres;Password=Root@AcgFotos2026!";
 
         private Respawner _respawner = null!;
         private string _seedSql = null!;
@@ -102,16 +102,22 @@ namespace AcgFotos.Api.IntegrationTests.Infrastructure
 
             _seedSql = LoadSeedSql();
 
-            _respawner = await Respawner.CreateAsync(TestConnectionString, new RespawnerOptions
+            // Respawn: el overload por connection string SOLO soporta SqlDataAdapter (SQL Server) —
+            // para Postgres hay que pasar un DbConnection ya abierto.
+            await using (var setupConn = new NpgsqlConnection(TestConnectionString))
             {
-                DbAdapter = DbAdapter.SqlServer,
-                SchemasToInclude = new[] { "dbo" },
-                // No tocar el historial de migraciones (sino habria que re-migrar en cada reset).
-                TablesToIgnore = new Table[]
+                await setupConn.OpenAsync();
+                _respawner = await Respawner.CreateAsync(setupConn, new RespawnerOptions
                 {
-                    "__EFMigrationsHistory",
-                },
-            });
+                    DbAdapter = DbAdapter.Postgres,
+                    SchemasToInclude = new[] { "public" },
+                    // No tocar el historial de migraciones (sino habria que re-migrar en cada reset).
+                    TablesToIgnore = new Table[]
+                    {
+                        "__EFMigrationsHistory",
+                    },
+                });
+            }
 
             // Estado inicial conocido para el primer test.
             await ResetAndSeedAsync();
@@ -120,10 +126,11 @@ namespace AcgFotos.Api.IntegrationTests.Infrastructure
         /// <summary>Limpia todas las tablas (Respawn) y re-siembra el dataset canonico. Idempotente.</summary>
         public async Task ResetAndSeedAsync()
         {
-            await _respawner.ResetAsync(TestConnectionString);
-
-            await using var conn = new SqlConnection(TestConnectionString);
+            await using var conn = new NpgsqlConnection(TestConnectionString);
             await conn.OpenAsync();
+
+            await _respawner.ResetAsync(conn);
+
             await using var cmd = conn.CreateCommand();
             cmd.CommandText = _seedSql;
             await cmd.ExecuteNonQueryAsync();
@@ -138,7 +145,7 @@ namespace AcgFotos.Api.IntegrationTests.Infrastructure
         /// <summary>Ejecuta SQL arbitrario (arrange de un caso: mutar estado de un usuario, etc.).</summary>
         public async Task ExecuteSqlAsync(string sql)
         {
-            await using var conn = new SqlConnection(TestConnectionString);
+            await using var conn = new NpgsqlConnection(TestConnectionString);
             await conn.OpenAsync();
             await using var cmd = conn.CreateCommand();
             cmd.CommandText = sql;
@@ -148,7 +155,7 @@ namespace AcgFotos.Api.IntegrationTests.Infrastructure
         /// <summary>Lee un escalar (aserciones sobre el estado de la base tras la accion).</summary>
         public async Task<T?> QueryScalarAsync<T>(string sql)
         {
-            await using var conn = new SqlConnection(TestConnectionString);
+            await using var conn = new NpgsqlConnection(TestConnectionString);
             await conn.OpenAsync();
             await using var cmd = conn.CreateCommand();
             cmd.CommandText = sql;

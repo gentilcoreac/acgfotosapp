@@ -29,7 +29,7 @@ namespace AcgFotos.Api.IntegrationTests.Catalogos
         {
             await Factory.ExecuteSqlAsync(
                 "INSERT INTO gen_EndPoints (ModuleName, ControllerName, ActionName, HttpMethod, Route, Activo) " +
-                $"VALUES (N'general', N'Test', N'Act', N'GET', N'{route}', 1)");
+                $"VALUES ('general', 'Test', 'Act', 'GET', '{route}', true)");
             return await Factory.QueryScalarAsync<long>($"SELECT Id FROM gen_EndPoints WHERE Route = '{route}'");
         }
 
@@ -73,7 +73,7 @@ namespace AcgFotos.Api.IntegrationTests.Catalogos
         {
             using var client = await CreateAuthenticatedClientAsync();
             var id = await CreatePermisoAsync(client, "qa_restr");
-            await Factory.ExecuteSqlAsync($"UPDATE gen_Permisos SET EsRestringido = 1 WHERE Id = {id}");
+            await Factory.ExecuteSqlAsync($"UPDATE gen_Permisos SET EsRestringido = true WHERE Id = {id}");
 
             var resp = await client.PostAsJsonAsync("/api/general/permisos/update",
                 new { id, nombre = "qa_restr", codigoPermiso = "qa_restr", descripcion = "d", activo = true, aplicacionId = 1, esRestringido = false });

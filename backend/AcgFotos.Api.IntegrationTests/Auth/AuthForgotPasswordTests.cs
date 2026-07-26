@@ -29,7 +29,7 @@ namespace AcgFotos.Api.IntegrationTests.Auth
         [Fact] // AUTH-59 (variante: email no confirmado)
         public async Task OlvidePassword_de_usuario_con_email_no_confirmado_devuelve_400()
         {
-            await Factory.ExecuteSqlAsync($"UPDATE gen_Usuarios SET EmailConfirmed = 0 WHERE Id = {TestData.UserBId}");
+            await Factory.ExecuteSqlAsync($"UPDATE gen_Usuarios SET EmailConfirmed = false WHERE Id = {TestData.UserBId}");
             using var client = CreateClient();
 
             var resp = await client.PostAsJsonAsync("/api/auth/olvide-password",

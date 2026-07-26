@@ -34,7 +34,7 @@ namespace AcgFotos.Api.IntegrationTests.Tenants
         {
             // El sistema marcó el tenant 2 con un error interno (no debe verse desde el endpoint público).
             await Factory.ExecuteSqlAsync(
-                $"UPDATE gen_Tenants SET HasError = 1, ErrorDescription = 'secreto-error-t2' WHERE Id = {TestData.ActiveTenantId}");
+                $"UPDATE gen_Tenants SET HasError = true, ErrorDescription = 'secreto-error-t2' WHERE Id = {TestData.ActiveTenantId}");
 
             using var client = CreateClient(); // anónimo
             var resp = await client.GetAsync("/api/general/tenants/public-style/tenant-b");

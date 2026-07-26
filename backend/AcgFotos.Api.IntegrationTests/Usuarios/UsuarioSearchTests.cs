@@ -37,7 +37,7 @@ namespace AcgFotos.Api.IntegrationTests.Usuarios
         {
             // Bloqueamos a userb (LockoutEnd futuro); userb2 queda desbloqueado (LockoutEnd null).
             await Factory.ExecuteSqlAsync(
-                $"UPDATE gen_Usuarios SET LockoutEnd = DATEADD(year, 5, SYSDATETIMEOFFSET()) WHERE Id = {TestData.UserBId}");
+                $"UPDATE gen_Usuarios SET LockoutEnd = now() + interval '5 years' WHERE Id = {TestData.UserBId}");
 
             using var client = await CreateAuthenticatedClientAsync(TestData.AdminB2);
             var page = await (await client.GetAsync("/api/general/usuarios"))
@@ -55,8 +55,8 @@ namespace AcgFotos.Api.IntegrationTests.Usuarios
             // userb logueó hoy; userb2 hace un año. Orden desc => userb antes que userb2.
             await Factory.ExecuteSqlAsync($@"
                 INSERT INTO gen_UsuariosHistorial (UsuarioId, Periodo, FechaLastLogin, TenantId) VALUES
-                    ({TestData.UserBId}, 'p', SYSDATETIME(), {TestData.ActiveTenantId}),
-                    ({TestData.UserB2Id}, 'p', DATEADD(year, -1, SYSDATETIME()), {TestData.ActiveTenantId});");
+                    ({TestData.UserBId}, 'p', now(), {TestData.ActiveTenantId}),
+                    ({TestData.UserB2Id}, 'p', now() - interval '1 year', {TestData.ActiveTenantId});");
 
             using var client = await CreateAuthenticatedClientAsync(TestData.AdminB2);
             var resp = await client.GetAsync("/api/general/usuarios?orderBy=ultimoLogin&descendingOrder=true");

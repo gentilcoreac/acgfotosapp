@@ -21,7 +21,7 @@ namespace AcgFotos.Api.IntegrationTests.Authz
             // un endpoint retirado del codigo que quedo en el catalogo).
             await Factory.ExecuteSqlAsync(
                 "INSERT INTO gen_Endpoints (ActionName, ControllerName, Namespace, ModuleName, Route, HttpMethod, Activo) " +
-                "VALUES ('Fantasma','Ghost','N','M','api/ruta/que/no/existe','GET',1)");
+                "VALUES ('Fantasma','Ghost','N','M','api/ruta/que/no/existe','GET',true)");
 
             using var root = await CreateAuthenticatedClientAsync();
             var resp = await root.GetAsync("/api/general/discover");
@@ -33,7 +33,7 @@ namespace AcgFotos.Api.IntegrationTests.Authz
             Assert.Equal(0, fantasmaActivo);
 
             // Los endpoints REALES quedaron Activo=1.
-            var realesActivos = await Factory.QueryScalarAsync<int>("SELECT COUNT(*) FROM gen_Endpoints WHERE Activo = 1");
+            var realesActivos = await Factory.QueryScalarAsync<int>("SELECT COUNT(*) FROM gen_Endpoints WHERE Activo = true");
             Assert.True(realesActivos > 0, "discover deberia dejar los endpoints reales Activo=1");
         }
 
@@ -43,10 +43,10 @@ namespace AcgFotos.Api.IntegrationTests.Authz
             using var root = await CreateAuthenticatedClientAsync();
 
             Assert.Equal(HttpStatusCode.OK, (await root.GetAsync("/api/general/discover")).StatusCode);
-            var activosTras1 = await Factory.QueryScalarAsync<int>("SELECT COUNT(*) FROM gen_Endpoints WHERE Activo = 1");
+            var activosTras1 = await Factory.QueryScalarAsync<int>("SELECT COUNT(*) FROM gen_Endpoints WHERE Activo = true");
 
             Assert.Equal(HttpStatusCode.OK, (await root.GetAsync("/api/general/discover")).StatusCode);
-            var activosTras2 = await Factory.QueryScalarAsync<int>("SELECT COUNT(*) FROM gen_Endpoints WHERE Activo = 1");
+            var activosTras2 = await Factory.QueryScalarAsync<int>("SELECT COUNT(*) FROM gen_Endpoints WHERE Activo = true");
 
             Assert.Equal(activosTras1, activosTras2); // misma cantidad de activos
             // Sin filas duplicadas para una misma identidad (Route, HttpMethod): fue UPDATE, no INSERT.
@@ -62,7 +62,7 @@ namespace AcgFotos.Api.IntegrationTests.Authz
             const string route = "api/general/usuarios/mi-perfil";
             await Factory.ExecuteSqlAsync(
                 "INSERT INTO gen_Endpoints (ActionName, ControllerName, Namespace, ModuleName, Route, HttpMethod, Activo) " +
-                $"VALUES ('GetPerfil','NombreViejoController','N','M','{route}','GET',0)");
+                $"VALUES ('GetPerfil','NombreViejoController','N','M','{route}','GET',false)");
 
             using var root = await CreateAuthenticatedClientAsync();
             Assert.Equal(HttpStatusCode.OK, (await root.GetAsync("/api/general/discover")).StatusCode);

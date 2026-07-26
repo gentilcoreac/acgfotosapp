@@ -75,7 +75,7 @@ namespace AcgFotos.Api.IntegrationTests.Usuarios
         {
             // userb2 ya tiene la app 1 con Default=false.
             await Factory.ExecuteSqlAsync(
-                $"INSERT INTO gen_UsuarioAplicaciones (UsuarioId, AplicacionId, [Default], TenantId) VALUES ({TestData.UserB2Id}, 1, 0, {TestData.ActiveTenantId})");
+                $"INSERT INTO gen_UsuarioAplicaciones (UsuarioId, AplicacionId, \"default\", TenantId) VALUES ({TestData.UserB2Id}, 1, false, {TestData.ActiveTenantId})");
             using var client = await CreateAuthenticatedClientAsync(TestData.AdminB2);
 
             // Mismo set (app 1) pero ahora Default=true.
@@ -85,7 +85,7 @@ namespace AcgFotos.Api.IntegrationTests.Usuarios
 
             await resp.ShouldBeOk();
             var def = await Factory.QueryScalarAsync<int>(
-                $"SELECT [Default] FROM gen_UsuarioAplicaciones WHERE UsuarioId = {TestData.UserB2Id} AND AplicacionId = 1");
+                $"SELECT \"default\" FROM gen_UsuarioAplicaciones WHERE UsuarioId = {TestData.UserB2Id} AND AplicacionId = 1");
             Assert.Equal(1, def); // Default actualizado por el loop post-sync
         }
     }

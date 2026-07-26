@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using AutoMapper;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Microsoft.Extensions.Configuration;
 using AcgFotos.Core.Application;
 using AcgFotos.Core.Data;
@@ -58,32 +58,33 @@ namespace AcgFotos.Base.Application.Services
             int pageSize = criteria.PageSize > 0 ? criteria.PageSize : 50;
             int skip = criteria.Page * pageSize;
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 connection.Open();
 
-                using (SqlCommand countCommand = new SqlCommand($"SELECT COUNT(*) FROM dbo.gen_LogInfos {whereSql}", connection))
+                using (NpgsqlCommand countCommand = new NpgsqlCommand($"SELECT COUNT(*) FROM gen_LogInfos {whereSql}", connection))
                 {
                     AddFilterParams(countCommand, criteria);
-                    totalRecords = (int)countCommand.ExecuteScalar();
+                    // COUNT(*) en Postgres devuelve bigint (Int64), a diferencia de SQL Server (int).
+                    totalRecords = (int)(long)countCommand.ExecuteScalar();
                 }
 
                 // Listado LIVIANO: NO se traen MessageTemplate/Exception/Properties (nvarchar(max), pueden
                 // ser enormes). El registro completo se obtiene por id (GetByIdForAllTenants). Más reciente
                 // primero (Id DESC) + paginación real OFFSET/FETCH (correcta con filtros).
                 string query = $@"SELECT Id, Message, Level, TimeStamp, TenantId
-                                  FROM dbo.gen_LogInfos
+                                  FROM gen_LogInfos
                                   {whereSql}
                                   ORDER BY Id DESC
                                   OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY";
 
-                using (SqlCommand command = new SqlCommand(query, connection))
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
                 {
                     AddFilterParams(command, criteria);
                     command.Parameters.AddWithValue("@Skip", skip);
                     command.Parameters.AddWithValue("@Take", pageSize);
 
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    using (NpgsqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
@@ -110,7 +111,7 @@ namespace AcgFotos.Base.Application.Services
         }
 
         /// <summary>Agrega los parámetros de los filtros activos (mismo set para COUNT y página).</summary>
-        private static void AddFilterParams(SqlCommand cmd, LogInfoCriteria criteria)
+        private static void AddFilterParams(NpgsqlCommand cmd, LogInfoCriteria criteria)
         {
             if (!string.IsNullOrWhiteSpace(criteria.SearchText)) { cmd.Parameters.AddWithValue("@Search", "%" + criteria.SearchText + "%"); }
             if (!string.IsNullOrWhiteSpace(criteria.Level)) { cmd.Parameters.AddWithValue("@Level", criteria.Level); }
@@ -129,18 +130,18 @@ namespace AcgFotos.Base.Application.Services
 
             var connectionString = _configuration.GetConnectionString("SqlModuleConnection");
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
                 connection.Open();
                 string query = @"SELECT Id, Message, MessageTemplate, Level, TimeStamp, Exception, Properties, TenantId
-                                 FROM dbo.gen_LogInfos
+                                 FROM gen_LogInfos
                                  WHERE Id = @Id";
 
-                using (SqlCommand command = new SqlCommand(query, connection))
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Id", id);
 
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    using (NpgsqlDataReader reader = command.ExecuteReader())
                     {
                         if (!reader.Read())
                         {

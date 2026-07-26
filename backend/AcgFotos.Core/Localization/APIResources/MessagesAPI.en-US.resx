@@ -404,7 +404,7 @@ user/s that you consider. Then, you can return here to download the number of li
     <value>The role name '{0}' is invalid.</value>
   </data>
   <data name="ErrorSqlServer" xml:space="preserve">
-    <value>SQL Server error: {0}</value>
+    <value>Database error: {0}</value>
   </data>
   <data name="ErrorStatusSubmittedNotExists" xml:space="preserve">
     <value>The submitted status doesn't exists</value>

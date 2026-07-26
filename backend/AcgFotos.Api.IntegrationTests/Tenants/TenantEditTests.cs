@@ -70,7 +70,7 @@ namespace AcgFotos.Api.IntegrationTests.Tenants
             await Factory.ExecuteSqlAsync(
                 "INSERT INTO gen_Tenants (Codigo, Nombre, Activo, DarkModeByDefault, TipoLayoutLogin, " +
                 "LogoLoginLightUrl, LogoLoginDarkUrl, LogoHeaderLightUrl, LogoHeaderDarkUrl, FaviconUrl, ErrorDescription, HasError) " +
-                "VALUES (N'del-bare', N'Del Bare', 1, 0, 0, N'', N'', N'', N'', N'', N'', 0)");
+                "VALUES ('del-bare', 'Del Bare', true, false, 0, '', '', '', '', '', '', false)");
             long id = await Factory.QueryScalarAsync<long>("SELECT Id FROM gen_Tenants WHERE Codigo = 'del-bare'");
 
             using var client = await CreateAuthenticatedClientAsync(); // root

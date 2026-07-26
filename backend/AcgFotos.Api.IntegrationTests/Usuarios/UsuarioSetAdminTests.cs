@@ -61,7 +61,7 @@ namespace AcgFotos.Api.IntegrationTests.Usuarios
 
             var row = await Factory.QueryScalarAsync<string>(
                 $"SELECT CONCAT(Administrador, '|', Nombre, '|', Email, '|', TenantId) FROM gen_Usuarios WHERE Id = {TestData.UserB2Id}");
-            Assert.Equal("1|User|userb2@tech-bi.com|2", row); // solo Administrador cambio
+            Assert.Equal("t|User|userb2@tech-bi.com|2", row); // solo Administrador cambio (Postgres: bool->text es 't'/'f')
         }
 
         [Fact] // USR-53 — sin token el endpoint sensible no opera (no promueve)

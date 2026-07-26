@@ -23,18 +23,14 @@ namespace AcgFotos.Api.IntegrationTests.Menus
 
         private Task SeedMenusYGrantAsync() => Factory.ExecuteSqlAsync(@"
             -- Permiso 2 (NO asignado a userb) y Aplicacion 2 (para el aislamiento por app).
-            SET IDENTITY_INSERT gen_Permisos ON;
             INSERT INTO gen_Permisos (Id, Nombre, CodigoPermiso, Descripcion, Activo, AplicacionId, EsRestringido)
-                VALUES (2, 'P2', 'P2', 'd', 1, 1, 0);
-            SET IDENTITY_INSERT gen_Permisos OFF;
-            SET IDENTITY_INSERT gen_Aplicaciones ON;
-            INSERT INTO gen_Aplicaciones (Id, Codigo, Nombre, Activo, Icono) VALUES (2, 'app2', 'App2', 1, 'home');
-            SET IDENTITY_INSERT gen_Aplicaciones OFF;
+                VALUES (2, 'P2', 'P2', 'd', true, 1, false);
+            INSERT INTO gen_Aplicaciones (Id, Codigo, Nombre, Activo, Icono) VALUES (2, 'app2', 'App2', true, 'home');
             -- Menus activos y visibles.
             INSERT INTO gen_Menus (Nombre, Codigo, Estado, Orden, PermisoId, AplicacionId, VisibleSideMenu, VisibleDash, RoutePath) VALUES
-                ('MenuA', 'MEN-A', 1, 1, 1, 1, 1, 1, '/granted'),
-                ('MenuB', 'MEN-B', 1, 2, 2, 1, 1, 1, '/denied'),
-                ('MenuC', 'MEN-C', 1, 3, 1, 2, 1, 1, '/otra-app');
+                ('MenuA', 'MEN-A', true, 1, 1, 1, true, true, '/granted'),
+                ('MenuB', 'MEN-B', true, 2, 2, 1, true, true, '/denied'),
+                ('MenuC', 'MEN-C', true, 3, 1, 2, true, true, '/otra-app');
             -- userb -> rol1 (licenciado) -> Permiso 1 (PermisoRoot).
             INSERT INTO gen_TipoLicenciaRoles (RolId, TipoLicenciaId) VALUES (1, 1);
             INSERT INTO gen_UsuarioRoles (UsuarioId, RolId, TenantId) VALUES (10, 1, 2);

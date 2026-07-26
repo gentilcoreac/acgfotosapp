@@ -403,7 +403,7 @@
     <value>El nombre de rol '{0}' es inválido.</value>
   </data>
   <data name="ErrorSqlServer" xml:space="preserve">
-    <value>Error de SQL Server: {0}</value>
+    <value>Error de base de datos: {0}</value>
   </data>
   <data name="ErrorStatusSubmittedNotExists" xml:space="preserve">
     <value>El estado ingresado no existe</value>

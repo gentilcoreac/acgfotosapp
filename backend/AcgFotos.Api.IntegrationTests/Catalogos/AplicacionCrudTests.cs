@@ -157,7 +157,7 @@ namespace AcgFotos.Api.IntegrationTests.Catalogos
             var id = await CreateAppAsync(client, "QA-REF", "Referenciada");
             await Factory.ExecuteSqlAsync(
                 "INSERT INTO gen_Permisos (Nombre, CodigoPermiso, Descripcion, Activo, PermisoPadreId, AplicacionId, EsRestringido) " +
-                $"VALUES (N'PrefApp', N'PrefApp', N'p', 1, NULL, {id}, 0)");
+                $"VALUES ('PrefApp', 'PrefApp', 'p', true, NULL, {id}, false)");
 
             var resp = await client.DeleteAsync($"/api/general/aplicaciones/{id}");
 

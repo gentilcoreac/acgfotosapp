@@ -40,7 +40,7 @@ namespace AcgFotos.Core.Security.Repository
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("UPDATE gen_Endpoints ");
-            sb.AppendLine("SET Activo = 0");
+            sb.AppendLine("SET Activo = false");
 
             using (var command = connection.CreateCommand())
             {
@@ -57,7 +57,7 @@ namespace AcgFotos.Core.Security.Repository
             // quede sincronizado automáticamente en el próximo discover.
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("UPDATE gen_Endpoints ");
-            sb.AppendLine("SET Activo = 1, ");
+            sb.AppendLine("SET Activo = true, ");
             sb.AppendLine("    ActionName = @ActionName, ");
             sb.AppendLine("    ControllerName = @ControllerName, ");
             sb.AppendLine("    Namespace = @Namespace, ");
@@ -185,7 +185,7 @@ namespace AcgFotos.Core.Security.Repository
 
                 var activoParam = command.CreateParameter();
                 activoParam.ParameterName = "@Activo";
-                activoParam.Value = 1; // Assuming "Activo" is always 1 for new endpoints
+                activoParam.Value = true; // Assuming "Activo" is always true para endpoints nuevos
                 command.Parameters.Add(activoParam);
 
                 connection.Open();
@@ -209,7 +209,7 @@ namespace AcgFotos.Core.Security.Repository
                 sb.AppendLine(" FROM  gen_Endpoints e ");
                 sb.AppendLine("     INNER JOIN gen_PermisoEndpoints pe ON pe.EndpointID = e.ID ");
                 sb.AppendLine("     INNER JOIN gen_RolPermisos rp ON rp.PermisoID = pe.PermisoID ");
-                sb.AppendLine(" WHERE e.Activo = 1 ");
+                sb.AppendLine(" WHERE e.Activo = true ");
                 // Roles EFECTIVOS del usuario (directos ∪ de sus grupos): FUENTE ÚNICA DE VERDAD en la
                 // vista vw_UsuarioRolesEfectivos (misma definición que consume el menú vía
                 // UsuarioRepository.GetEffectiveRolIdsByUserIdAsync). El IN(...) es un semi-join: los
@@ -222,7 +222,7 @@ namespace AcgFotos.Core.Security.Repository
                 sb.AppendLine("       FROM vw_UsuarioRolesEfectivos v ");
                 sb.AppendLine("           INNER JOIN gen_Usuarios u ON u.Id = v.UsuarioId ");
                 sb.AppendLine("       WHERE u.UserName = @UserName AND u.TenantId = @TenantId ");
-                sb.AppendLine("         AND v.PermitidoPorLicencia = 1 ");
+                sb.AppendLine("         AND v.PermitidoPorLicencia = true ");
                 sb.AppendLine("   ) ");
 
                 using (var command = connection.CreateCommand())
@@ -271,11 +271,12 @@ namespace AcgFotos.Core.Security.Repository
             using (var connection = DatabaseFactory.CreateCrossCuttingDbConnection(_configuration))
             {
                 var sb = new StringBuilder();
-                sb.AppendLine("SELECT TOP 1");
+                sb.AppendLine("SELECT");
                 sb.AppendLine("    u.SecurityStamp");
                 sb.AppendLine("FROM gen_Usuarios u");
                 sb.AppendLine("WHERE u.UserName = @UserName");
                 sb.AppendLine("  AND u.TenantId = @TenantId");
+                sb.AppendLine("LIMIT 1");
 
                 using (var command = connection.CreateCommand())
                 {

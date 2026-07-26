@@ -51,7 +51,7 @@ namespace AcgFotos.Api.IntegrationTests.Tenants
             // El usuario admin se creó EN el tenant nuevo, con Administrador=true.
             var adminRow = await Factory.QueryScalarAsync<string>(
                 "SELECT CONCAT(Administrador, '|', TenantId) FROM gen_Usuarios WHERE UserName = 'admin-nuevo'");
-            Assert.Equal($"1|{tenantId}", adminRow);
+            Assert.Equal($"t|{tenantId}", adminRow); // Postgres: bool->text es 't'/'f'
         }
 
         [Fact] // TEN-12 — alta con Codigo ya existente -> 400 ErrorTenantExists; no crea el usuario admin
@@ -90,7 +90,7 @@ namespace AcgFotos.Api.IntegrationTests.Tenants
         {
             // El sistema marcó el tenant 2 con error (flujo interno).
             await Factory.ExecuteSqlAsync(
-                $"UPDATE gen_Tenants SET HasError = 1, ErrorDescription = 'fallo-interno' WHERE Id = {TestData.ActiveTenantId}");
+                $"UPDATE gen_Tenants SET HasError = true, ErrorDescription = 'fallo-interno' WHERE Id = {TestData.ActiveTenantId}");
 
             using var client = await CreateAuthenticatedClientAsync(); // root
             var resp = await client.PostAsJsonAsync("/api/general/tenants/update", new
@@ -109,7 +109,7 @@ namespace AcgFotos.Api.IntegrationTests.Tenants
             // HasError/ErrorDescription siguen como los dejó el flujo interno (el InputDto no los expone).
             var row = await Factory.QueryScalarAsync<string>(
                 $"SELECT CONCAT(HasError, '|', ErrorDescription) FROM gen_Tenants WHERE Id = {TestData.ActiveTenantId}");
-            Assert.Equal("1|fallo-interno", row);
+            Assert.Equal("t|fallo-interno", row); // Postgres: bool->text es 't'/'f'
         }
 
         [Fact] // TEN-17 — edición de un Id inexistente -> 400 ErrorTenantNotFound (no se trata como alta)

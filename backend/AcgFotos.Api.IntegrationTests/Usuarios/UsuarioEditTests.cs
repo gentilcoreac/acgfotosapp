@@ -34,7 +34,7 @@ namespace AcgFotos.Api.IntegrationTests.Usuarios
             await resp.ShouldBeOk();
             var row = await Factory.QueryScalarAsync<string>(
                 $"SELECT CONCAT(Nombre, '|', Administrador, '|', EmailConfirmed, '|', TenantId, '|', UserName) FROM gen_Usuarios WHERE Id = {TestData.UserB2Id}");
-            Assert.Equal("NombreNuevo|0|1|2|userb2", row); // nombre cambia; Administrador=0/EmailConfirmed=1/Tenant=2/UserName intactos
+            Assert.Equal("NombreNuevo|f|t|2|userb2", row); // nombre cambia; Administrador=false/EmailConfirmed=true/Tenant=2/UserName intactos (Postgres: bool->text es 't'/'f')
         }
 
         [Fact] // USR-10 — "administrador":true en el body crudo NO promueve al usuario
@@ -152,7 +152,7 @@ namespace AcgFotos.Api.IntegrationTests.Usuarios
         public async Task Update_con_Bloqueado_false_limpia_lockout()
         {
             await Factory.ExecuteSqlAsync(
-                $"UPDATE gen_Usuarios SET LockoutEnd = DATEADD(year, 1, SYSDATETIMEOFFSET()) WHERE Id = {TestData.UserB2Id}");
+                $"UPDATE gen_Usuarios SET LockoutEnd = now() + interval '1 year' WHERE Id = {TestData.UserB2Id}");
             using var client = await CreateAuthenticatedClientAsync(TestData.UserB);
 
             await client.PostAsJsonAsync("/api/general/usuarios/update", new

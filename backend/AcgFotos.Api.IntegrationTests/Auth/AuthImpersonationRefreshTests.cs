@@ -92,7 +92,7 @@ namespace AcgFotos.Api.IntegrationTests.Auth
         public async Task Refresh_con_overlay_hacia_tenant_inactivo_cae_a_root()
         {
             var (refresh, overlay) = await RootWithOverlayAsync(TestData.ActiveTenantId, TestData.UserBId);
-            await Factory.ExecuteSqlAsync($"UPDATE gen_Tenants SET Activo = 0 WHERE Id = {TestData.ActiveTenantId}");
+            await Factory.ExecuteSqlAsync($"UPDATE gen_Tenants SET Activo = false WHERE Id = {TestData.ActiveTenantId}");
 
             var resp = await RefreshWithAsync(refresh, overlay);
 
