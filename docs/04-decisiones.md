@@ -165,7 +165,9 @@ del actual (incluye `Pagado`/`Cancelado`, hoy sin flujo automático que los prod
 alcanzables a mano). Lo único que rechaza con 400 es "cambiar" al mismo estado en el que ya está
 (no-op sin sentido). La guía queda del lado de la UI, no del backend: el admin de pedidos ofrece dos
 botones contextuales para el camino normal (`Marcar impreso` / `Marcar entregado`, sin confirmación)
-y un selector "Corregir a otro estado…" aparte, con confirmación, para el caso excepcional.
+y un botón "Corregir estado…" aparte, con confirmación, para el caso excepcional — ambos en el
+footer del diálogo de detalle, el segundo visualmente secundario (2026-07-26, ver quinta vuelta en
+docs/03-fases.md: antes vivía en el header, separado de los botones guiados, y eso confundía).
 
 ## ADR-13 — Lista de impresión: dos vistas en un export, sin PDF real server-side, proporciones por regex best-effort
 
