@@ -3,12 +3,13 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Observable, catchError, of, switchMap, tap } from 'rxjs';
 import { formatearPrecio } from '../../../../core/familia';
 import { ConfirmService } from '../../../../shared/feedback/confirm.service';
 import { NotificationService } from '../../../../shared/feedback/notification.service';
-import { TbiSelectComponent, TbiSelectOption } from '../../../../shared/ui/tbi-select/tbi-select.component';
+import { TbiSelectOption } from '../../../../shared/ui/tbi-select/tbi-select.component';
 import { TbiStatusChipComponent } from '../../../../shared/ui/tbi-status-chip/tbi-status-chip.component';
 import { TbiTamanoChipComponent } from '../../../../shared/ui/tbi-tamano-chip/tbi-tamano-chip.component';
 import { FotoImgComponent } from '../../fotos/ui/foto-img.component';
@@ -38,9 +39,9 @@ interface GrupoPedidoDetalle {
     MatButtonModule,
     MatDialogModule,
     MatIconModule,
+    MatMenuModule,
     MatProgressBarModule,
     FotoImgComponent,
-    TbiSelectComponent,
     TbiStatusChipComponent,
     TbiTamanoChipComponent,
   ],
@@ -108,7 +109,6 @@ export class PedidoDetalleComponent {
       .map(([valor, label]) => ({ value: Number(valor) as EstadoPedido, label }))
       .filter((o) => o.value !== actual);
   });
-  protected readonly estadoManualSeleccionado = signal<EstadoPedido | null>(null);
 
   protected abrirPreview(grupo: GrupoPedidoDetalle): void {
     // Acá el fotógrafo quiere ver la ORIGINAL primero (para el laboratorio); "vista del cliente"
@@ -131,11 +131,10 @@ export class PedidoDetalleComponent {
     this.cambiarEstado(ESTADO_PEDIDO.Entregado, 'Pedido marcado como entregado.');
   }
 
-  /** Corrección manual: a diferencia de los botones de arriba, pide confirmación — no es el flujo
-   * guiado, es "me equivoqué, corrijo" (pedido de Alberto 2026-07-20). */
-  protected aplicarEstadoManual(): void {
-    const nuevo = this.estadoManualSeleccionado();
-    if (nuevo == null || this.cambiandoEstado()) {
+  /** Corrección manual: a diferencia de los botones guiados, pide confirmación — no es el flujo
+   * normal, es "me equivoqué, corrijo" (pedido de Alberto 2026-07-20). */
+  protected corregirEstado(nuevo: EstadoPedido): void {
+    if (this.cambiandoEstado()) {
       return;
     }
     this.confirmService
@@ -144,16 +143,11 @@ export class PedidoDetalleComponent {
         message: `¿Cambiar el estado del pedido a "${ESTADO_PEDIDO_LABEL[nuevo]}"? Usalo solo para corregir un estado equivocado.`,
       })
       .pipe(
-        tap((confirmado) => {
-          if (!confirmado) {
-            this.estadoManualSeleccionado.set(null);
-          }
-        }),
         switchMap((confirmado) =>
           confirmado ? this.ejecutarCambioEstado(nuevo, `Estado cambiado a "${ESTADO_PEDIDO_LABEL[nuevo]}".`) : of(null),
         ),
       )
-      .subscribe(() => this.estadoManualSeleccionado.set(null));
+      .subscribe();
   }
 
   private cambiarEstado(estado: EstadoPedido, mensaje: string): void {

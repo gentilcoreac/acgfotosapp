@@ -15,13 +15,6 @@
   gap: 0.15rem;
 }
 
-// El bloque de Estado es el más "pesado" (chip + corrección manual): que ocupe todo el ancho
-// disponible en su fila en vez de competir por espacio con Participante/Contacto/Total.
-.detalle__dato--estado {
-  flex: 1 0 100%;
-  gap: 0.5rem;
-}
-
 .detalle__label {
   font: var(--mat-sys-label-medium);
   color: var(--mat-sys-on-surface-variant);
@@ -128,15 +121,8 @@
   white-space: nowrap;
 }
 
-// Corrección manual (caso excepcional): en el encabezado, junto al chip de Estado — pedido de
-// Alberto (2026-07-20) de subir tanto esto como el Total a la parte superior del diálogo.
-.detalle__estado-manual {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.detalle__estado-select {
-  flex: none;
-  width: 12rem;
+// Separada de los botones de avance guiado (footer): es la vía de excepción, no otro paso más.
+.detalle__corregir-btn {
+  margin-left: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
 }

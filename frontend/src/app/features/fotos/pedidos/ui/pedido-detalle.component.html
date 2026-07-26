@@ -18,29 +18,13 @@
         <span class="detalle__label">Total</span>
         <span class="detalle__total-valor">{{ formatearPrecio(p.total) }}</span>
       </div>
-      <div class="detalle__dato detalle__dato--estado">
+      <div class="detalle__dato">
         <span class="detalle__label">Estado</span>
         <tbi-status-chip
           [label]="estadoPedidoChip(p.estado).label"
           [tone]="estadoPedidoChip(p.estado).tone ?? 'neutral'"
           [icon]="estadoPedidoChip(p.estado).icon ?? null"
         />
-        <div class="detalle__estado-manual">
-          <tbi-select
-            class="detalle__estado-select"
-            label="Corregir a otro estado…"
-            [options]="estadoManualOptions()"
-            [(value)]="estadoManualSeleccionado"
-          />
-          <button
-            matButton
-            type="button"
-            [disabled]="estadoManualSeleccionado() === null || cambiandoEstado()"
-            (click)="aplicarEstadoManual()"
-          >
-            Aplicar
-          </button>
-        </div>
       </div>
     </section>
 
@@ -88,6 +72,24 @@
       <mat-icon>local_shipping</mat-icon>
       Marcar entregado
     </button>
+  }
+  @if (estadoManualOptions().length && pedido()) {
+    <button
+      matButton
+      type="button"
+      class="detalle__corregir-btn"
+      [disabled]="cambiandoEstado()"
+      [matMenuTriggerFor]="menuCorregir"
+    >
+      Corregir estado…
+    </button>
+    <mat-menu #menuCorregir="matMenu">
+      @for (opcion of estadoManualOptions(); track opcion.value) {
+        <button mat-menu-item type="button" (click)="corregirEstado(opcion.value)">
+          {{ opcion.label }}
+        </button>
+      }
+    </mat-menu>
   }
   <button matButton (click)="cerrar()">Cerrar</button>
 </mat-dialog-actions>

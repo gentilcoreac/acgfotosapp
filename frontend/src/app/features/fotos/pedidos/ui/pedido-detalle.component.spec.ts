@@ -147,29 +147,27 @@ describe('PedidoDetalleComponent', () => {
 
   it('la corrección manual está siempre disponible, incluso con el pedido recién Pendiente', async () => {
     await setup(pedidoPendiente);
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Corregir a otro estado');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Corregir estado');
   });
 
   it('la corrección manual también está disponible en el estado final (Entregado)', async () => {
     await setup({ ...pedidoPendiente, estado: ESTADO_PEDIDO.Entregado });
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Corregir a otro estado');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Corregir estado');
   });
 
-  it('aplicarEstadoManual pide confirmación y solo cambia el estado si se confirma', async () => {
+  it('corregirEstado pide confirmación y solo cambia el estado si se confirma', async () => {
     await setup(pedidoPendiente, true);
-    fixture.componentInstance['estadoManualSeleccionado'].set(ESTADO_PEDIDO.Entregado);
 
-    fixture.componentInstance['aplicarEstadoManual']();
+    fixture.componentInstance['corregirEstado'](ESTADO_PEDIDO.Entregado);
 
     expect(confirm).toHaveBeenCalled();
     expect(cambiarEstado).toHaveBeenCalledWith(1, ESTADO_PEDIDO.Entregado);
   });
 
-  it('aplicarEstadoManual no cambia nada si el usuario cancela la confirmación', async () => {
+  it('corregirEstado no cambia nada si el usuario cancela la confirmación', async () => {
     await setup(pedidoPendiente, false);
-    fixture.componentInstance['estadoManualSeleccionado'].set(ESTADO_PEDIDO.Entregado);
 
-    fixture.componentInstance['aplicarEstadoManual']();
+    fixture.componentInstance['corregirEstado'](ESTADO_PEDIDO.Entregado);
 
     expect(confirm).toHaveBeenCalled();
     expect(cambiarEstado).not.toHaveBeenCalled();
