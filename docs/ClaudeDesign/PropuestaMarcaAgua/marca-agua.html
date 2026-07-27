@@ -1,0 +1,1932 @@
+<title>Marca de agua configurable — diseño y circuito</title>
+<style>
+  :root {
+    --primary: #006b5f;
+    --primary-hover: #005048;
+    --on-primary: #ffffff;
+    --primary-container: #86f6e4;
+    --on-primary-container: #00201c;
+
+    --surface: #f7faf9;
+    --surface-card: #ffffff;
+    --surface-sunken: #eef3f2;
+    --on-surface: #161d1b;
+    --on-surface-muted: #4d5f5b;
+    --outline: #c3d0cd;
+    --outline-strong: #93a5a1;
+
+    --warn: #8a5a00;
+    --warn-bg: #fff3d9;
+
+    --radius-s: 8px;
+    --radius-m: 12px;
+    --radius-l: 16px;
+
+    --shadow: 0 1px 2px rgba(0, 32, 28, .16), 0 1px 3px 1px rgba(0, 32, 28, .07);
+
+    --sans: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --primary: #4abdad;
+      --primary-hover: #69d9c8;
+      --on-primary: #00201c;
+      --primary-container: #00443c;
+      --on-primary-container: #b4fff1;
+      --surface: #0f1513;
+      --surface-card: #182220;
+      --surface-sunken: #101817;
+      --on-surface: #dde5e2;
+      --on-surface-muted: #a3b3af;
+      --outline: #33413e;
+      --outline-strong: #556663;
+      --warn: #f2c26b;
+      --warn-bg: #3a2c0d;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 1px 3px 1px rgba(0, 0, 0, .3);
+    }
+  }
+
+  :root[data-theme="light"] {
+    --primary: #006b5f; --primary-hover: #005048; --on-primary: #ffffff;
+    --primary-container: #86f6e4; --on-primary-container: #00201c;
+    --surface: #f7faf9; --surface-card: #ffffff; --surface-sunken: #eef3f2;
+    --on-surface: #161d1b; --on-surface-muted: #4d5f5b;
+    --outline: #c3d0cd; --outline-strong: #93a5a1;
+    --warn: #8a5a00; --warn-bg: #fff3d9;
+    --shadow: 0 1px 2px rgba(0, 32, 28, .16), 0 1px 3px 1px rgba(0, 32, 28, .07);
+  }
+
+  :root[data-theme="dark"] {
+    --primary: #4abdad; --primary-hover: #69d9c8; --on-primary: #00201c;
+    --primary-container: #00443c; --on-primary-container: #b4fff1;
+    --surface: #0f1513; --surface-card: #182220; --surface-sunken: #101817;
+    --on-surface: #dde5e2; --on-surface-muted: #a3b3af;
+    --outline: #33413e; --outline-strong: #556663;
+    --warn: #f2c26b; --warn-bg: #3a2c0d;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 1px 3px 1px rgba(0, 0, 0, .3);
+  }
+
+  body {
+    background: var(--surface);
+    color: var(--on-surface);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0 1.25rem 5rem;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; }
+
+  .doc-head {
+    padding: 3.5rem 0 2rem;
+    border-bottom: 1px solid var(--outline);
+    margin-bottom: 3rem;
+  }
+
+  .eyebrow {
+    font-size: .75rem; letter-spacing: .14em; text-transform: uppercase;
+    font-weight: 600; color: var(--primary); margin: 0 0 .75rem;
+  }
+
+  .doc-head h1 {
+    font-size: clamp(1.9rem, 4.5vw, 2.6rem); line-height: 1.15; font-weight: 600;
+    letter-spacing: -.02em; text-wrap: balance; margin: 0 0 1rem;
+  }
+
+  .lede { font-size: 1.075rem; color: var(--on-surface-muted); max-width: 62ch; margin: 0 0 1.5rem; }
+
+  .meta-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+  .tag {
+    font-size: .75rem; font-weight: 600; padding: .3rem .7rem; border-radius: 999px;
+    background: var(--surface-sunken); color: var(--on-surface-muted); border: 1px solid var(--outline);
+  }
+
+  .tag--accent { background: var(--primary-container); color: var(--on-primary-container); border-color: transparent; }
+
+  section { margin-bottom: 3.5rem; }
+
+  h2 {
+    font-size: 1.5rem; font-weight: 600; letter-spacing: -.01em; margin: 0 0 .5rem;
+    display: flex; align-items: baseline; gap: .65rem;
+  }
+
+  h2 .num {
+    font-family: var(--mono); font-size: .85rem; font-weight: 500; color: var(--primary);
+    border: 1px solid var(--outline); border-radius: var(--radius-s); padding: .1rem .45rem; flex: none;
+  }
+
+  h3 { font-size: 1.05rem; font-weight: 600; margin: 2rem 0 .5rem; }
+
+  .section-lede { color: var(--on-surface-muted); max-width: 66ch; margin: 0 0 1.5rem; }
+
+  p { max-width: 66ch; }
+
+  code {
+    font-family: var(--mono); font-size: .85em; background: var(--surface-sunken);
+    border: 1px solid var(--outline); border-radius: 5px; padding: .08em .35em;
+  }
+
+  /* ---------- Mockup ---------- */
+  .mock {
+    background: var(--surface-card); border: 1px solid var(--outline);
+    border-radius: var(--radius-l); box-shadow: var(--shadow); overflow: hidden;
+  }
+
+  .mock__bar {
+    display: flex; align-items: center; gap: .55rem; padding: .6rem .95rem;
+    background: var(--surface-sunken); border-bottom: 1px solid var(--outline);
+    font-size: .8rem; color: var(--on-surface-muted);
+  }
+
+  .mock__dot { width: 9px; height: 9px; border-radius: 50%; background: var(--outline-strong); flex: none; }
+  .mock__url { font-family: var(--mono); margin-left: .5rem; }
+  .mock__body { padding: 1.5rem; }
+
+  .mock-note { font-size: .85rem; color: var(--on-surface-muted); margin: .7rem 0 0; max-width: 70ch; }
+
+  .list-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap;
+  }
+
+  .list-head h4 { font-size: 1.35rem; font-weight: 600; margin: 0; }
+
+  .btn {
+    font-family: inherit; font-size: .875rem; font-weight: 600; border-radius: 999px;
+    padding: .5rem 1.1rem; border: 1px solid transparent; background: var(--primary);
+    color: var(--on-primary); cursor: pointer; transition: background .15s ease;
+  }
+
+  .btn:hover { background: var(--primary-hover); }
+  .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .btn--ghost { background: transparent; color: var(--primary); border-color: var(--outline-strong); }
+  .btn--ghost:hover { background: var(--surface-sunken); }
+  .btn--sm { padding: .35rem .8rem; font-size: .8rem; }
+
+  .perfiles { display: grid; gap: .75rem; }
+
+  .perfil {
+    display: grid; grid-template-columns: 88px 1fr auto; gap: 1rem; align-items: center;
+    padding: .85rem; border: 1px solid var(--outline); border-radius: var(--radius-m);
+  }
+
+  .perfil--activo { border-color: var(--primary); box-shadow: inset 3px 0 0 var(--primary); }
+  .perfil canvas { width: 88px; height: 59px; border-radius: var(--radius-s); display: block; }
+  .perfil__nombre { font-weight: 600; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+  .perfil__desc { font-size: .85rem; color: var(--on-surface-muted); }
+
+  .chip {
+    font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    padding: .15rem .5rem; border-radius: 6px;
+    background: var(--primary-container); color: var(--on-primary-container);
+  }
+
+  .chip--warn { background: var(--warn-bg); color: var(--warn); }
+  .perfil__acciones { display: flex; gap: .4rem; }
+
+  /* ---------- Editor ---------- */
+  .editor {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 1.75rem; align-items: start;
+  }
+
+  @media (max-width: 860px) {
+    .editor { grid-template-columns: 1fr; }
+    .editor__preview { position: static !important; order: -1; }
+  }
+
+  .editor__preview { position: sticky; top: 1rem; }
+
+  fieldset {
+    border: 1px solid var(--outline); border-radius: var(--radius-m);
+    padding: 1rem 1rem 1.15rem; margin: 0 0 1rem; min-width: 0;
+  }
+
+  legend {
+    font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--on-surface-muted); padding: 0 .4rem;
+  }
+
+  .field { display: grid; gap: .3rem; margin-bottom: .9rem; }
+  .field:last-child { margin-bottom: 0; }
+
+  .field label {
+    font-size: .82rem; font-weight: 600; display: flex;
+    justify-content: space-between; align-items: baseline; gap: .5rem;
+  }
+
+  .field .val {
+    font-family: var(--mono); font-size: .75rem; font-weight: 500;
+    color: var(--on-surface-muted); font-variant-numeric: tabular-nums;
+  }
+
+  input[type="text"], select {
+    font-family: inherit; font-size: .9rem; padding: .5rem .65rem; border-radius: var(--radius-s);
+    border: 1px solid var(--outline-strong); background: var(--surface-card);
+    color: var(--on-surface); width: 100%; box-sizing: border-box;
+  }
+
+  input[type="range"] { width: 100%; accent-color: var(--primary); margin: .2rem 0 0; }
+
+  input[type="color"] {
+    width: 100%; height: 34px; padding: 2px; border: 1px solid var(--outline-strong);
+    border-radius: var(--radius-s); background: var(--surface-card); cursor: pointer;
+  }
+
+  input:focus-visible, select:focus-visible, button:focus-visible {
+    outline: 2px solid var(--primary); outline-offset: 1px;
+  }
+
+  .field--row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+
+  .switch { display: flex; align-items: center; gap: .55rem; font-size: .85rem; font-weight: 600; cursor: pointer; }
+  .switch input { accent-color: var(--primary); width: 16px; height: 16px; }
+  .switch small { display: block; font-weight: 400; color: var(--on-surface-muted); font-size: .78rem; }
+
+  /* ---------- Capas ---------- */
+  .capas-barra {
+    display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-bottom: 1rem;
+  }
+
+  .capa-tab {
+    font-family: inherit; font-size: .8rem; font-weight: 600; padding: .4rem .8rem;
+    border-radius: 999px; border: 1px solid var(--outline-strong); background: transparent;
+    color: var(--on-surface); cursor: pointer; display: inline-flex; align-items: center; gap: .4rem;
+  }
+
+  .capa-tab[aria-pressed="true"] {
+    background: var(--primary-container); color: var(--on-primary-container); border-color: transparent;
+  }
+
+  .capa-tab:hover { background: var(--surface-sunken); }
+  .capa-tab[aria-pressed="true"]:hover { background: var(--primary-container); }
+
+  .capa-tab__tipo {
+    font-family: var(--mono); font-size: .65rem; text-transform: uppercase;
+    opacity: .7; letter-spacing: .05em;
+  }
+
+  .capa-add {
+    font-family: inherit; font-size: .8rem; font-weight: 600; padding: .4rem .7rem;
+    border-radius: 999px; border: 1px dashed var(--outline-strong);
+    background: transparent; color: var(--on-surface-muted); cursor: pointer;
+  }
+
+  .capa-add:hover { color: var(--primary); border-color: var(--primary); }
+
+  .grilla9 {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+    width: 108px; padding: 4px; background: var(--surface-sunken);
+    border: 1px solid var(--outline); border-radius: var(--radius-s);
+  }
+
+  .grilla9 button {
+    aspect-ratio: 3 / 2; border: 1px solid var(--outline); border-radius: 4px;
+    background: var(--surface-card); cursor: pointer; padding: 0;
+  }
+
+  .grilla9 button[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); }
+  .grilla9 button:hover { border-color: var(--primary); }
+
+  .colocacion-fila { display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; }
+  .colocacion-fila > .field { flex: 1; min-width: 150px; }
+
+  /* ---------- Preview ---------- */
+  .preview-frame {
+    background: var(--surface-sunken); border: 1px solid var(--outline);
+    border-radius: var(--radius-m); padding: 1rem;
+  }
+
+  .preview-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: .75rem; margin-bottom: .85rem; flex-wrap: wrap;
+  }
+
+  .segmented { display: inline-flex; border: 1px solid var(--outline-strong); border-radius: 999px; overflow: hidden; }
+
+  .segmented button {
+    font-family: inherit; font-size: .78rem; font-weight: 600; padding: .35rem .85rem;
+    border: 0; background: transparent; color: var(--on-surface); cursor: pointer;
+  }
+
+  .segmented button[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); }
+
+  .canvas-stage {
+    display: flex; justify-content: center;
+    background:
+      linear-gradient(45deg, rgba(128,128,128,.12) 25%, transparent 25%, transparent 75%, rgba(128,128,128,.12) 75%),
+      linear-gradient(45deg, rgba(128,128,128,.12) 25%, transparent 25%, transparent 75%, rgba(128,128,128,.12) 75%);
+    background-size: 16px 16px; background-position: 0 0, 8px 8px;
+    border-radius: var(--radius-s); padding: .75rem;
+  }
+
+  #lienzo { width: 100%; height: auto; display: block; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  #lienzo.es-thumb { width: 300px; max-width: 100%; }
+
+  .muestras {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-top: .85rem;
+  }
+
+  .muestra { display: grid; gap: .3rem; }
+
+  .muestra button {
+    padding: 0; border: 2px solid transparent; border-radius: var(--radius-s);
+    background: none; cursor: pointer; line-height: 0; overflow: hidden;
+  }
+
+  .muestra button[aria-pressed="true"] { border-color: var(--primary); }
+  .muestra canvas { width: 100%; height: auto; display: block; border-radius: 5px; }
+
+  .muestra span {
+    font-size: .7rem; font-weight: 600; text-align: center;
+    color: var(--on-surface-muted); letter-spacing: .02em;
+  }
+
+  .asset-box {
+    margin-top: .85rem; padding: .7rem; border: 1px dashed var(--outline-strong);
+    border-radius: var(--radius-s); display: flex; align-items: center; gap: .8rem;
+  }
+
+  .asset-box canvas {
+    background:
+      linear-gradient(45deg, rgba(128,128,128,.2) 25%, transparent 25%, transparent 75%, rgba(128,128,128,.2) 75%),
+      linear-gradient(45deg, rgba(128,128,128,.2) 25%, transparent 25%, transparent 75%, rgba(128,128,128,.2) 75%);
+    background-size: 10px 10px; background-position: 0 0, 5px 5px;
+    background-color: #7a8a86; border-radius: 4px; max-width: 160px; height: auto;
+  }
+
+  .asset-box p { margin: 0; font-size: .78rem; color: var(--on-surface-muted); }
+  .asset-box strong { color: var(--on-surface); display: block; font-size: .82rem; }
+
+  .medicion {
+    display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+    margin-top: .85rem; font-size: .78rem; color: var(--on-surface-muted);
+    font-family: var(--mono); font-variant-numeric: tabular-nums; flex-wrap: wrap;
+  }
+
+  .medicion b { color: var(--on-surface); font-weight: 600; }
+
+  details.json { margin-top: .85rem; border: 1px solid var(--outline); border-radius: var(--radius-s); background: var(--surface-card); }
+  details.json summary { cursor: pointer; font-size: .8rem; font-weight: 600; padding: .55rem .75rem; }
+  details.json pre {
+    margin: 0; padding: 0 .75rem .75rem; font-family: var(--mono);
+    font-size: .72rem; line-height: 1.5; overflow-x: auto; color: var(--on-surface-muted);
+  }
+
+  .callout {
+    border-left: 3px solid var(--primary); background: var(--surface-sunken);
+    border-radius: 0 var(--radius-s) var(--radius-s) 0; padding: .9rem 1.1rem; margin: 1.25rem 0;
+  }
+
+  .callout p { margin: 0; max-width: 68ch; }
+  .callout--warn { border-left-color: var(--warn); background: var(--warn-bg); }
+  .callout--warn p { color: var(--warn); }
+
+  .callout__title {
+    font-weight: 700; font-size: .78rem; letter-spacing: .08em;
+    text-transform: uppercase; margin: 0 0 .3rem !important;
+  }
+
+  .dialogo {
+    max-width: 460px; background: var(--surface-card); border: 1px solid var(--outline);
+    border-radius: var(--radius-l); box-shadow: var(--shadow); padding: 1.35rem;
+  }
+
+  .dialogo h4 { margin: 0 0 .6rem; font-size: 1.15rem; font-weight: 600; }
+  .dialogo p { font-size: .9rem; color: var(--on-surface-muted); margin: 0 0 .5rem; }
+  .dialogo__acciones { display: flex; justify-content: flex-end; gap: .6rem; margin-top: 1.1rem; }
+
+  .tabla-wrap { overflow-x: auto; }
+
+  table { border-collapse: collapse; width: 100%; font-size: .875rem; min-width: 520px; }
+
+  th, td { text-align: left; padding: .6rem .75rem; border-bottom: 1px solid var(--outline); vertical-align: top; }
+
+  th {
+    font-size: .72rem; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--on-surface-muted); font-weight: 700;
+  }
+
+  td code { white-space: nowrap; }
+
+  .pasos { list-style: none; counter-reset: paso; padding: 0; margin: 0; display: grid; gap: .65rem; }
+
+  .pasos li {
+    counter-increment: paso; display: grid; grid-template-columns: 30px 1fr; gap: .85rem;
+    align-items: start; background: var(--surface-card); border: 1px solid var(--outline);
+    border-radius: var(--radius-m); padding: .8rem 1rem;
+  }
+
+  .pasos li::before {
+    content: counter(paso); font-family: var(--mono); font-size: .8rem; font-weight: 600;
+    color: var(--on-primary); background: var(--primary); border-radius: 50%;
+    width: 24px; height: 24px; display: grid; place-items: center; margin-top: .15rem;
+  }
+
+  .pasos strong { display: block; }
+  .pasos span { font-size: .875rem; color: var(--on-surface-muted); }
+
+  pre.mermaid {
+    background: var(--surface-card); border: 1px solid var(--outline);
+    border-radius: var(--radius-m); padding: 1.25rem; overflow-x: auto; text-align: center;
+  }
+
+  .cierre { border: 1px solid var(--primary); border-radius: var(--radius-l); padding: 1.5rem; background: var(--surface-card); }
+  .cierre ul { margin: .5rem 0 0; padding-left: 1.2rem; }
+  .cierre li { margin-bottom: .4rem; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header class="doc-head">
+    <p class="eyebrow">AcgFotos · Vertical Fotos</p>
+    <h1>Marca de agua configurable</h1>
+    <p class="lede">
+      Hoy la marca es una constante de <code>appsettings</code> que sólo cambia reiniciando la API.
+      Esta propuesta la convierte en <strong>capas de imagen que el fotógrafo diseña o sube</strong>,
+      y deja a la API un solo trabajo: componerlas sobre la foto.
+    </p>
+    <div class="meta-row">
+      <span class="tag tag--accent">Para confirmar antes de codear</span>
+      <span class="tag">El front diseña, la API compone</span>
+      <span class="tag">Perfil = 1 a 3 capas</span>
+      <span class="tag">Logo + texto juntos</span>
+      <span class="tag">ADR-15 pendiente</span>
+    </div>
+  </header>
+
+  <section>
+    <h2><span class="num">01</span> El circuito</h2>
+    <p class="section-lede">
+      El reparto de trabajo es la decisión de fondo: <strong>toda la lógica de diseño vive en el front</strong>
+      y llega a la API como un PNG con transparencia más un puñado de parámetros de colocación.
+      La API no dibuja texto nunca: sólo coloca, escala y funde una imagen sobre otra.
+    </p>
+
+    <pre class="mermaid">
+flowchart TD
+    A["Fotógrafo diseña el texto<br/>o sube su logo"] --> B["El front rasteriza<br/>cada capa a PNG"]
+    B --> C["Se guarda: PNG + colocación<br/>+ JSON del diseño"]
+    C --> D["Se asigna a un evento<br/>o queda como default del tenant"]
+    D --> E["Fotos nuevas<br/>al subirlas"]
+    D --> F["Fotos ya subidas:<br/>Regenerar por evento"]
+    E --> G["FotoProcesamientoWorker<br/>compone las capas"]
+    F --> G
+    G --> H["Thumb + ampliada<br/>con la marca horneada"]
+    H --> I["La familia ve la foto marcada"]
+    </pre>
+
+    <h3>Por qué la API no dibuja</h3>
+    <p>
+      Porque si dibujara, habría dos versiones del mismo algoritmo — una en C# y otra en el navegador
+      para la vista previa — y tendrían que coincidir pixel a pixel para siempre. Con la marca
+      rasterizada en el front, <strong>los pixeles que viste son literalmente los que se componen</strong>.
+      No coinciden: son los mismos.
+    </p>
+
+    <div class="callout">
+      <p class="callout__title">Esto no toca la premisa de ADR-01</p>
+      <p>
+        ADR-01 exige que la marca la aplique <em>el sistema al subir</em> y que el original nunca salga.
+        Eso se mantiene intacto: el navegador diseña la marca, pero nunca ve un original y nunca hornea
+        nada. El derivado marcado lo sigue produciendo el servidor.
+      </p>
+    </div>
+
+    <div class="callout">
+      <p class="callout__title">De yapa: se cae una fragilidad de producción</p>
+      <p>
+        Hoy <a href="#">ImageSharpImageProcessor</a> pide Arial al sistema operativo y, si no está,
+        agarra la primera fuente que encuentre — en un contenedor Linux eso es una bomba de tiempo.
+        Con la tipografía horneada en el PNG, el servidor no necesita ninguna fuente instalada.
+      </p>
+    </div>
+
+    <h3>Paso a paso</h3>
+    <ol class="pasos">
+      <li>
+        <div>
+          <strong>Entra por el menú Fotos → Marca de agua</strong>
+          <span>Menú nuevo del vertical, al lado de Eventos, Grupos y Pedidos. Sembrado en <code>TestSeed.sql</code> y en <code>dev-alta-fotografo.sql</code>, igual que se hizo con Pedidos.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Arma el perfil con una a tres capas</strong>
+          <span>Cada capa es una imagen: o la diseña escribiendo un texto, o sube su logo. Un perfil típico es una sola capa; el que quiere marca y branding usa dos.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Elige dónde va cada capa</strong>
+          <span>Repetida cubriendo toda la foto, o en una de las nueve posiciones fijas, con su escala, opacidad, inclinación y modo de fusión.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Lo verifica contra tres fotos a la vez</strong>
+          <span>Una clara, una oscura y una de contraste mixto. La pregunta no es "¿queda bien en ésta?" sino "¿aguanta en todas?".</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Guarda</strong>
+          <span>No pasa nada más: guardar nunca toca una foto. Se suben los PNG de las capas al storage privado y se persisten los parámetros.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Lo asigna</strong>
+          <span>Como default del tenant, o desde el ABM de Eventos en un campo nuevo que por defecto dice "Usar la del estudio".</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Regenera las fotos ya subidas, si quiere</strong>
+          <span>Botón en la galería del evento, con el conteo adelante. Pone las fotos en <code>Pendiente</code> y las rehace el worker que ya existe.</span>
+        </div>
+      </li>
+    </ol>
+
+    <div class="callout">
+      <p class="callout__title">Por qué regenerar es explícito y no automático</p>
+      <p>
+        Un evento con 400 fotos son 400 reprocesos. Si guardar el perfil los disparara solo, cada
+        retoque de opacidad congelaría el worker — y un cambio hecho por curiosidad quedaría aplicado
+        sobre fotos que las familias ya están mirando.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span> Pantalla de perfiles</h2>
+    <p class="section-lede">
+      Mismo scaffold que el resto de los ABMs (<code>.list</code>, ancho 960, encabezado con acción a la
+      derecha). Cada fila muestra la marca real renderizada, no un texto describiéndola.
+    </p>
+
+    <div class="mock">
+      <div class="mock__bar">
+        <span class="mock__dot"></span><span class="mock__dot"></span><span class="mock__dot"></span>
+        <span class="mock__url">/fotos/marca-agua</span>
+      </div>
+      <div class="mock__body">
+        <div class="list-head">
+          <h4>Marca de agua</h4>
+          <button class="btn" type="button">Nuevo perfil</button>
+        </div>
+        <div class="perfiles" id="listaPerfiles"></div>
+      </div>
+    </div>
+    <p class="mock-note">Las miniaturas están renderizadas en vivo con los valores reales de cada perfil.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span> El editor</h2>
+    <p class="section-lede">
+      Capas arriba, controles de la capa elegida a la izquierda, verificación a la derecha.
+      <strong>Funciona de verdad</strong>: podés agregar capas, cambiar la colocación y hasta
+      <strong>subir tu logo real</strong> para ver cómo queda.
+    </p>
+
+    <div class="mock">
+      <div class="mock__bar">
+        <span class="mock__dot"></span><span class="mock__dot"></span><span class="mock__dot"></span>
+        <span class="mock__url">/fotos/marca-agua/2 · Editar perfil</span>
+      </div>
+      <div class="mock__body">
+
+        <div class="capas-barra" id="capasBarra"></div>
+
+        <div class="editor">
+          <form class="editor__controles" id="controles" onsubmit="return false;">
+
+            <fieldset id="fsTexto">
+              <legend>Contenido de la capa</legend>
+              <div class="field">
+                <label for="texto">Qué dice</label>
+                <input type="text" id="texto" value="COPIA NO AUTORIZADA — ACG Fotos" />
+              </div>
+              <p class="mock-note" style="margin-top:-.4rem">
+                Admite <code>{evento}</code>, <code>{fotografo}</code> y <code>{anio}</code>: se resuelven al
+                generar el PNG del evento.
+              </p>
+              <div class="field">
+                <label for="tamano">Tamaño de letra <span class="val" id="tamanoVal">—</span></label>
+                <input type="range" id="tamano" min="10" max="90" step="2" value="34" />
+              </div>
+              <div class="field--row">
+                <div class="field">
+                  <label for="color">Color</label>
+                  <input type="color" id="color" value="#ffffff" />
+                </div>
+                <div class="field">
+                  <label class="switch" for="negrita" style="margin-top:1.4rem">
+                    <input type="checkbox" id="negrita" checked /><span>Negrita</span>
+                  </label>
+                </div>
+              </div>
+              <label class="switch" for="contorno">
+                <input type="checkbox" id="contorno" />
+                <span>Contorno oscuro
+                  <small>Rescata el texto claro sobre zonas claras. Se hornea en el PNG.</small>
+                </span>
+              </label>
+            </fieldset>
+
+            <fieldset id="fsLogo" hidden>
+              <legend>Imagen de la capa</legend>
+              <div class="field">
+                <label for="archivoLogo">Tu logo (PNG con transparencia)</label>
+                <input type="file" id="archivoLogo" accept="image/png,image/webp" />
+              </div>
+              <p class="mock-note" style="margin-top:-.4rem">
+                Probá con tu logo real: se procesa en tu navegador, no se sube a ningún lado.
+                Sin archivo se usa un logo de ejemplo.
+              </p>
+            </fieldset>
+
+            <fieldset>
+              <legend>Dónde va</legend>
+              <div class="field">
+                <label for="modoColocacion">Colocación</label>
+                <select id="modoColocacion">
+                  <option value="repetido">Repetida sobre toda la foto</option>
+                  <option value="posicion">En un lugar fijo</option>
+                </select>
+              </div>
+
+              <div class="colocacion-fila" id="filaPosicion" hidden>
+                <div class="field" style="flex:none">
+                  <label>Posición</label>
+                  <div class="grilla9" id="grilla9" role="group" aria-label="Posición en la foto"></div>
+                </div>
+                <div class="field">
+                  <label for="margen">Margen <span class="val" id="margenVal">—</span></label>
+                  <input type="range" id="margen" min="0" max="15" step="1" value="3" />
+                </div>
+              </div>
+
+              <div class="field" id="campoCobertura">
+                <label for="cobertura">Cobertura <span class="val" id="coberturaVal">—</span></label>
+                <input type="range" id="cobertura" min="1" max="5" step="1" value="3" />
+              </div>
+
+              <div class="field">
+                <label for="escala">Tamaño <span class="val" id="escalaVal">—</span></label>
+                <input type="range" id="escala" min="5" max="70" step="1" value="30" />
+              </div>
+              <div class="field">
+                <label for="angulo">Inclinación <span class="val" id="anguloVal">—</span></label>
+                <input type="range" id="angulo" min="-90" max="90" step="1" value="-26" />
+              </div>
+              <div class="field">
+                <label for="opacidad">Opacidad <span class="val" id="opacidadVal">—</span></label>
+                <input type="range" id="opacidad" min="5" max="100" step="5" value="50" />
+              </div>
+              <div class="field">
+                <label for="fusion">Cómo se funde con la foto</label>
+                <select id="fusion">
+                  <option value="source-over">Normal — el color tal cual</option>
+                  <option value="overlay">Superponer — se adapta al fondo</option>
+                  <option value="difference">Diferencia — invierte el fondo</option>
+                </select>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Alcance</legend>
+              <label class="switch" for="marcarThumb">
+                <input type="checkbox" id="marcarThumb" checked />
+                <span>Marcar también las miniaturas
+                  <small>Apagado, la grilla se ve más limpia — pero son imágenes sin marca.</small>
+                </span>
+              </label>
+              <p class="mock-note">
+                El tamaño y la calidad de los derivados <strong>no se configuran acá</strong>: no son
+                decisiones de la marca. Viven aparte, en Opciones de publicación (sección 05).
+              </p>
+            </fieldset>
+          </form>
+
+          <div class="editor__preview">
+            <div class="preview-frame">
+              <div class="preview-toolbar">
+                <div class="segmented" role="group" aria-label="Qué derivado se muestra">
+                  <button type="button" id="verPreview" aria-pressed="true">Ampliada</button>
+                  <button type="button" id="verThumb" aria-pressed="false">Miniatura</button>
+                </div>
+                <label class="switch" for="simularCompresion" style="font-size:.78rem">
+                  <input type="checkbox" id="simularCompresion" checked />
+                  <span>Ver comprimido</span>
+                </label>
+              </div>
+
+              <div class="canvas-stage">
+                <canvas id="lienzo" width="900" height="600" aria-label="Vista previa de la marca de agua"></canvas>
+              </div>
+
+              <div class="muestras" id="muestras"></div>
+
+              <div class="asset-box">
+                <canvas id="assetCanvas" width="160" height="60"></canvas>
+                <p>
+                  <strong>Lo que viaja a la API</strong>
+                  Este PNG con transparencia, más los parámetros de colocación. La API no lo redibuja:
+                  lo coloca y lo funde.
+                </p>
+              </div>
+
+              <div class="medicion">
+                <span>capas <b id="numCapas">—</b></span>
+                <span>colocaciones <b id="repeticiones">—</b></span>
+                <span id="tamRender">900 × 600</span>
+              </div>
+
+              <details class="json">
+                <summary>Lo que se guarda en la base</summary>
+                <pre id="jsonPerfil"></pre>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Las tres muestras, y por qué son tres</h3>
+    <p>
+      Los modos de fusión calculan el color de la marca <strong>a partir del pixel que tienen debajo</strong>.
+      Eso significa que el resultado es distinto en cada foto — como decías, el ajuste se resuelve por foto
+      en el procesado final. Ninguna vista previa puede ser exacta para todas: lo único que se puede mostrar
+      es cómo queda sobre una foto concreta.
+    </p>
+    <p>
+      Por eso van tres a la vez, elegidas por ser <strong>donde las marcas fallan</strong>: una clara
+      (vestido blanco, pared con flash), una oscura (salón con poca luz) y una de contraste mixto. Con una
+      sola muestra es fácil calibrar perfecto para esa foto y romper el resto del evento.
+    </p>
+    <p>
+      En la app real se suman <strong>tus propias fotos</strong> como muestra —un selector
+      "Probar con una foto mía" sobre tus eventos—, que es la verificación más convincente y no requiere
+      subir nada. Las tres de fábrica quedan para el estudio recién dado de alta que todavía no cargó nada.
+    </p>
+
+    <div class="callout">
+      <p class="callout__title">Probá esto: el problema del vestido blanco</p>
+      <p>
+        Con el perfil de texto en Normal, mirá la muestra clara: el blanco al 50 % casi desaparece.
+        Ahí está el agujero de lo que hay hoy — <em>la foto más valiosa es la peor protegida</em>.
+        Cambiá "Cómo se funde" a <strong>Superponer</strong>, o prendé el contorno oscuro, y volvé a mirar
+        las tres.
+      </p>
+    </div>
+
+    <h3>La compresión se come las marcas sutiles</h3>
+    <p>
+      WebP con pérdida ataca primero las <strong>transiciones suaves y el bajo contraste</strong> — que es
+      exactamente lo que es una marca al 25 % de opacidad, una sombra difusa o el trazo fino del logo de
+      un estudio. La marca que hay hoy zafa de casualidad: es blanco plano con opacidad plana.
+    </p>
+    <p>
+      El riesgo no es la compresión en sí, es <strong>no verla a tiempo</strong>: si el editor previsualiza
+      sin comprimir, diseñás algo que se ve perfecto y que el encoder destruye al hornear, y te enterás con
+      las fotos ya procesadas. Por eso la vista previa muestra la imagen <strong>después</strong> de pasar
+      por el encoder, con la calidad real de publicación. El toggle <em>Ver comprimido</em> lo apaga si
+      querés comparar contra el original.
+    </p>
+    <p>
+      Consecuencia de diseño: conviene preferir <strong>color sólido y opacidad plana</strong> antes que
+      degradados. El contorno duro sobrevive bien a la compresión — es alto contraste; la sombra difusa es
+      la primera víctima.
+    </p>
+
+    <div class="callout">
+      <p class="callout__title">Y el botón "Miniatura" gana otra discusión</p>
+      <p>
+        Un mosaico que se lee perfecto a 900 px puede ser una mancha ilegible a 300 px, que es el tamaño
+        al que la familia ve la grilla entera. Hoy no hay forma de mirarlo antes de subir 400 fotos.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">04</span> Logo en la esquina: lo que hay que saber</h2>
+    <p class="section-lede">
+      Se puede, con las nueve posiciones y su margen. Pero conviene decirlo derecho.
+    </p>
+
+    <div class="callout callout--warn">
+      <p class="callout__title">Un logo en una esquina se recorta en dos segundos</p>
+      <p>
+        Es branding, no protección. Es exactamente la razón por la que hoy la marca va repetida en diagonal
+        cubriendo toda la foto. Si el perfil de un evento es sólo un logo en un rincón, esas fotos quedan
+        prácticamente sin defensa.
+      </p>
+    </div>
+
+    <p>
+      Por eso el perfil admite <strong>varias capas</strong>: tu logo abajo a la derecha para la marca del
+      estudio, <em>y</em> la trama de texto repetida encima para la protección real. Branding y defensa no
+      compiten por el mismo lugar. Probalo en el editor: agregá la segunda capa desde la barra de arriba.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">05</span> Opciones de publicación</h2>
+    <p class="section-lede">
+      Tamaño y calidad de los derivados. Es otra decisión, con su propia tabla: un default del estudio
+      que cada evento puede pisar — el mismo circuito que el perfil de marca.
+    </p>
+
+    <div class="callout">
+      <p class="callout__title">Por qué no va adentro del perfil de marca</p>
+      <p>
+        Son ejes independientes: podés querer marca sutil con resolución baja, o marca agresiva con
+        resolución alta. Y una entidad llamada <em>perfil de marca de agua</em> que además define la
+        resolución hace dos cosas — con tres perfiles cargados, bajar la calidad te obligaría a editar
+        los tres.
+      </p>
+    </div>
+
+    <h3>Elegí el tamaño mirando una foto tuya</h3>
+    <p>
+      El número solo no dice nada. Lo que hay que responder es concreto: <strong>¿a 900 px se
+      distinguen las caras en una grupal de 25 chicos?</strong> Si no se distinguen, la familia no puede
+      elegir y no compra. Y eso <em>no se puede contestar con una foto de ejemplo</em>: las muestras
+      sintéticas de este prototipo no tienen caras.
+    </p>
+    <p>
+      Cargá una grupal real y compará. <strong>Se procesa entera en tu navegador</strong> — no se sube
+      a ningún lado, no sale de tu máquina.
+    </p>
+
+    <div class="mock">
+      <div class="mock__bar">
+        <span class="mock__dot"></span><span class="mock__dot"></span><span class="mock__dot"></span>
+        <span class="mock__url">/fotos/publicacion · Comparar tamaños</span>
+      </div>
+      <div class="mock__body">
+        <div class="preview-toolbar">
+          <div class="field" style="flex:1;min-width:240px;margin:0">
+            <label for="archivoFoto">Tu foto (mejor una grupal)</label>
+            <input type="file" id="archivoFoto" accept="image/*" />
+          </div>
+          <div class="segmented" role="group" aria-label="Cómo se muestran">
+            <button type="button" id="verIgual" aria-pressed="true">Mismo ancho</button>
+            <button type="button" id="verReal" aria-pressed="false">Tamaño real</button>
+          </div>
+        </div>
+
+        <div class="field" style="max-width:320px">
+          <label for="calidadCmp">Calidad WebP <span class="val" id="calidadCmpVal">55</span></label>
+          <input type="range" id="calidadCmp" min="30" max="90" step="5" value="55" />
+        </div>
+
+        <p class="mock-note" id="avisoFoto">
+          Sin foto cargada se usa una muestra sintética: sirve para ver el peso y el dpi,
+          <strong>no</strong> para juzgar si se reconocen las caras.
+        </p>
+
+        <div id="comparador" style="overflow-x:auto"></div>
+      </div>
+    </div>
+
+    <h3>Cómo leer los números</h3>
+    <p>
+      Las imágenes del comparador se muestran <strong>después de pasar por el encoder WebP</strong>,
+      con la calidad elegida: lo que ves incluye los artefactos de compresión, no la versión limpia.
+      Cada tarjeta codifica además el <strong>mismo contenido en JPEG</strong> y muestra la diferencia,
+      así el ahorro sale de tus fotos y no de una cifra publicada.
+    </p>
+
+    <h3>Cuánto ahorra WebP de verdad</h3>
+    <p>
+      El "25-35 %" que circula sale de un <strong>estudio propio de Google</strong> sobre alrededor de un
+      millón de imágenes web. Mozilla corrió el suyo comparando contra un JPEG bien afinado y le dio
+      bastante menos. La respuesta honesta es que <strong>depende del contenido</strong>: una foto con
+      cielo y zonas suaves ahorra mucho, una con follaje o mucho grano ahorra poco. En fotos de evento a
+      calidad web, esperá algo entre <strong>20 % y 30 %</strong>.
+    </p>
+    <p>
+      Pero para este proyecto hay una razón mejor que el peso, y es específica de nuestra situación:
+      <strong>estamos a calidad 55, deliberadamente bajos</strong>. JPEG a esa calidad muestra el
+      cuadriculado clásico de bloques de 8×8; WebP usa bloques de predicción más grandes y un filtro de
+      desbloqueo, así que se degrada mucho más elegante. Cuanto más bajás la calidad —que es justo lo que
+      queremos hacer— más gana WebP. El ahorro de bytes es la yapa.
+    </p>
+    <p>
+      Comprobalo: bajá el slider de calidad a 30 y mirá el porcentaje de cada tarjeta.
+    </p>
+    <div class="callout">
+      <p class="callout__title">El dpi no es una perilla</p>
+      <p>
+        Una imagen digital no tiene dpi: es un campo de metadatos que sólo dice qué tamaño asumir al
+        imprimir. El mismo archivo "a 72 dpi" y "a 300 dpi" es idéntico byte por byte — bajarlo no
+        protege nada, y el laboratorio lo ignora. Acá el dpi aparece sólo como <em>etiqueta calculada</em>:
+        la traducción de píxeles a papel. Lo único que se configura son los píxeles.
+      </p>
+    </div>
+    <p>
+      El dpi de cada tarjeta es <strong>a cuánto saldría impresa en 10×15 cm</strong>, que es el tamaño
+      que más se vende. Una impresión decente arranca en 300 dpi:
+    </p>
+
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Lado mayor</th><th>Impreso en 10×15</th><th>Qué significa</th></tr></thead>
+        <tbody>
+          <tr><td><code>900 px</code> (hoy)</td><td>~152 dpi</td><td>Se ve mal, y encima con marca. Inservible para imprimir</td></tr>
+          <tr><td><code>1200 px</code></td><td>~203 dpi</td><td>Pobre pero ya reconocible en papel</td></tr>
+          <tr><td><code>1600 px</code></td><td>~271 dpi</td><td><strong>Casi calidad de impresión.</strong> Acá el slider deja de ser nitidez y pasa a ser si pueden imprimir tu foto</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout--warn">
+      <p class="callout__title">El 600 de mínimo era arbitrario</p>
+      <p>
+        Lo puse a ojo en la versión anterior, sin criterio detrás. El único piso que se sostiene es
+        técnico: la miniatura son 300 px, así que por debajo de ~600 la "ampliada" no se diferencia del
+        thumb y no tiene sentido que exista. Pero el límite que importa es el otro — cuánto necesitás
+        para que se pueda <em>elegir</em>— y ése lo contesta tu foto, no un número que yo elija.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">06</span> Aplicar a fotos ya subidas</h2>
+    <div class="dialogo">
+      <h4>Regenerar fotos de Promo 2026 — 6.º B</h4>
+      <p>Se van a rehacer las miniaturas y las fotos ampliadas de <strong>412 fotos</strong> con el perfil <strong>Estudio + trama</strong>.</p>
+      <p>Los originales no se tocan. Mientras dura, las familias siguen viendo la versión anterior.</p>
+      <p style="color:var(--warn)">Tarda unos minutos. Podés seguir usando la app.</p>
+      <div class="dialogo__acciones">
+        <button class="btn btn--ghost" type="button">Cancelar</button>
+        <button class="btn" type="button">Regenerar 412 fotos</button>
+      </div>
+    </div>
+    <p class="mock-note">
+      El progreso se ve con el estado que ya existe por foto (<code>Pendiente → Lista</code>), sin
+      infraestructura nueva.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">07</span> Qué se guarda</h2>
+    <p class="section-lede">
+      Dos entidades nuevas en el vertical, multi-tenant como el resto. <code>Evento</code> suma una FK opcional.
+    </p>
+
+    <h3><code>fot_PerfilesMarcaAgua</code></h3>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Nota</th></tr></thead>
+        <tbody>
+          <tr><td><code>Nombre</code></td><td>string</td><td>Único por tenant</td></tr>
+          <tr><td><code>EsDefault</code></td><td>bool</td><td>Uno solo por tenant; marcar uno desmarca el anterior</td></tr>
+          <tr><td><code>MarcarThumb</code></td><td>bool</td><td>Se queda acá: es una decisión sobre la marca, no sobre la resolución</td></tr>
+          <tr><td><code>Capas</code></td><td>colección</td><td>1 a 3, como colección hija — mismo patrón que <code>TamanoPrecio</code> en <code>Evento</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3><code>fot_CapasMarcaAgua</code></h3>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Nota</th></tr></thead>
+        <tbody>
+          <tr><td><code>Orden</code></td><td>int</td><td>De abajo hacia arriba al componer</td></tr>
+          <tr><td><code>ImagenStorageKey</code></td><td>string</td><td>El PNG. Storage privado, prefijo <code>private/</code></td></tr>
+          <tr><td><code>DisenoJson</code></td><td>string?</td><td>Sólo para <strong>reabrir el editor</strong>. El PNG es la verdad; si la capa es un logo subido, va vacío</td></tr>
+          <tr><td><code>Colocacion</code></td><td>enum</td><td><code>Repetido</code> o una de las 9 posiciones</td></tr>
+          <tr><td><code>Escala</code></td><td>float</td><td>% del ancho de la foto — no píxeles: así se ve igual en la ampliada de 900 y en el thumb de 300</td></tr>
+          <tr><td><code>Margen</code></td><td>float</td><td>% del ancho. Sólo para posición fija</td></tr>
+          <tr><td><code>Cobertura</code></td><td>int</td><td>1–5, el paso de la grilla. Sólo para repetido</td></tr>
+          <tr><td><code>AnguloGrados</code></td><td>int</td><td>−90 a 90</td></tr>
+          <tr><td><code>Opacidad</code></td><td>float</td><td>0–1</td></tr>
+          <tr><td><code>Fusion</code></td><td>enum</td><td><code>Normal · Superponer · Diferencia</code> → <code>GraphicsOptions.ColorBlendingMode</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3><code>fot_OpcionesPublicacion</code></h3>
+    <p>Entidad aparte, con el mismo circuito de resolución que el perfil de marca.</p>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo</th><th>Nota</th></tr></thead>
+        <tbody>
+          <tr><td><code>Nombre</code></td><td>string</td><td>Único por tenant. Con uno solo alcanza; admite más por si un evento pide otra cosa</td></tr>
+          <tr><td><code>EsDefault</code></td><td>bool</td><td>El que usan los eventos que no elijan otro</td></tr>
+          <tr><td><code>LadoMayorPreview</code></td><td>int</td><td>Migra de <code>appsettings</code></td></tr>
+          <tr><td><code>LadoMayorThumb</code></td><td>int</td><td>Ídem. Fuera del editor por defecto: cambiarlo descoloca la grilla</td></tr>
+          <tr><td><code>Calidad</code></td><td>int</td><td>WebP 0–100</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Lo que suma <code>Evento</code></h3>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Nota</th></tr></thead>
+        <tbody>
+          <tr><td><code>PerfilMarcaAguaId</code></td><td>Nullable. Vacío = el default del estudio</td></tr>
+          <tr><td><code>OpcionesPublicacionId</code></td><td>Nullable. Vacío = el default del estudio</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p class="callout__title">Nada se rompe si no hay perfiles</p>
+      <p>
+        Sin perfiles cargados, el pipeline sigue leyendo <code>OpcionesFotos</code> de
+        <code>appsettings</code> exactamente como hoy. La migración siembra un perfil "Estándar"
+        equivalente al actual, así que el primer render post-deploy se ve como el último pre-deploy.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">08</span> Validación de las imágenes que entran</h2>
+    <p class="section-lede">
+      Entran dos archivos y se validan igual: el PNG que genera nuestro editor y el logo que sube el
+      fotógrafo. <strong>Que uno lo produzca nuestro propio front no es una propiedad de seguridad</strong> —
+      los dos se tratan como entrada no confiable.
+    </p>
+
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Validación</th><th>Cómo</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Que sea una imagen de verdad</strong></td>
+            <td>Decodificar con ImageSharp y mirar el formato detectado, nunca la extensión ni el content-type que manda el cliente. Ya existe el patrón: <code>ImagenInvalidaException</code> capturando <code>UnknownImageFormatException</code> / <code>InvalidImageContentException</code></td>
+          </tr>
+          <tr>
+            <td><strong>Formato permitido</strong></td>
+            <td>PNG y WebP. <strong>SVG no</strong>: es vector, ImageSharp no lo procesa, y si algún día se sirviera inline sería un vector de XSS</td>
+          </tr>
+          <tr>
+            <td><strong>Bomba de descompresión</strong></td>
+            <td>La importante. Un PNG de 30.000×30.000 pesa poco comprimido y vuela la RAM al decodificar. Se ataja con <code>Image.Identify</code>, que lee <strong>sólo el encabezado</strong> y da las dimensiones sin materializar los pixeles: se valida ahí y se rechaza <em>antes</em> de decodificar. Techo tipo 4000×4000</td>
+          </tr>
+          <tr><td><strong>Peso</strong></td><td>Límite en el endpoint (~5 MB) más el límite de request de ASP.NET</td></tr>
+          <tr>
+            <td><strong>Transparencia</strong></td>
+            <td>Si el logo viene <strong>sin</strong> canal alfa: <em>avisar, no bloquear</em>. "Tu logo va a aparecer con un recuadro sólido detrás" es un error de expectativa, no un archivo inválido</td>
+          </tr>
+          <tr>
+            <td><strong>Aislamiento</strong></td>
+            <td>Key con prefijo <code>private/</code> como todo el resto, y <code>FamiliaSessionGuard</code> en el AppService igual que Evento, Grupo y Foto</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">09</span> Lo que queda afuera</h2>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Qué</th><th>Por qué</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Modo fotógrafo</strong> (<code>/fotos/presentar</code>)</td>
+            <td>Pantalla nueva de presentación para mostrar fotos en persona, sin marca ni fricción. Es independiente de todo esto: se puede hacer antes o después sin tocar nada</td>
+          </tr>
+          <tr>
+            <td><strong>Hornear el nombre de la familia</strong> en su foto</td>
+            <td>Exigiría un derivado por (foto × participante), multiplicando storage y procesado — y eso era caro <em>antes</em> de esta propuesta, no por ella. Si algún día se hace, es una segunda capa aplicada <strong>al servir</strong>, no al diseñar: convive con esto sin conflicto. Mientras tanto sigue el overlay dinámico del front, que ya funciona</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">10</span> Para arrancar</h2>
+    <div class="cierre">
+      <p style="margin-top:0"><strong>Si esto te cierra, el orden es:</strong></p>
+      <ul>
+        <li>ADR-15 en <code>docs/04-decisiones.md</code>: el front diseña y rasteriza, la API compone; perfil de 1 a 3 capas; opciones de publicación como entidad aparte; evento → default del tenant → <code>appsettings</code>.</li>
+        <li>Test que compare una fusión hecha en canvas contra la de ImageSharp sobre la misma muestra — es la única verificación que necesita el reparto, y se hace una sola vez.</li>
+        <li>Entidades + migración + seed del perfil "Estándar" equivalente al de hoy.</li>
+        <li>AppService + endpoints, con <code>FamiliaSessionGuard</code> como el resto del vertical.</li>
+        <li>Composición de capas en <code>ImageSharpImageProcessor</code> (reemplaza el dibujo de texto actual).</li>
+        <li>Pantalla: listado, editor con capas y verificación en tres muestras.</li>
+        <li>Regeneración por evento.</li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function () {
+    'use strict';
+
+    var POSICIONES = [
+      'arriba-izquierda', 'arriba-centro', 'arriba-derecha',
+      'medio-izquierda', 'centro', 'medio-derecha',
+      'abajo-izquierda', 'abajo-centro', 'abajo-derecha'
+    ];
+
+    var COBERTURA_X = [2.2, 1.7, 1.25, 1.0, 0.85];
+    var COBERTURA_Y = [4.0, 3.0, 2.2, 1.6, 1.2];
+    var COBERTURA_ETIQUETA = ['1 · mínima', '2 · baja', '3 · media', '4 · alta', '5 · máxima'];
+    var NOMBRE_FUSION = { 'source-over': 'Normal', 'overlay': 'Superponer', 'difference': 'Diferencia' };
+
+    function capaTexto() {
+      return {
+        tipo: 'texto',
+        texto: 'COPIA NO AUTORIZADA — ACG Fotos',
+        tamano: 34,
+        negrita: true,
+        color: '#ffffff',
+        contorno: false,
+        modoColocacion: 'repetido',
+        posicion: 'centro',
+        margen: 3,
+        cobertura: 3,
+        escala: 30,
+        angulo: -26,
+        opacidad: 50,
+        fusion: 'source-over'
+      };
+    }
+
+    function capaLogo() {
+      return {
+        tipo: 'logo',
+        imagen: null,
+        modoColocacion: 'posicion',
+        posicion: 'abajo-derecha',
+        margen: 3,
+        cobertura: 3,
+        escala: 18,
+        angulo: 0,
+        opacidad: 85,
+        fusion: 'source-over'
+      };
+    }
+
+    var perfil = {
+      nombre: 'Estándar',
+      capas: [capaTexto()],
+      marcarThumb: true
+    };
+
+    // Entidad aparte del perfil: es la decisión de resolución, no la de marca.
+    var publicacion = { ladoPreview: 900, calidad: 55 };
+    var simularCompresion = true;
+
+    var capaActiva = 0;
+    var vista = 'preview';
+    var muestraActiva = 'mixta';
+
+    var MUESTRAS = [
+      { clave: 'clara', etiqueta: 'Clara' },
+      { clave: 'mixta', etiqueta: 'Mixta' },
+      { clave: 'oscura', etiqueta: 'Oscura' }
+    ];
+
+    var lienzo = document.getElementById('lienzo');
+    var ctx = lienzo.getContext('2d');
+
+    // ---------- Fotos sintéticas ----------
+    // Cada variante existe para exponer un fallo distinto de la marca: la clara se come el blanco,
+    // la oscura se come el contorno, la mixta tiene las dos cosas en la misma imagen.
+    function dibujarFoto(c, W, H, variante) {
+      var fondo = c.createLinearGradient(0, 0, W, H);
+      if (variante === 'clara') {
+        fondo.addColorStop(0, '#f6f4ee'); fondo.addColorStop(1, '#dcdeD7');
+      } else if (variante === 'oscura') {
+        fondo.addColorStop(0, '#1c2430'); fondo.addColorStop(1, '#080b0f');
+      } else {
+        fondo.addColorStop(0, '#3d4c5a'); fondo.addColorStop(0.55, '#6b7280'); fondo.addColorStop(1, '#20262e');
+      }
+      c.fillStyle = fondo;
+      c.fillRect(0, 0, W, H);
+
+      if (variante === 'mixta') {
+        var claro = c.createRadialGradient(W * 0.3, H * 0.55, 0, W * 0.3, H * 0.55, W * 0.34);
+        claro.addColorStop(0, 'rgba(250,248,243,1)');
+        claro.addColorStop(1, 'rgba(250,248,243,0)');
+        c.fillStyle = claro;
+        c.fillRect(0, 0, W, H);
+
+        var oscuro = c.createRadialGradient(W * 0.78, H * 0.65, 0, W * 0.78, H * 0.65, W * 0.3);
+        oscuro.addColorStop(0, 'rgba(6,8,11,.95)');
+        oscuro.addColorStop(1, 'rgba(6,8,11,0)');
+        c.fillStyle = oscuro;
+        c.fillRect(0, 0, W, H);
+      }
+
+      if (variante === 'clara') {
+        var sombra = c.createRadialGradient(W * 0.75, H * 0.7, 0, W * 0.75, H * 0.7, W * 0.3);
+        sombra.addColorStop(0, 'rgba(150,145,135,.45)');
+        sombra.addColorStop(1, 'rgba(150,145,135,0)');
+        c.fillStyle = sombra;
+        c.fillRect(0, 0, W, H);
+      }
+
+      var bokeh = [[0.12, 0.18, 0.05], [0.5, 0.12, 0.035], [0.88, 0.22, 0.06], [0.66, 0.3, 0.028]];
+      for (var i = 0; i < bokeh.length; i++) {
+        var b = bokeh[i];
+        var g = c.createRadialGradient(W * b[0], H * b[1], 0, W * b[0], H * b[1], W * b[2]);
+        g.addColorStop(0, variante === 'clara' ? 'rgba(255,255,255,.9)' : 'rgba(255,226,170,.5)');
+        g.addColorStop(1, 'rgba(255,226,170,0)');
+        c.fillStyle = g;
+        c.beginPath();
+        c.arc(W * b[0], H * b[1], W * b[2], 0, Math.PI * 2);
+        c.fill();
+      }
+
+      c.fillStyle = variante === 'clara' ? 'rgba(0,0,0,.08)' : 'rgba(0,0,0,.22)';
+      c.fillRect(0, H * 0.86, W, H * 0.14);
+    }
+
+    // ---------- Paso 1: el front fabrica el PNG de la capa ----------
+    function fabricarAsset(capa) {
+      if (capa.tipo === 'logo') {
+        return capa.imagen || logoDeEjemplo();
+      }
+
+      var medidor = document.createElement('canvas').getContext('2d');
+      var fuente = (capa.negrita ? '700 ' : '400 ') + capa.tamano +
+        'px system-ui, "Segoe UI", Roboto, sans-serif';
+      medidor.font = fuente;
+
+      var ancho = Math.ceil(medidor.measureText(capa.texto).width);
+      var alto = Math.ceil(capa.tamano * 1.35);
+      var pad = Math.ceil(capa.tamano * 0.25);
+
+      var lienzoAsset = document.createElement('canvas');
+      lienzoAsset.width = Math.max(1, ancho + pad * 2);
+      lienzoAsset.height = alto + pad * 2;
+
+      var c = lienzoAsset.getContext('2d');
+      c.font = fuente;
+      c.textBaseline = 'top';
+
+      if (capa.contorno) {
+        c.strokeStyle = 'rgba(0,0,0,.85)';
+        c.lineWidth = Math.max(1, capa.tamano / 12);
+        c.lineJoin = 'round';
+        c.strokeText(capa.texto, pad, pad);
+      }
+      c.fillStyle = capa.color;
+      c.fillText(capa.texto, pad, pad);
+
+      return lienzoAsset;
+    }
+
+    var _logoCache = null;
+
+    function logoDeEjemplo() {
+      if (_logoCache) { return _logoCache; }
+      var c2 = document.createElement('canvas');
+      c2.width = 300; c2.height = 300;
+      var c = c2.getContext('2d');
+
+      c.strokeStyle = '#ffffff';
+      c.lineWidth = 12;
+      c.beginPath();
+      c.arc(150, 150, 120, 0, Math.PI * 2);
+      c.stroke();
+
+      c.fillStyle = '#ffffff';
+      c.font = '700 92px system-ui, sans-serif';
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillText('ACG', 150, 138);
+
+      c.font = '400 26px system-ui, sans-serif';
+      c.fillText('FOTOGRAFÍA', 150, 200);
+
+      _logoCache = c2;
+      return c2;
+    }
+
+    // ---------- Paso 2: la API coloca y funde ----------
+    function componer(c, W, H, capa, asset) {
+      var anchoDestino = W * capa.escala / 100;
+      var altoDestino = anchoDestino * (asset.height / asset.width);
+      var colocaciones = 0;
+
+      c.save();
+      c.globalAlpha = capa.opacidad / 100;
+      c.globalCompositeOperation = capa.fusion;
+
+      if (capa.modoColocacion === 'repetido') {
+        c.translate(W / 2, H / 2);
+        c.rotate(capa.angulo * Math.PI / 180);
+        c.translate(-W / 2, -H / 2);
+
+        var pasoX = anchoDestino * COBERTURA_X[capa.cobertura - 1];
+        var pasoY = altoDestino * COBERTURA_Y[capa.cobertura - 1];
+        var fila = 0;
+
+        for (var y = -H; y < H * 2; y += pasoY) {
+          // Ladrillo: las filas impares corren media celda, para que el patrón no se clone fácil.
+          var off = fila % 2 === 0 ? 0 : pasoX / 2;
+          for (var x = -W; x < W * 2; x += pasoX) {
+            c.drawImage(asset, x + off, y, anchoDestino, altoDestino);
+            colocaciones++;
+          }
+          fila++;
+        }
+      } else {
+        var m = W * capa.margen / 100;
+        var partes = capa.posicion.split('-');
+        var vertical = partes[0], horizontal = partes[1];
+
+        var cx = horizontal === 'izquierda' ? m + anchoDestino / 2
+          : horizontal === 'derecha' ? W - m - anchoDestino / 2
+            : W / 2;
+        var cy = vertical === 'arriba' ? m + altoDestino / 2
+          : vertical === 'abajo' ? H - m - altoDestino / 2
+            : H / 2;
+
+        c.translate(cx, cy);
+        c.rotate(capa.angulo * Math.PI / 180);
+        c.drawImage(asset, -anchoDestino / 2, -altoDestino / 2, anchoDestino, altoDestino);
+        colocaciones = 1;
+      }
+
+      c.restore();
+      return colocaciones;
+    }
+
+    function pintar(c, W, H, variante, esThumb) {
+      dibujarFoto(c, W, H, variante);
+      if (esThumb && !perfil.marcarThumb) { return 0; }
+
+      var total = 0;
+      for (var i = 0; i < perfil.capas.length; i++) {
+        var capa = perfil.capas[i];
+        if (capa.opacidad <= 0) { continue; }
+        if (capa.tipo === 'texto' && !capa.texto.trim()) { continue; }
+        total += componer(c, W, H, capa, fabricarAsset(capa));
+      }
+      return total;
+    }
+
+    // El encoder con pérdida ataca primero las transiciones suaves y el bajo contraste — o sea,
+    // exactamente una marca sutil. Previsualizar sin comprimir muestra algo que nunca va a existir.
+    function pasarPorElEncoder(canvas, calidad) {
+      canvas.toBlob(function (blob) {
+        if (!blob) { return; }
+        var url = URL.createObjectURL(blob);
+        var img = new Image();
+        img.onload = function () {
+          var c = canvas.getContext('2d');
+          c.clearRect(0, 0, canvas.width, canvas.height);
+          c.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(url);
+        };
+        img.src = url;
+      }, 'image/webp', calidad / 100);
+    }
+
+    function render() {
+      var esThumb = vista === 'thumb';
+      var W = esThumb ? 300 : publicacion.ladoPreview;
+      var H = Math.round(W * 2 / 3);
+      lienzo.width = W;
+      lienzo.height = H;
+      lienzo.classList.toggle('es-thumb', esThumb);
+
+      var colocaciones = pintar(ctx, W, H, muestraActiva, esThumb);
+
+      document.getElementById('numCapas').textContent = perfil.capas.length;
+      document.getElementById('repeticiones').textContent = colocaciones;
+      document.getElementById('tamRender').textContent = W + ' × ' + H;
+
+      MUESTRAS.forEach(function (m) {
+        var mini = document.getElementById('muestra-' + m.clave);
+        pintar(mini.getContext('2d'), mini.width, mini.height, m.clave, false);
+        mini.parentNode.setAttribute('aria-pressed', String(m.clave === muestraActiva));
+        if (simularCompresion) { pasarPorElEncoder(mini, publicacion.calidad); }
+      });
+
+      if (simularCompresion) { pasarPorElEncoder(lienzo, publicacion.calidad); }
+
+      pintarAsset();
+      pintarJson();
+    }
+
+    function pintarAsset() {
+      var destino = document.getElementById('assetCanvas');
+      var asset = fabricarAsset(perfil.capas[capaActiva]);
+      var maxAncho = 160;
+      var escala = Math.min(1, maxAncho / asset.width);
+      destino.width = Math.max(1, Math.round(asset.width * escala));
+      destino.height = Math.max(1, Math.round(asset.height * escala));
+      var c = destino.getContext('2d');
+      c.clearRect(0, 0, destino.width, destino.height);
+      c.drawImage(asset, 0, 0, destino.width, destino.height);
+    }
+
+    function pintarJson() {
+      document.getElementById('jsonPerfil').textContent = JSON.stringify({
+        nombre: perfil.nombre,
+        esDefault: true,
+        marcarThumb: perfil.marcarThumb,
+        capas: perfil.capas.map(function (capa, i) {
+          return {
+            orden: i + 1,
+            imagenStorageKey: 'private/marca-agua/perfil-2/capa-' + (i + 1) + '.png',
+            disenoJson: capa.tipo === 'texto'
+              ? { texto: capa.texto, tamano: capa.tamano, negrita: capa.negrita, color: capa.color, contorno: capa.contorno }
+              : null,
+            colocacion: capa.modoColocacion === 'repetido' ? 'Repetido' : capa.posicion,
+            escala: capa.escala,
+            margen: capa.modoColocacion === 'repetido' ? null : capa.margen,
+            cobertura: capa.modoColocacion === 'repetido' ? capa.cobertura : null,
+            anguloGrados: capa.angulo,
+            opacidad: +(capa.opacidad / 100).toFixed(2),
+            fusion: NOMBRE_FUSION[capa.fusion]
+          };
+        })
+      }, null, 2);
+    }
+
+    // ---------- Controles ----------
+    function capa() { return perfil.capas[capaActiva]; }
+
+    function sincronizarControles() {
+      var c = capa();
+      var esTexto = c.tipo === 'texto';
+
+      document.getElementById('fsTexto').hidden = !esTexto;
+      document.getElementById('fsLogo').hidden = esTexto;
+
+      if (esTexto) {
+        document.getElementById('texto').value = c.texto;
+        document.getElementById('tamano').value = c.tamano;
+        document.getElementById('negrita').checked = c.negrita;
+        document.getElementById('color').value = c.color;
+        document.getElementById('contorno').checked = c.contorno;
+      }
+
+      document.getElementById('modoColocacion').value = c.modoColocacion;
+      document.getElementById('margen').value = c.margen;
+      document.getElementById('cobertura').value = c.cobertura;
+      document.getElementById('escala').value = c.escala;
+      document.getElementById('angulo').value = c.angulo;
+      document.getElementById('opacidad').value = c.opacidad;
+      document.getElementById('fusion').value = c.fusion;
+
+      var esRepetido = c.modoColocacion === 'repetido';
+      document.getElementById('filaPosicion').hidden = esRepetido;
+      document.getElementById('campoCobertura').hidden = !esRepetido;
+
+      Array.prototype.forEach.call(document.querySelectorAll('#grilla9 button'), function (b) {
+        b.setAttribute('aria-pressed', String(b.dataset.pos === c.posicion));
+      });
+
+      sincronizarEtiquetas();
+    }
+
+    function sincronizarEtiquetas() {
+      var c = capa();
+      document.getElementById('tamanoVal').textContent = c.tamano + ' px en el PNG';
+      document.getElementById('margenVal').textContent = c.margen + ' %';
+      document.getElementById('coberturaVal').textContent = COBERTURA_ETIQUETA[c.cobertura - 1];
+      document.getElementById('escalaVal').textContent = c.escala + ' % del ancho';
+      document.getElementById('anguloVal').textContent = (c.angulo < 0 ? '−' : '') + Math.abs(c.angulo) + '°';
+      document.getElementById('opacidadVal').textContent = c.opacidad + ' %';
+    }
+
+    function actualizar() {
+      sincronizarEtiquetas();
+      render();
+    }
+
+    function enlazarCapa(id, campo, transformar) {
+      var el = document.getElementById(id);
+      var aplicar = function () {
+        capa()[campo] = el.type === 'checkbox' ? el.checked
+          : (transformar ? transformar(el.value) : el.value);
+      };
+
+      if (el.type === 'range') {
+        el.addEventListener('input', function () { aplicar(); actualizar(); });
+        return;
+      }
+      el.addEventListener(el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input',
+        function () { aplicar(); actualizar(); });
+    }
+
+    enlazarCapa('texto', 'texto');
+    enlazarCapa('tamano', 'tamano', parseInt);
+    enlazarCapa('negrita', 'negrita');
+    enlazarCapa('color', 'color');
+    enlazarCapa('contorno', 'contorno');
+    enlazarCapa('margen', 'margen', parseInt);
+    enlazarCapa('cobertura', 'cobertura', parseInt);
+    enlazarCapa('escala', 'escala', parseInt);
+    enlazarCapa('angulo', 'angulo', parseInt);
+    enlazarCapa('opacidad', 'opacidad', parseInt);
+    enlazarCapa('fusion', 'fusion');
+
+    document.getElementById('modoColocacion').addEventListener('change', function () {
+      capa().modoColocacion = this.value;
+      sincronizarControles();
+      render();
+    });
+
+    document.getElementById('simularCompresion').addEventListener('change', function () {
+      simularCompresion = this.checked;
+      render();
+    });
+
+    document.getElementById('marcarThumb').addEventListener('change', function () {
+      perfil.marcarThumb = this.checked;
+      render();
+    });
+
+    document.getElementById('archivoLogo').addEventListener('change', function () {
+      var archivo = this.files && this.files[0];
+      if (!archivo) { return; }
+      var lector = new FileReader();
+      lector.onload = function (e) {
+        var img = new Image();
+        img.onload = function () { capa().imagen = img; render(); };
+        img.src = e.target.result;
+      };
+      lector.readAsDataURL(archivo);
+    });
+
+    // Grilla de 9 posiciones
+    var grilla = document.getElementById('grilla9');
+    POSICIONES.forEach(function (pos) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.pos = pos;
+      b.setAttribute('aria-label', pos.replace('-', ' '));
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', function () {
+        capa().posicion = pos;
+        sincronizarControles();
+        render();
+      });
+      grilla.appendChild(b);
+    });
+
+    // Barra de capas
+    function pintarBarraCapas() {
+      var barra = document.getElementById('capasBarra');
+      barra.textContent = '';
+
+      perfil.capas.forEach(function (c, i) {
+        var tab = document.createElement('button');
+        tab.type = 'button';
+        tab.className = 'capa-tab';
+        tab.setAttribute('aria-pressed', String(i === capaActiva));
+
+        var tipo = document.createElement('span');
+        tipo.className = 'capa-tab__tipo';
+        tipo.textContent = c.tipo === 'texto' ? 'texto' : 'logo';
+        tab.appendChild(tipo);
+        tab.appendChild(document.createTextNode(
+          c.tipo === 'texto' ? (c.texto.slice(0, 22) || 'Sin texto') : 'Logo del estudio'));
+
+        tab.addEventListener('click', function () {
+          capaActiva = i;
+          pintarBarraCapas();
+          sincronizarControles();
+          render();
+        });
+        barra.appendChild(tab);
+      });
+
+      if (perfil.capas.length < 3) {
+        [['+ Capa de texto', capaTexto], ['+ Capa de logo', capaLogo]].forEach(function (par) {
+          var add = document.createElement('button');
+          add.type = 'button';
+          add.className = 'capa-add';
+          add.textContent = par[0];
+          add.addEventListener('click', function () {
+            perfil.capas.push(par[1]());
+            capaActiva = perfil.capas.length - 1;
+            pintarBarraCapas();
+            sincronizarControles();
+            render();
+          });
+          barra.appendChild(add);
+        });
+      }
+
+      if (perfil.capas.length > 1) {
+        var quitar = document.createElement('button');
+        quitar.type = 'button';
+        quitar.className = 'capa-add';
+        quitar.textContent = 'Quitar capa';
+        quitar.addEventListener('click', function () {
+          perfil.capas.splice(capaActiva, 1);
+          capaActiva = 0;
+          pintarBarraCapas();
+          sincronizarControles();
+          render();
+        });
+        barra.appendChild(quitar);
+      }
+    }
+
+    // Muestras
+    var contenedorMuestras = document.getElementById('muestras');
+    MUESTRAS.forEach(function (m) {
+      var celda = document.createElement('div');
+      celda.className = 'muestra';
+
+      var boton = document.createElement('button');
+      boton.type = 'button';
+      boton.setAttribute('aria-pressed', String(m.clave === muestraActiva));
+      boton.setAttribute('aria-label', 'Ver la muestra ' + m.etiqueta.toLowerCase() + ' en grande');
+
+      var mini = document.createElement('canvas');
+      mini.id = 'muestra-' + m.clave;
+      mini.width = 300;
+      mini.height = 200;
+      boton.appendChild(mini);
+
+      boton.addEventListener('click', function () {
+        muestraActiva = m.clave;
+        render();
+      });
+
+      var etiqueta = document.createElement('span');
+      etiqueta.textContent = m.etiqueta;
+
+      celda.appendChild(boton);
+      celda.appendChild(etiqueta);
+      contenedorMuestras.appendChild(celda);
+    });
+
+    var botonPreview = document.getElementById('verPreview');
+    var botonThumb = document.getElementById('verThumb');
+
+    botonPreview.addEventListener('click', function () {
+      vista = 'preview';
+      botonPreview.setAttribute('aria-pressed', 'true');
+      botonThumb.setAttribute('aria-pressed', 'false');
+      render();
+    });
+
+    botonThumb.addEventListener('click', function () {
+      vista = 'thumb';
+      botonThumb.setAttribute('aria-pressed', 'true');
+      botonPreview.setAttribute('aria-pressed', 'false');
+      render();
+    });
+
+    // ---------- Listado de perfiles ----------
+    var PERFILES_LISTA = [
+      {
+        nombre: 'Estándar', desc: 'Trama de texto en diagonal, blanco al 50 %', default: true,
+        capas: [capaTexto()]
+      },
+      {
+        nombre: 'Estudio + trama', desc: 'Logo abajo a la derecha y trama encima', default: false,
+        capas: [(function () { var c = capaLogo(); return c; })(), (function () {
+          var c = capaTexto(); c.opacidad = 35; c.cobertura = 4; return c;
+        })()]
+      },
+      {
+        nombre: 'Sólo logo', desc: 'Branding en la esquina, sin protección real', default: false,
+        aviso: true,
+        capas: [(function () { var c = capaLogo(); c.escala = 22; return c; })()]
+      }
+    ];
+
+    var contenedor = document.getElementById('listaPerfiles');
+
+    PERFILES_LISTA.forEach(function (p) {
+      var fila = document.createElement('div');
+      fila.className = 'perfil' + (p.default ? ' perfil--activo' : '');
+
+      var mini = document.createElement('canvas');
+      mini.width = 264;
+      mini.height = 176;
+      fila.appendChild(mini);
+
+      var info = document.createElement('div');
+      var titulo = document.createElement('div');
+      titulo.className = 'perfil__nombre';
+      titulo.appendChild(document.createTextNode(p.nombre));
+
+      if (p.default) {
+        var chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.textContent = 'Default';
+        titulo.appendChild(chip);
+      }
+      if (p.aviso) {
+        var chipAviso = document.createElement('span');
+        chipAviso.className = 'chip chip--warn';
+        chipAviso.textContent = 'Se recorta fácil';
+        titulo.appendChild(chipAviso);
+      }
+
+      var desc = document.createElement('div');
+      desc.className = 'perfil__desc';
+      desc.textContent = p.desc;
+      info.appendChild(titulo);
+      info.appendChild(desc);
+      fila.appendChild(info);
+
+      var acciones = document.createElement('div');
+      acciones.className = 'perfil__acciones';
+      ['Editar', 'Duplicar'].forEach(function (etiqueta) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'btn btn--ghost btn--sm';
+        b.textContent = etiqueta;
+        acciones.appendChild(b);
+      });
+      fila.appendChild(acciones);
+      contenedor.appendChild(fila);
+
+      var c = mini.getContext('2d');
+      dibujarFoto(c, mini.width, mini.height, 'mixta');
+      p.capas.forEach(function (capaPerfil) {
+        componer(c, mini.width, mini.height, capaPerfil, fabricarAsset(capaPerfil));
+      });
+    });
+
+    pintarBarraCapas();
+    sincronizarControles();
+    render();
+
+    // ---------- Comparador de resoluciones ----------
+    // La pregunta que responde no es técnica: ¿a este tamaño se distingue una cara en una grupal?
+    // Por eso necesita una foto real — las muestras sintéticas no tienen caras.
+    var TAMANOS = [300, 600, 900, 1200, 1600];
+    var ANCHO_10x15_CM = 15;
+    var fotoCargada = null;
+    var vistaCmp = 'igual';
+
+    function dpiEn10x15(ladoMayor) {
+      return Math.round(ladoMayor / (ANCHO_10x15_CM / 2.54));
+    }
+
+    function pintarComparador() {
+      var cont = document.getElementById('comparador');
+      cont.textContent = '';
+
+      var tira = document.createElement('div');
+      tira.style.display = 'flex';
+      tira.style.gap = '1rem';
+      tira.style.alignItems = 'flex-start';
+      tira.style.paddingBottom = '.5rem';
+      cont.appendChild(tira);
+
+      TAMANOS.forEach(function (lado) {
+        var relacion = fotoCargada ? fotoCargada.height / fotoCargada.width : 2 / 3;
+        var W = lado;
+        var H = Math.round(lado * relacion);
+
+        var lienzoCmp = document.createElement('canvas');
+        lienzoCmp.width = W;
+        lienzoCmp.height = H;
+        var c = lienzoCmp.getContext('2d');
+
+        if (fotoCargada) {
+          c.drawImage(fotoCargada, 0, 0, W, H);
+        } else {
+          dibujarFoto(c, W, H, 'mixta');
+        }
+
+        perfil.capas.forEach(function (capaPerfil) {
+          if (capaPerfil.opacidad <= 0) { return; }
+          componer(c, W, H, capaPerfil, fabricarAsset(capaPerfil));
+        });
+
+        var celda = document.createElement('figure');
+        celda.style.margin = '0';
+        celda.style.flex = 'none';
+        celda.style.display = 'grid';
+        celda.style.gap = '.4rem';
+
+        lienzoCmp.style.display = 'block';
+        lienzoCmp.style.borderRadius = '6px';
+        lienzoCmp.style.width = vistaCmp === 'igual' ? '320px' : (W + 'px');
+        lienzoCmp.style.height = 'auto';
+        lienzoCmp.style.imageRendering = vistaCmp === 'igual' ? 'auto' : 'auto';
+        celda.appendChild(lienzoCmp);
+
+        var pie = document.createElement('figcaption');
+        pie.style.fontSize = '.75rem';
+        pie.style.fontFamily = 'var(--mono)';
+        pie.style.lineHeight = '1.5';
+        pie.style.color = 'var(--on-surface-muted)';
+
+        var titulo = document.createElement('b');
+        titulo.style.color = 'var(--on-surface)';
+        titulo.textContent = W + ' × ' + H + ' px';
+        pie.appendChild(titulo);
+        pie.appendChild(document.createElement('br'));
+
+        var dpi = dpiEn10x15(Math.max(W, H));
+        var lineaDpi = document.createElement('span');
+        lineaDpi.textContent = '10×15 a ' + dpi + ' dpi';
+        if (dpi >= 240) {
+          lineaDpi.style.color = 'var(--warn)';
+          lineaDpi.textContent += ' ⚠';
+        }
+        pie.appendChild(lineaDpi);
+        pie.appendChild(document.createElement('br'));
+
+        var peso = document.createElement('span');
+        peso.textContent = 'calculando…';
+        pie.appendChild(peso);
+
+        var ahorro = document.createElement('span');
+        pie.appendChild(document.createElement('br'));
+        pie.appendChild(ahorro);
+
+        // Los dos encoders corren ANTES de repintar: si midiéramos el JPEG después de haber
+        // dibujado el WebP decodificado, estaríamos comprimiendo una imagen ya degradada.
+        var q = publicacion.calidad / 100;
+        lienzoCmp.toBlob(function (webp) {
+          lienzoCmp.toBlob(function (jpeg) {
+            if (!webp) { peso.textContent = '—'; return; }
+            peso.textContent = 'WebP ' + Math.round(webp.size / 1024) + ' KB';
+
+            if (jpeg) {
+              var delta = Math.round((1 - webp.size / jpeg.size) * 100);
+              ahorro.textContent = 'JPEG ' + Math.round(jpeg.size / 1024) + ' KB · ' +
+                (delta >= 0 ? '−' + delta : '+' + Math.abs(delta)) + ' %';
+              ahorro.style.color = delta >= 15 ? 'var(--primary)' : 'var(--on-surface-muted)';
+            }
+
+            // Se muestra lo que sale del encoder, no lo que entró: los artefactos sobre una marca
+            // sutil son justamente lo que hay que ver antes de hornear 400 fotos.
+            var url = URL.createObjectURL(webp);
+            var img = new Image();
+            img.onload = function () {
+              var cc = lienzoCmp.getContext('2d');
+              cc.clearRect(0, 0, W, H);
+              cc.drawImage(img, 0, 0, W, H);
+              URL.revokeObjectURL(url);
+            };
+            img.src = url;
+          }, 'image/jpeg', q);
+        }, 'image/webp', q);
+
+        celda.appendChild(pie);
+        tira.appendChild(celda);
+      });
+    }
+
+    document.getElementById('archivoFoto').addEventListener('change', function () {
+      var archivo = this.files && this.files[0];
+      if (!archivo) { return; }
+      var lector = new FileReader();
+      lector.onload = function (e) {
+        var img = new Image();
+        img.onload = function () {
+          fotoCargada = img;
+          document.getElementById('avisoFoto').textContent =
+            'Tu foto: ' + img.width + ' × ' + img.height + ' px. Nunca salió de tu navegador.';
+          pintarComparador();
+        };
+        img.src = e.target.result;
+      };
+      lector.readAsDataURL(archivo);
+    });
+
+    document.getElementById('calidadCmp').addEventListener('input', function () {
+      publicacion.calidad = parseInt(this.value, 10);
+      document.getElementById('calidadCmpVal').textContent = publicacion.calidad;
+      pintarComparador();
+      render();
+    });
+
+    var botonIgual = document.getElementById('verIgual');
+    var botonReal = document.getElementById('verReal');
+
+    botonIgual.addEventListener('click', function () {
+      vistaCmp = 'igual';
+      botonIgual.setAttribute('aria-pressed', 'true');
+      botonReal.setAttribute('aria-pressed', 'false');
+      pintarComparador();
+    });
+
+    botonReal.addEventListener('click', function () {
+      vistaCmp = 'real';
+      botonReal.setAttribute('aria-pressed', 'true');
+      botonIgual.setAttribute('aria-pressed', 'false');
+      pintarComparador();
+    });
+
+    pintarComparador();
+  })();
+</script>

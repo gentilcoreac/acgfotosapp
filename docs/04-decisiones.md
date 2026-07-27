@@ -277,3 +277,92 @@ el esquema aplicado pero sin datos — sembrar root/tenant/fotógrafo es un paso
 esta migración (la base de SQL Server ya tenía esos datos acumulados de sesiones anteriores). Deuda
 documentada: migrar `DateTime.Now` → `DateTime.UtcNow` en el código heredado para poder sacar el switch
 legacy de timestamps.
+
+## ADR-15 — Marca de agua configurable: el front diseña y rasteriza, la API sólo compone
+
+**Contexto**: la marca de agua vivía en `appsettings` (`Fotos:TextoWatermark`, `OpacidadWatermark`) y
+su dibujo estaba hardcodeado en `ImageSharpImageProcessor` — cambiarla exigía reiniciar la API. El
+pedido (Alberto, 2026-07-18, ampliado el 2026-07-26/27) es un ABM que permita customizar imagen,
+color, texto, intensidad y opacidad, con vista previa en vivo.
+
+El problema de diseño no fue *qué* configurar sino **dónde vive el dibujo**. Una vista previa fiel
+en el front y un horneado en la API son dos implementaciones del mismo algoritmo que deben coincidir
+pixel a pixel para siempre; alcanza con que alguien toque una y no la otra para que el fotógrafo
+ajuste contra una imagen que no existe y se entere con cientos de fotos ya horneadas. Se descartó el
+esquema híbrido (canvas mientras se arrastra, render real al soltar) por eso mismo: pedido explícito
+de Alberto de tener la lógica en un solo lado.
+
+**Decisión**:
+
+1. **El front diseña y rasteriza; la API compone.** La marca se define en el navegador y viaja a la
+   API como un **PNG con transparencia** más parámetros de colocación. La API nunca dibuja texto:
+   coloca, escala y funde un bitmap sobre la foto. Los pixeles que el fotógrafo vio son literalmente
+   los que se componen — no "coinciden", son los mismos.
+2. **Perfil = de 1 a 3 capas.** Cada capa es una imagen (diseñada o subida) con su colocación:
+   repetida en mosaico o en una de 9 posiciones fijas, con escala en % del ancho, margen, ángulo,
+   opacidad y modo de fusión. Así el "modo logo" (subir un archivo) y el "modo diseñador" (escribir
+   un texto) son el MISMO mecanismo, y se pueden combinar: logo del estudio en la esquina + trama de
+   texto encima. El editor de texto es una forma de fabricar la imagen, no parte del contrato.
+3. **Los modos de fusión se quedan** (`Normal · Superponer · Diferencia` →
+   `GraphicsOptions.ColorBlendingMode`). Resuelven un agujero real de la marca actual: el blanco al
+   50% desaparece sobre un vestido claro, o sea que **la foto más valiosa es la peor protegida**. No
+   reintroducen el problema de la lógica duplicada porque la fórmula de fusión no es código nuestro:
+   canvas e ImageSharp implementan la misma especificación del W3C. Se verifica **una vez** con un
+   test que compare ambas salidas sobre la misma muestra; nadie edita nunca una fórmula de fusión.
+4. **Resolución de configuración**: evento → perfil default del tenant → `OpcionesFotos` de
+   `appsettings`. Sin perfiles cargados, el pipeline se comporta exactamente como hoy.
+5. **Las opciones de publicación son una entidad APARTE** (`fot_OpcionesPublicacion`: lado mayor de
+   preview/thumb y calidad), con el mismo circuito default-del-tenant → override por evento. Son ejes
+   independientes: se puede querer marca sutil con resolución baja o al revés, y una entidad llamada
+   "perfil de marca de agua" que además fija la resolución haría dos cosas. `MarcarThumb` sí se queda
+   en el perfil de marca: es una decisión sobre la marca, no sobre la resolución.
+6. **Aplicar a fotos ya subidas es explícito**, por evento, con el conteo por delante. Guardar un
+   perfil nunca toca una foto: un evento de 400 fotos son 400 reprocesos, y dispararlos con cada
+   retoque de opacidad congelaría el worker sobre fotos que las familias están mirando.
+7. **El asset de la marca se guarda sin pérdida (PNG)**, nunca en WebP con pérdida: comprimirlo y
+   después comprimir el derivado compuesto degrada dos veces la misma marca.
+8. **El asset se rasteriza al tamaño máximo que podría llegar a usarse, para que la composición sólo
+   escale HACIA ABAJO.** Reducir un bitmap da nitidez; agrandarlo no tiene arreglo, y ocurre antes de
+   que el encoder toque nada: un logo de 300 px llevado al 70% de una foto de 1600 px son 1120 px
+   sacados de 300. Con el tope actual (lado mayor 1600, escala hasta 70%) el piso es ~1200 px de lado
+   mayor. Para la capa de texto es gratis, la dibuja el front al tamaño que haga falta; para el logo
+   subido no depende de nosotros, así que se valida al subirlo y se avisa con el número concreto
+   ("tu logo tiene 300 px de ancho; a esta escala se va a ver borroso — subí uno de al menos 1200 px
+   o bajá la escala").
+
+**Principio transversal — las guardas se explican solas** (pedido de Alberto 2026-07-27, aplica también
+a la política de retención de originales, docs/05): ninguna validación ni guarda de este vertical
+avisa en genérico ni actúa en silencio. Cada una dice **el número concreto y la consecuencia real, en
+el momento en que importa**: "tu logo tiene 300 px de ancho; a esta escala se va a ver borroso" en vez
+de "imagen inválida"; "se van a regenerar 412 fotos, tarda unos minutos" antes de encolar, no después;
+"las familias van a ver estas fotos sin ninguna protección" al guardar un perfil sin marca; y el aviso
+de que un logo en una esquina se recorta fácil, ahí donde se elige la posición. Una guarda que el
+fotógrafo no entiende es una guarda que va a tratar de saltear.
+
+**Consecuencias**:
+
+- La Etapa "logo" deja de existir como etapa separada: un logo es una capa más, comparte todo aguas
+  abajo con el texto.
+- **Se cae una fragilidad de producción**: hoy `ResolverFuente` pide Arial al sistema operativo y, si
+  no está, agarra la primera familia que encuentre — en un contenedor Linux eso es una bomba de
+  tiempo. Con la tipografía horneada en el PNG, el servidor no necesita ninguna fuente instalada.
+- **La vista previa debe mostrar la imagen DESPUÉS del encoder WebP.** WebP con pérdida ataca primero
+  las transiciones suaves y el bajo contraste, que es exactamente una marca sutil, una sombra difusa o
+  el trazo fino de un logo. Previsualizar sin comprimir muestra algo que nunca va a existir. De ahí
+  se deriva la guía de diseño: preferir color sólido y opacidad plana; el contorno duro sobrevive bien
+  a la compresión, la sombra difusa es la primera víctima.
+- El texto dinámico por foto (hornear "Familia {nombre}") NO queda cerrado por esta decisión, pero
+  tampoco habilitado: exigiría un derivado por (foto × participante) y eso era caro desde antes. Si
+  alguna vez se hace, es una segunda capa aplicada **al servir**, ortogonal a esto. Mientras tanto
+  sigue el overlay dinámico del front, que ya funciona.
+- Se acepta el riesgo de iOS 13 y anteriores, que no decodifican WebP (decisión ya vigente desde el
+  2026-07-15, no la introduce este ADR).
+- **El peso de los assets es irrelevante para el storage**: son unos pocos archivos por tenant (uno por
+  capa de cada perfil), no uno por foto, y un PNG de texto plano sobre transparencia comprime muy bien.
+  El storage lo dominan los ORIGINALES, no los derivados ni los assets: con la medición real del piloto
+  (original 10,5 MB, preview 40 KB, thumb ~6 KB), un evento de 400 fotos son ~4,2 GB de originales
+  contra ~19 MB de derivados — el 99,5% es original. Donde sí pesan los derivados es en **ancho de
+  banda**, porque se sirven una y otra vez: ahí es donde paga el ahorro de WebP. Si alguna vez hace
+  falta bajar el storage de verdad, la palanca es la política de retención de originales
+  (docs/05-notas-abiertas.md), no la calidad de los derivados.
+- Prototipo navegable del diseño y del circuito: `docs/ClaudeDesign/PropuestaMarcaAgua/`.

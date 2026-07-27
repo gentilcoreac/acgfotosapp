@@ -28,8 +28,24 @@ corriendo sobre Npgsql, suite de integración 508/508 en verde contra Postgres l
 
 **Próximos pasos, en orden**:
 
-1. Decisiones de **deploy** (hosting, R2, dominio) — incluye el alta definitiva del tenant del fotógrafo.
-2. **Fase 3** (pagos y comunicación): Mercado Pago, pago en efectivo, paquetes/promos, WhatsApp, expiración de álbumes.
+1. **Marca de agua configurable** (diseño cerrado el 2026-07-27 en ADR-15, ver el bloque más abajo).
+2. Decisiones de **deploy** (hosting, R2, dominio) — incluye el alta definitiva del tenant del fotógrafo.
+3. **Fase 3** (pagos y comunicación): Mercado Pago, pago en efectivo, paquetes/promos, WhatsApp, expiración de álbumes.
+
+## Marca de agua configurable (ADR-15) — diseñado, pendiente de implementar
+
+Diseño acordado con Alberto el 2026-07-26/27 tras varias vueltas; prototipo navegable en
+`docs/ClaudeDesign/PropuestaMarcaAgua/`. El front diseña y rasteriza la marca a PNG, la API sólo la
+compone. Detalle de las decisiones en ADR-15; el desglose de trabajo:
+
+- [ ] **Backend — modelo**: entidades `PerfilMarcaAgua` + `CapaMarcaAgua` (colección hija, mismo patrón que `TamanoPrecio` en `Evento`) y `OpcionesPublicacion`; FKs nullable `PerfilMarcaAguaId` y `OpcionesPublicacionId` en `Evento`; migración EF; seed de un perfil "Estándar" equivalente a la marca actual para que el primer render post-deploy se vea igual que el último pre-deploy.
+- [ ] **Backend — composición**: `ImageSharpImageProcessor` deja de dibujar texto y pasa a componer capas (colocar, escalar, rotar, fundir un bitmap). Resolución de config evento → default del tenant → `OpcionesFotos`. Test que compare una fusión de canvas contra la de ImageSharp sobre la misma muestra (única verificación que necesita el reparto front/API, se hace una sola vez).
+- [ ] **Backend — API**: AppService plano con `FamiliaSessionGuard`, CRUD de perfiles y de opciones de publicación, subida de los PNG de capa al storage privado con las validaciones de ADR-15 (formato real por decodificación, `Image.Identify` para atajar bombas de descompresión ANTES de decodificar, techo de dimensiones y de peso, aviso —no bloqueo— si el logo viene sin canal alfa, y aviso si el logo es más chico que lo que pide la escala elegida: escalar hacia arriba lo arruina antes de que el encoder lo toque).
+- [ ] **Backend — regeneración**: endpoint por evento que pone las fotos en `Pendiente` para que las rehaga el worker existente; devuelve el conteo para el diálogo de confirmación.
+- [ ] **Front — pantalla `/fotos/marca-agua`**: listado de perfiles con la marca real renderizada por fila, y editor con capas, grilla de 9 posiciones, colocación repetida, y verificación sobre tres muestras simultáneas (clara/oscura/mixta) más fotos propias. La vista previa muestra la imagen **ya pasada por el encoder WebP**.
+- [ ] **Front — `/fotos/publicacion`**: opciones de publicación con el comparador de tamaños (300/600/900/1200/1600) sobre una foto real, con dpi equivalente al imprimir en 10×15 y peso medido.
+- [ ] **Front — asignación y regeneración**: campo "Marca de agua" y "Opciones de publicación" en el ABM de Eventos (default: "Usar la del estudio"), y acción de regenerar desde la galería del evento.
+- [ ] **Menú nuevo** en `TestSeed.sql` y `dev-alta-fotografo.sql`, igual que se hizo con `FotosPedidos`.
 
 ## Fase 0 — Fundaciones (actual)
 
