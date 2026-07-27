@@ -22,9 +22,13 @@ antes de lanzar a producción real (ver Deploy).
 carrito + confirmación de pedido ✅ (2026-07-18), admin de pedidos ✅ (2026-07-20), lista de
 impresión exportable ✅ (2026-07-21, ver el ítem de Fase 2 más abajo).
 
+**Migración SQL Server → PostgreSQL CERRADA** (2026-07-24, ADR-14 en docs/04-decisiones.md): backend
+corriendo sobre Npgsql, suite de integración 508/508 en verde contra Postgres local, base de dev
+(`AcgFotos`) migrada y verificada end-to-end (login, impersonación, menús, envío de email).
+
 **Próximos pasos, en orden**:
 
-1. Decisiones de **deploy** (PostgreSQL, hosting, R2, dominio) — incluye el alta definitiva del tenant del fotógrafo.
+1. Decisiones de **deploy** (hosting, R2, dominio) — incluye el alta definitiva del tenant del fotógrafo.
 2. **Fase 3** (pagos y comunicación): Mercado Pago, pago en efectivo, paquetes/promos, WhatsApp, expiración de álbumes.
 
 ## Fase 0 — Fundaciones (actual)
