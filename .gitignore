@@ -21,6 +21,11 @@ appsettings.*.local.json
 # Storage privado local de la API (archivos subidos en dev y artefactos de los tests de storage)
 backend/AcgFotos.Api/App_Data/storage/
 
+# CSS de theme por tenant: se regenera en runtime (TenantAppService.Theme.cs) a partir de
+# template-base.css + los colores del tenant en DB — no es código fuente, y commitearlo genera
+# diffs ruidosos cada vez que alguien lo regenera en dev con datos distintos.
+backend/AcgFotos.Api/wwwroot/assets/tenants/*/themes/*.css
+
 # Toolchain local (Node portátil para el front; ver frontend/README.md)
 .tools/
 
