@@ -58,6 +58,24 @@ export const routes: Routes = [
       ),
   },
   {
+    // Solicitud de mail de recuperación de clave (link "olvidé mi contraseña" del login).
+    path: 'olvide-password',
+    canMatch: [anonGuard],
+    loadComponent: () =>
+      import('./features/auth/olvide-password/olvide-password.component').then(
+        (m) => m.OlvidePasswordComponent,
+      ),
+  },
+  {
+    // Restablecimiento de clave vía link del mail. Anónima: el usuario aún no tiene sesión.
+    path: 'recuperar-clave',
+    canMatch: [anonGuard],
+    loadComponent: () =>
+      import('./features/auth/recuperar-clave/recuperar-clave.component').then(
+        (m) => m.RecuperarClaveComponent,
+      ),
+  },
+  {
     // Pantalla de reconexión: la restauración de sesión falló por causa transitoria (429/red). Sin
     // guard (el usuario no está autenticado mientras reintenta); reintenta y vuelve a `returnUrl`.
     path: 'reconnecting',

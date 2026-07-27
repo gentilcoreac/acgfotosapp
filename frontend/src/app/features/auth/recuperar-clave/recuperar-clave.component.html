@@ -1,0 +1,47 @@
+<div class="recuperar">
+  <div class="recuperar__card">
+    <h1 class="recuperar__title">Restablecer contraseña</h1>
+
+    @if (linkInvalido) {
+      <p class="recuperar__error">
+        El enlace no es válido o está incompleto. Solicitá un nuevo correo de recuperación.
+      </p>
+    } @else {
+      <p class="recuperar__hint">
+        Definí tu nueva contraseña. Debe tener al menos 12 caracteres, con mayúscula, minúscula,
+        número y símbolo.
+      </p>
+
+      <form class="recuperar__form" [formGroup]="form" (ngSubmit)="submit()">
+        <tbi-text-field
+          formControlName="password"
+          label="Nueva contraseña"
+          type="password"
+          autocomplete="new-password"
+          errorMessage="Mínimo 12 caracteres, con mayúscula, minúscula, número y símbolo"
+        />
+        <tbi-text-field
+          formControlName="confirmPassword"
+          label="Repetir contraseña"
+          type="password"
+          autocomplete="new-password"
+          errorMessage="Requerido"
+        />
+
+        @if (form.errors?.['mismatch'] && form.controls.confirmPassword.touched) {
+          <p class="recuperar__error">Las contraseñas no coinciden.</p>
+        }
+
+        @if (errors().length > 0) {
+          <ul class="recuperar__errors">
+            @for (msg of errors(); track msg) {
+              <li>{{ msg }}</li>
+            }
+          </ul>
+        }
+
+        <tbi-button type="submit" label="Restablecer" [loading]="loading()" />
+      </form>
+    }
+  </div>
+</div>

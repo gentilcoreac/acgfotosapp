@@ -6,6 +6,8 @@ import { ApiClient } from '../http';
 import { AccessData } from './models/access-data.model';
 import { ConfirmAccount } from './models/confirm-account.model';
 import { Credentials } from './models/credentials.model';
+import { ForgotPassword } from './models/forgot-password.model';
+import { ResetPassword } from './models/reset-password.model';
 import { AllowedRoutesService } from './allowed-routes.service';
 import { AuthStore } from './auth.store';
 
@@ -53,6 +55,22 @@ export class AuthService {
    */
   confirmarCuenta(model: ConfirmAccount): Observable<string> {
     return this.api.post<string, ConfirmAccount>('auth/confirmar-cuenta', model);
+  }
+
+  /**
+   * Solicita el mail de recuperación de clave. Endpoint anónimo (`/auth/olvide-password`).
+   * La API responde 400 si el usuario no existe o no tiene el email confirmado (no es genérico).
+   */
+  olvidePassword(model: ForgotPassword): Observable<void> {
+    return this.api.post<void, ForgotPassword>('auth/olvide-password', model);
+  }
+
+  /**
+   * Resetea la clave a partir del link del mail. Endpoint anónimo (`/auth/resetear-password`).
+   * Devuelve el mensaje de éxito.
+   */
+  resetearPassword(model: ResetPassword): Observable<string> {
+    return this.api.post<string, ResetPassword>('auth/resetear-password', model);
   }
 
   /** Cierra la sesión: revoca el refresh en el server (best-effort) y limpia local. */

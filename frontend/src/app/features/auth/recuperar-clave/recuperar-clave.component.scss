@@ -1,0 +1,48 @@
+.recuperar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.recuperar__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 360px;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgb(0 0 0 / 12%);
+}
+
+.recuperar__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.recuperar__hint {
+  margin: 0 0 1rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.875rem;
+}
+
+.recuperar__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.recuperar__error {
+  margin: 0;
+  color: var(--mat-sys-error);
+  font-size: 0.8125rem;
+}
+
+.recuperar__errors {
+  margin: 0 0 0.5rem;
+  padding-left: 1.1rem;
+  color: var(--mat-sys-error);
+  font-size: 0.8125rem;
+}

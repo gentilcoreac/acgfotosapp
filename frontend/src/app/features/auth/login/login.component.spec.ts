@@ -122,6 +122,14 @@ describe('LoginComponent', () => {
     expect(link?.getAttribute('href')).toBe('/canje');
   });
 
+  it('el link "¿Olvidaste tu contraseña?" apunta a /olvide-password', () => {
+    const fixture = TestBed.createComponent(LoginComponent);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    const link = el.querySelector('[data-testid="login-olvide-link"]');
+    expect(link?.getAttribute('href')).toBe('/olvide-password');
+  });
+
   it('loginLogoUrl sigue el modo light/dark', () => {
     TestBed.inject(TenantStyleStore).set(
       makeStyle({ logoLoginLightUrl: 'L.png', logoLoginDarkUrl: 'D.png' }),
