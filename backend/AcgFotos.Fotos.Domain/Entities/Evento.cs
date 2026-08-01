@@ -17,6 +17,14 @@ public class Evento : MultiTenantEntityBase
 
     public EstadoEvento Estado { get; set; } = EstadoEvento.Borrador;
 
+    /// <summary>Null ⇒ usa el perfil default del estudio (y sin ninguno cargado, <c>OpcionesFotos</c>).</summary>
+    public long? PerfilMarcaAguaId { get; set; }
+    public PerfilMarcaAgua? PerfilMarcaAgua { get; set; }
+
+    /// <summary>Null ⇒ usa las opciones default del estudio (y sin ninguna cargada, <c>OpcionesFotos</c>).</summary>
+    public long? OpcionesPublicacionId { get; set; }
+    public OpcionesPublicacion? OpcionesPublicacion { get; set; }
+
     public ICollection<Grupo> Grupos { get; set; } = new List<Grupo>();
     public ICollection<TamanoPrecio> TamanosPrecios { get; set; } = new List<TamanoPrecio>();
 }

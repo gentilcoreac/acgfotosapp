@@ -21,5 +21,12 @@ public class EventoConfig : IEntityTypeConfiguration<Evento>
         builder.Property(x => x.LugarOrganizacion).HasMaxLength(200);
 
         builder.HasIndex(x => x.TenantId);
+
+        // Restrict (no SetNull/Cascade): borrar un perfil u opciones en uso es una acción que el
+        // ABM debe rechazar explícitamente, no algo que deba pasar en silencio al borrarlo.
+        builder.HasOne(x => x.PerfilMarcaAgua).WithMany()
+               .HasForeignKey(x => x.PerfilMarcaAguaId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(x => x.OpcionesPublicacion).WithMany()
+               .HasForeignKey(x => x.OpcionesPublicacionId).OnDelete(DeleteBehavior.Restrict);
     }
 }

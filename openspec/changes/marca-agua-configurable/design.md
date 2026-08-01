@@ -150,6 +150,13 @@ perfil se genera una vez y se versiona con la migración.
 resultado es el mismo; el perfil sembrado existe para que el fotógrafo lo vea, lo edite y entienda el
 mecanismo, no para cambiar el comportamiento.
 
+*Timing (decidido al implementar la tarea 1.6)*: como esta nota aclara, el seed NO es load-bearing
+para la corrección del pipeline — sólo es una comodidad para que el fotógrafo tenga algo que editar.
+Sembrar su asset PNG real no tiene dónde apoyarse hasta que exista el endpoint de subida validado
+(tarea 5.3): fabricarlo antes, por SQL crudo + una copia manual de archivo al storage, inventaría un
+mecanismo paralelo de escritura de assets que nadie más usa ni prueba. La tarea se movió al final del
+grupo 5 (5.9), para sembrarse a través del camino real una vez que existe.
+
 ### D12 — Las guardas dicen el número concreto (principio transversal de ADR-15)
 
 Ninguna validación de este vertical avisa en genérico ni actúa en silencio: "tu logo tiene 300 px de

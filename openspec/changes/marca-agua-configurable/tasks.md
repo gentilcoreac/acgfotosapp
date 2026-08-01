@@ -11,8 +11,6 @@
 - [ ] 1.4 Configuraciones EF (`fot_PerfilesMarcaAgua`, `fot_CapasMarcaAgua`,
       `fot_OpcionesPublicacion`) con índice por `TenantId` y cascada capa→perfil
 - [ ] 1.5 Migración EF `MarcaAguaConfigurable` + verificar que aplica sobre la base dev
-- [ ] 1.6 Seed del perfil "Estándar" equivalente a la marca actual (D11: **sin** marcarlo default) con
-      su asset PNG versionado
 
 ## 2. Verificación del reparto front/API (va antes de construir la UI)
 
@@ -66,6 +64,10 @@
 - [ ] 5.7 DTOs + mappers Mapperly
 - [ ] 5.8 Tests de integración: CRUD, aislamiento entre tenants, 403 con sesión de familia, un solo
       default
+- [ ] 5.9 Seed del perfil "Estándar" equivalente a la marca actual (D11: **sin** marcarlo default),
+      con su asset PNG subido a través del endpoint real de 5.3 (no SQL crudo + copia manual de
+      archivo — movida desde el grupo 1: no hay dónde apoyar un asset real hasta que este endpoint
+      exista) — decisión tomada al implementar 1.6, ver `design.md` § Decisions D11
 
 ## 6. Regeneración por evento
 
@@ -98,6 +100,9 @@
 
 ## 9. Front — asignación y regeneración
 
+- [ ] 9.0 Backend: exponer `PerfilMarcaAguaId`/`OpcionesPublicacionId` en `EventoDto`,
+      `EventoInputDto`, `EventoMapper` y `EventoInputDtoValidator` (detectado al compilar 1.3: los
+      warnings RMG020 de Mapperly muestran que hoy nada mapea las FKs nuevas del lado de Evento)
 - [ ] 9.1 Campos "Marca de agua" y "Opciones de publicación" en el ABM de Eventos, default "Usar la
       del estudio"
 - [ ] 9.2 Acción de regenerar desde la galería del evento, con el conteo en el diálogo de confirmación
