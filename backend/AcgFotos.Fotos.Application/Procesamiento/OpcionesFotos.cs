@@ -26,4 +26,13 @@ public class OpcionesFotos
 
     /// <summary>Duración del token de sesión de familia (pedido de Alberto 2026-07-16: 30 minutos).</summary>
     public int DuracionSesionFamiliaMinutos { get; set; } = 30;
+
+    /// <summary>Techo de ancho del asset de una capa de marca de agua, en px (ADR-15 §7, design D5).</summary>
+    public int AnchoMaximoAssetMarcaAguaPx { get; set; } = 4000;
+
+    /// <summary>Techo de alto del asset de una capa de marca de agua, en px.</summary>
+    public int AltoMaximoAssetMarcaAguaPx { get; set; } = 4000;
+
+    /// <summary>Techo de peso del asset de una capa de marca de agua, en bytes.</summary>
+    public int PesoMaximoAssetMarcaAguaBytes { get; set; } = 5 * 1024 * 1024;
 }

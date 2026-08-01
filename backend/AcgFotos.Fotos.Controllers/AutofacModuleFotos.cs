@@ -38,6 +38,10 @@ namespace AcgFotos.Fotos.Controllers
                 .As<IImageProcessor>()
                 .SingleInstance(); // sin estado: una instancia alcanza
 
+            builder.RegisterType<ValidadorAssetMarcaAgua>()
+                .As<IValidadorAssetMarcaAgua>()
+                .SingleInstance(); // sin estado propio (sólo lee OpcionesFotos, ya singleton)
+
             builder.RegisterType<EventoRepository>()
                 .As<IEventoRepository>()
                 .InstancePerLifetimeScope();

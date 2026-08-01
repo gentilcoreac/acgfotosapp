@@ -24,6 +24,9 @@ public interface IFotoStorage
     /// <summary>Borra original + derivados (los que existan) — el borrado de una foto limpia todo.</summary>
     Task EliminarAsync(Foto foto);
 
+    /// <summary>Guarda el asset PNG de una capa, ya validado (D4: sin pérdida, nunca recodificado).</summary>
+    Task GuardarCapaMarcaAguaAsync(long perfilMarcaAguaId, Guid storageKey, byte[] contenido);
+
     /// <summary>Bytes del asset PNG de una capa de marca de agua ya subida.</summary>
     Task<byte[]> LeerCapaMarcaAguaAsync(long perfilMarcaAguaId, Guid storageKey);
 

@@ -65,6 +65,13 @@ public class FotoStorage : IFotoStorage
             StorageVisibility.Private);
     }
 
+    public Task GuardarCapaMarcaAguaAsync(long perfilMarcaAguaId, Guid storageKey, byte[] contenido) =>
+        _storageProvider.SaveAsync(
+            PrefijoPrivado + FotoStorageKeys.CapaMarcaAgua(perfilMarcaAguaId, storageKey),
+            contenido,
+            "image/png",
+            StorageVisibility.Private);
+
     public Task<byte[]> LeerCapaMarcaAguaAsync(long perfilMarcaAguaId, Guid storageKey) =>
         _storageProvider.ReadAsync(PrefijoPrivado + FotoStorageKeys.CapaMarcaAgua(perfilMarcaAguaId, storageKey));
 

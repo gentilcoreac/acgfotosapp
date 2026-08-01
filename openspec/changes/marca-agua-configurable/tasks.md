@@ -73,18 +73,24 @@
 
 ## 4. Storage y validación de assets
 
-- [x] 4.1 (lectura) `FotoStorageKeys.CapaMarcaAgua` + `IFotoStorage.LeerCapaMarcaAguaAsync` — adelantado
-      en 3.7, ver esa nota
-- [ ] 4.1 (escritura) `IFotoStorage`/`FotoStorage`: subida del asset de capa al storage privado
-      (`fotos/watermarks/{perfilId}/{capaId}.png`) bajo el prefijo `private/`, guardado como PNG sin
-      recodificar (D4)
-- [ ] 4.2 Validación del upload: `Image.Identify` para atajar bombas de descompresión ANTES de
-      decodificar, techo de dimensiones y de peso configurables, formato real por decodificación (D5)
-- [ ] 4.3 Aviso (no bloqueo) si el logo viene sin canal alfa
-- [ ] 4.4 Aviso (no bloqueo) si el ancho del logo es menor al que pide la escala elegida, con el ancho
-      real, el necesario y la consecuencia (D6/D12)
-- [ ] 4.5 Tests de las validaciones, incluyendo el rechazo de la bomba de descompresión sin
-      decodificarla
+- [x] 4.1 `FotoStorageKeys.CapaMarcaAgua` + `IFotoStorage`: lectura adelantada en 3.7; escritura
+      (`GuardarCapaMarcaAguaAsync`) agregada acá — guarda el PNG tal cual, sin recodificar (D4)
+- [x] 4.2 Validación del upload: `IValidadorAssetMarcaAgua.ValidarAsync` — peso primero (más barato),
+      después `Image.IdentifyAsync` (sólo cabecera) para el techo de dimensiones ANTES de decodificar
+      completo, recién ahí decodifica y exige PNG real (no por extensión/content-type) vía
+      `Metadata.DecodedImageFormat`. Ambos techos configurables en `OpcionesFotos` (D5)
+- [x] 4.3 `ResultadoValidacionAsset.TieneCanalAlfa` (vía `PngMetadata.ColorType`, no escaneando
+      píxeles) — la fraseo del aviso al fotógrafo queda para el AppService del grupo 5, este método
+      sólo expone el hecho
+- [x] 4.4 `IValidadorAssetMarcaAgua.EvaluarEscala(anchoAssetPx, escalaPorcentaje)`: contra una foto de
+      referencia de 1600px (el tope que cita ADR-15 §8, no depende del evento — un perfil default del
+      tenant puede terminar en cualquier evento). Devuelve el ancho necesario + si alcanza; la fraseo
+      del aviso también queda para el grupo 5 (D6/D12)
+- [x] 4.5 Tests de las validaciones (`ValidadorAssetMarcaAguaTests`, 9 casos): acepta/detecta alfa,
+      rechaza no-imagen, rechaza no-PNG, rechaza peso excedido, rechaza/acepta dimensiones contra el
+      techo configurado, `EvaluarEscala` alcanza/no alcanza. El rechazo por dimensiones se prueba por
+      su resultado observable, no interceptando que `Image.LoadAsync` no se haya llamado — la garantía
+      de "antes de decodificar" la sostiene la lectura del código (D5), no una aserción de test
 
 ## 5. API de administración
 
