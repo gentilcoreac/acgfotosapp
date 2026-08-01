@@ -28,27 +28,55 @@
 
 ## 3. Composición en el pipeline
 
-- [ ] 3.1 Cambiar el contrato: `OpcionesDerivados` deja de tener `TextoWatermark`/`Opacidad` y pasa a
+- [x] 3.1 Cambiar el contrato: `OpcionesDerivados` deja de tener `TextoWatermark`/`Opacidad` y pasa a
       llevar `IReadOnlyList<CapaComposicion>` (bytes del PNG + colocación) más resolución y calidad
-      (**BREAKING**, D2)
-- [ ] 3.2 `ImageSharpImageProcessor`: reemplazar `AplicarWatermark` por la composición de capas
+      (**BREAKING**, D2). `CapaComposicion` reutiliza los enums de Domain (`ModoColocacionMarcaAgua`,
+      `PosicionMarcaAgua`, `ModoFusionMarcaAgua`) en vez de duplicarlos — son valores sin estado, el
+      mismo criterio que ya usa `EstadoProcesamientoFoto` cruzando capas
+- [x] 3.2 `ImageSharpImageProcessor`: reemplazar `AplicarWatermark` por la composición de capas
       (colocar, escalar sólo hacia abajo, rotar, fundir) usando **SkiaSharp** (`SKBlendMode`, ADR-16) —
       decodificar/resize/EXIF/encode siguen en ImageSharp, la composición puntual cede los píxeles a
-      SkiaSharp y retoma ImageSharp para el WebP final
-- [ ] 3.3 Eliminar `ResolverFuente` y la dependencia de `SixLabors.Fonts`
-- [ ] 3.4 Implementar colocación repetida en mosaico y las 9 posiciones fijas con margen
-- [ ] 3.5 Respetar `MarcarThumb` del perfil
-- [ ] 3.6 Servicio de resolución en cascada evento → default del tenant → `OpcionesFotos` (D3)
-- [ ] 3.7 `FotoProcesadorAppService`: usar la cascada en vez de leer `OpcionesFotos` directo, y leer
-      los assets de capa del storage
-- [ ] 3.8 Tests de composición: mosaico cubre las 4 esquinas, posición fija respeta el margen, varias
-      capas se componen en orden, sin perfiles el resultado equivale al de hoy, y no se agranda el
-      asset
+      SkiaSharp (`SKBitmap.InstallPixels` sobre el buffer de `Image<Rgba32>`, copia de vuelta con
+      `ProcessPixelRows`) y retoma ImageSharp para el WebP final
+- [x] 3.3 Eliminar `ResolverFuente` y la dependencia de `SixLabors.Fonts`/`SixLabors.ImageSharp.Drawing`
+      del proyecto Infrastructure (queda sólo `SixLabors.ImageSharp` + `SkiaSharp`)
+- [x] 3.4 Implementar colocación repetida en mosaico (mismo pitch 1,25×/2,2× y patrón ladrillo que el
+      código pre-ADR-15, ahora hardcodeado en el compositor — no es un campo configurable por capa
+      todavía) y las 9 posiciones fijas con margen
+- [x] 3.5 Respetar `MarcarThumb` del perfil
+- [x] 3.6 Servicio de resolución en cascada evento → default del tenant → `OpcionesFotos` (D3):
+      `IConfiguracionMarcaAguaResolver`, devuelve `(PerfilMarcaAgua?, OpcionesPublicacion?)` — la
+      conversión a `OpcionesDerivados` (incluida la lectura de assets del storage) queda en el AppService
+- [x] 3.7 `FotoProcesadorAppService`: usa la cascada en vez de leer `OpcionesFotos` directo. **Hallazgo
+      real al implementarla**: ADR-15 §4 prometía que sin perfiles cargados el pipeline se comporta
+      "exactamente como hoy", pero D1 prohíbe que la API dibuje texto — contradicción con task 3.3, que
+      borra el código de texto. Resuelto sin romper ninguna de las dos: se generó (mientras el código
+      viejo todavía existía) un PNG que reproduce el watermark real de producción como UN SOLO tile,
+      embebido en el binario (`Imaging/Assets/marca-agua-default.png`, leído vía
+      `IFotoStorage.LeerCapaMarcaAguaDefaultAsync`); sin perfil, el resolver arma una `CapaComposicion`
+      sintética con ese asset y los parámetros que reproducen el aspecto de hoy (ángulo -26,565°, escala
+      94,75%, opacidad 0,5, Normal) — la API sigue sin dibujar texto NUNCA, ni siquiera en el fallback.
+      `OpcionesFotos` pierde `TextoWatermark`/`OpacidadWatermark` (quedaban muertos); `appsettings.json`
+      actualizado. **Adelantado de 4.1**: el lado de LECTURA de `IFotoStorage`
+      (`LeerCapaMarcaAguaAsync`/`LeerCapaMarcaAguaDefaultAsync` + `FotoStorageKeys.CapaMarcaAgua`), sin
+      el cual 3.7 no tenía con qué leer los assets — el lado de escritura/validación de subida sigue en
+      4.1. Se agregaron `IPerfilMarcaAguaRepository`/`IOpcionesPublicacionRepository` (con lectura de
+      capas y de default), necesarios para la cascada y reusables por el CRUD del grupo 5
+- [x] 3.8 Tests de composición (`ImageProcessorTests.cs`, reescrito): mosaico cubre las 4 esquinas,
+      posición fija respeta el margen, varias capas se componen en orden, no se agranda el asset más
+      allá de su tamaño natural. Comparaciones con tolerancia por canal (WebP es lossy incluso sobre
+      color plano) en vez de igualdad exacta — la primera versión con `Assert.Equal` exacto rompía por
+      esto, no por un bug de composición. "Sin perfiles equivale a hoy" NO tiene test de integración
+      todavía (necesitaría comparar contra una captura congelada del pipeline viejo); la fidelidad la
+      sostiene que 3.7 generó el asset con el código viejo real antes de borrarlo, no un test — anotado
+      como hueco de cobertura, no bloqueante
 
 ## 4. Storage y validación de assets
 
-- [ ] 4.1 `FotoStorageKeys` + `IFotoStorage`/`FotoStorage`: keys de asset de capa
-      (`fotos/watermarks/{perfilId}/{capaId}.png`) bajo el prefijo `private/`, guardadas como PNG sin
+- [x] 4.1 (lectura) `FotoStorageKeys.CapaMarcaAgua` + `IFotoStorage.LeerCapaMarcaAguaAsync` — adelantado
+      en 3.7, ver esa nota
+- [ ] 4.1 (escritura) `IFotoStorage`/`FotoStorage`: subida del asset de capa al storage privado
+      (`fotos/watermarks/{perfilId}/{capaId}.png`) bajo el prefijo `private/`, guardado como PNG sin
       recodificar (D4)
 - [ ] 4.2 Validación del upload: `Image.Identify` para atajar bombas de descompresión ANTES de
       decodificar, techo de dimensiones y de peso configurables, formato real por decodificación (D5)

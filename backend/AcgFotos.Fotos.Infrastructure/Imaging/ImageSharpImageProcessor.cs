@@ -1,19 +1,27 @@
-using SixLabors.Fonts;
+using System.Runtime.InteropServices;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SkiaSharp;
 using AcgFotos.Fotos.Application.Imaging;
+using AcgFotos.Fotos.Domain.Entities;
 
 namespace AcgFotos.Fotos.Infrastructure.Imaging;
 
 /// <summary>
-/// Implementación ImageSharp del pipeline de derivados (ADR-01, capa 1): resize al lado mayor
-/// pedido + marca de agua de texto repetida en diagonal sobre TODA la imagen (una marca en una
-/// esquina se recorta fácil). Trabaja por copia en memoria: el stream original no se modifica.
+/// Implementación del pipeline de derivados (ADR-01, capa 1): resize al lado mayor pedido +
+/// composición de capas de marca de agua (ADR-15) sobre TODA la imagen. Decode/resize/EXIF/encode
+/// van por ImageSharp; la composición de capas va por SkiaSharp (ADR-16 — ImageSharp no tiene todos
+/// los modos de fusión). Trabaja por copia en memoria: el stream original no se modifica.
 /// </summary>
 public class ImageSharpImageProcessor : IImageProcessor
 {
+    // Pitch de la grilla en modo Repetida, relativo al tamaño ya escalado del tile (mismo ratio que
+    // el watermark de texto original: separación un poco mayor al alto/ancho del propio tile para
+    // que el patrón cubra sin amontonarse).
+    private const float PitchXFactor = 1.25f;
+    private const float PitchYFactor = 2.2f;
 
     public async Task<DerivadosFoto> GenerarDerivadosAsync(
         Stream original,
@@ -35,8 +43,8 @@ public class ImageSharpImageProcessor : IImageProcessor
             var anchoOriginal = imagen.Width;
             var altoOriginal = imagen.Height;
 
-            var preview = await GenerarDerivadoAsync(imagen, opciones.LadoMayorPreview, opciones, cancellationToken);
-            var thumb = await GenerarDerivadoAsync(imagen, opciones.LadoMayorThumb, opciones, cancellationToken);
+            var preview = GenerarDerivado(imagen, opciones.LadoMayorPreview, opciones, marcar: true);
+            var thumb = GenerarDerivado(imagen, opciones.LadoMayorThumb, opciones, marcar: opciones.MarcarThumb);
 
             return new DerivadosFoto
             {
@@ -48,32 +56,33 @@ public class ImageSharpImageProcessor : IImageProcessor
         }
     }
 
-    private static async Task<byte[]> GenerarDerivadoAsync(
-        Image original, int ladoMayor, OpcionesDerivados opciones, CancellationToken cancellationToken)
+    private static byte[] GenerarDerivado(Image original, int ladoMayor, OpcionesDerivados opciones, bool marcar)
     {
         // ResizeMode.Max encaja dentro de (ladoMayor x ladoMayor) conservando aspecto, pero también
         // AGRANDA una imagen menor — y agrandar un original chico no aporta nada (solo peso).
         var hayQueReducir = Math.Max(original.Width, original.Height) > ladoMayor;
 
-        using var derivado = original.Clone(ctx =>
+        using var derivado = original.CloneAs<Rgba32>();
+        if (hayQueReducir)
         {
-            if (hayQueReducir)
+            derivado.Mutate(ctx => ctx.Resize(new ResizeOptions
             {
-                ctx.Resize(new ResizeOptions
-                {
-                    Size = new Size(ladoMayor, ladoMayor),
-                    Mode = ResizeMode.Max,
-                });
-            }
-        });
+                Size = new Size(ladoMayor, ladoMayor),
+                Mode = ResizeMode.Max,
+            }));
+        }
 
         LimpiarMetadatos(derivado);
-        AplicarWatermark(derivado, opciones.TextoWatermark, opciones.Opacidad);
+
+        if (marcar && opciones.Capas.Count > 0)
+        {
+            ComponerCapas(derivado, opciones.Capas);
+        }
 
         using var ms = new MemoryStream();
         // WebP lossy: ~25-30% menos peso que JPEG a igual calidad percibida (galería mobile con
         // datos móviles). Los derivados se regeneran, así que cambiar de formato es barato.
-        await derivado.SaveAsync(ms, new WebpEncoder { Quality = opciones.Calidad }, cancellationToken);
+        derivado.SaveAsWebp(ms, new WebpEncoder { Quality = opciones.Calidad });
         return ms.ToArray();
     }
 
@@ -90,57 +99,142 @@ public class ImageSharpImageProcessor : IImageProcessor
         imagen.Metadata.XmpProfile = null;
     }
 
-    private static void AplicarWatermark(Image imagen, string texto, float opacidad)
+    /// <summary>
+    /// Puente ImageSharp ↔ SkiaSharp (ADR-16): copia los píxeles del derivado a un <see cref="SKBitmap"/>,
+    /// compone las capas en orden con <see cref="SKCanvas"/> (coloca, escala sólo hacia abajo, rota,
+    /// funde con <c>SKBlendMode</c>), y copia el resultado de vuelta. La API nunca dibuja texto — cada
+    /// capa ya es un PNG rasterizado por el front (o el asset por defecto embebido, ver
+    /// <c>ConfiguracionFotosResolver</c>).
+    /// </summary>
+    private static void ComponerCapas(Image<Rgba32> derivado, IReadOnlyList<CapaComposicion> capas)
     {
-        var font = ResolverFuente(imagen.Width);
-        var color = Color.White.WithAlpha(opacidad);
-        var medida = TextMeasurer.MeasureSize(texto, new TextOptions(font));
+        var ancho = derivado.Width;
+        var alto = derivado.Height;
+        var pixelBytes = new byte[ancho * alto * 4];
+        derivado.CopyPixelDataTo(pixelBytes);
 
-        // Grilla diagonal: el paso se deriva del tamaño del texto para que la densidad sea
-        // parecida en el preview (900px) y en el thumb (300px). Apretada a pedido del negocio
-        // (2026-07-16, "más invasiva pero sutil"): la sutileza la aporta el tamaño de letra
-        // chico (ResolverFuente), no los huecos.
-        var pasoX = medida.Width * 1.25f;
-        var pasoY = medida.Height * 2.2f;
-
-        imagen.Mutate(ctx =>
+        using var bitmap = new SKBitmap(new SKImageInfo(ancho, alto, SKColorType.Rgba8888, SKAlphaType.Unpremul));
+        var handle = GCHandle.Alloc(pixelBytes, GCHandleType.Pinned);
+        try
         {
-            ctx.SetDrawingTransform(System.Numerics.Matrix3x2.CreateRotation(
-                -0.4636f, // ~-26.5°, diagonal clásica de proofing
-                new System.Numerics.Vector2(imagen.Width / 2f, imagen.Height / 2f)));
+            bitmap.InstallPixels(bitmap.Info, handle.AddrOfPinnedObject(), bitmap.Info.RowBytes);
 
-            // Se recorre un área mayor a la imagen para que la rotación no deje esquinas limpias.
-            for (var y = (float)-imagen.Height; y < imagen.Height * 2f; y += pasoY)
+            using (var canvas = new SKCanvas(bitmap))
             {
-                // Alterna el corrimiento por fila (patrón ladrillo: más difícil de clonar/inpaint).
-                var offsetX = (int)(y / pasoY) % 2 == 0 ? 0f : pasoX / 2f;
-                for (var x = (float)-imagen.Width; x < imagen.Width * 2f; x += pasoX)
+                foreach (var capa in capas.OrderBy(c => c.Orden))
                 {
-                    ctx.DrawText(texto, font, color, new PointF(x + offsetX, y));
+                    ComponerCapa(canvas, ancho, alto, capa);
                 }
             }
-        });
+
+            derivado.ProcessPixelRows(accessor => CopiarBitmapAImagen(bitmap, accessor));
+        }
+        finally
+        {
+            handle.Free();
+        }
     }
 
-    private static Font ResolverFuente(int anchoImagen)
+    private static void ComponerCapa(SKCanvas canvas, int anchoFoto, int altoFoto, CapaComposicion capa)
     {
-        // El tamaño escala con la imagen (~1/20 del ancho): letra chica para que la frase completa
-        // entre varias veces y el patrón cubra sin tapar la foto (más marcas, cada una más sutil).
-        var tamano = Math.Max(11f, anchoImagen / 20f);
-
-        // Arial está en Windows y en la mayoría de los Linux con fuentes MS; si no, cualquier fuente
-        // del sistema sirve (el watermark no es tipográficamente exigente).
-        if (SystemFonts.TryGet("Arial", out var arial))
+        using var asset = SKBitmap.Decode(capa.Asset);
+        if (asset is null)
         {
-            return arial.CreateFont(tamano, FontStyle.Bold);
+            return; // el asset se valida al subirlo (grupo 4); un fallo acá no debe tumbar el procesamiento.
         }
 
-        var familia = SystemFonts.Families.FirstOrDefault();
-        if (familia == default)
+        // Escala en % del ancho de la foto, pero NUNCA hacia arriba (ADR-15 §8): agrandar un bitmap
+        // no tiene arreglo, así que el piso es el tamaño natural del asset.
+        var anchoDestino = Math.Min(anchoFoto * (capa.EscalaPorcentaje / 100f), asset.Width);
+        var altoDestino = asset.Height * (anchoDestino / asset.Width);
+
+        using var paint = new SKPaint
         {
-            throw new InvalidOperationException(
-                "No hay fuentes del sistema disponibles para el watermark (¿contenedor sin fontconfig?).");
+            BlendMode = MapearModoFusion(capa.ModoFusion),
+            Color = new SKColor(255, 255, 255, (byte)Math.Clamp(capa.Opacidad * 255f, 0, 255)),
+        };
+
+        if (capa.ModoColocacion == ModoColocacionMarcaAgua.PosicionFija)
+        {
+            var margen = anchoFoto * (capa.MargenPorcentaje / 100f);
+            var (x, y) = CalcularPosicionFija(capa.Posicion ?? PosicionMarcaAgua.Centro,
+                anchoFoto, altoFoto, anchoDestino, altoDestino, margen);
+
+            canvas.Save();
+            canvas.RotateDegrees(capa.AnguloGrados, x + anchoDestino / 2f, y + altoDestino / 2f);
+            canvas.DrawBitmap(asset, SKRect.Create(x, y, anchoDestino, altoDestino), paint);
+            canvas.Restore();
+            return;
         }
-        return familia.CreateFont(tamano, FontStyle.Bold);
+
+        // Repetida: grilla en mosaico con offset alternado por fila (patrón ladrillo), rotada como
+        // conjunto — se recorre un área mayor a la foto para que la rotación no deje esquinas limpias.
+        var pitchX = anchoDestino * PitchXFactor;
+        var pitchY = altoDestino * PitchYFactor;
+        if (pitchX <= 0 || pitchY <= 0)
+        {
+            return;
+        }
+
+        canvas.Save();
+        canvas.RotateDegrees(capa.AnguloGrados, anchoFoto / 2f, altoFoto / 2f);
+
+        var fila = 0;
+        for (var y = (float)-altoFoto; y < altoFoto * 2f; y += pitchY)
+        {
+            var offsetX = fila % 2 == 0 ? 0f : pitchX / 2f;
+            for (var x = -anchoFoto + offsetX; x < anchoFoto * 2f; x += pitchX)
+            {
+                canvas.DrawBitmap(asset, SKRect.Create(x, y, anchoDestino, altoDestino), paint);
+            }
+            fila++;
+        }
+
+        canvas.Restore();
+    }
+
+    private static (float X, float Y) CalcularPosicionFija(
+        PosicionMarcaAgua posicion, int anchoFoto, int altoFoto, float anchoCapa, float altoCapa, float margen)
+    {
+        var x = posicion switch
+        {
+            PosicionMarcaAgua.ArribaIzquierda or PosicionMarcaAgua.CentroIzquierda or PosicionMarcaAgua.AbajoIzquierda
+                => margen,
+            PosicionMarcaAgua.ArribaCentro or PosicionMarcaAgua.Centro or PosicionMarcaAgua.AbajoCentro
+                => (anchoFoto - anchoCapa) / 2f,
+            _ => anchoFoto - anchoCapa - margen,
+        };
+
+        var y = posicion switch
+        {
+            PosicionMarcaAgua.ArribaIzquierda or PosicionMarcaAgua.ArribaCentro or PosicionMarcaAgua.ArribaDerecha
+                => margen,
+            PosicionMarcaAgua.CentroIzquierda or PosicionMarcaAgua.Centro or PosicionMarcaAgua.CentroDerecha
+                => (altoFoto - altoCapa) / 2f,
+            _ => altoFoto - altoCapa - margen,
+        };
+
+        return (x, y);
+    }
+
+    private static SKBlendMode MapearModoFusion(ModoFusionMarcaAgua modo) => modo switch
+    {
+        ModoFusionMarcaAgua.Normal => SKBlendMode.SrcOver,
+        ModoFusionMarcaAgua.Superponer => SKBlendMode.Overlay,
+        ModoFusionMarcaAgua.Diferencia => SKBlendMode.Difference,
+        _ => throw new ArgumentOutOfRangeException(nameof(modo), modo, null),
+    };
+
+    private static void CopiarBitmapAImagen(SKBitmap bitmap, PixelAccessor<Rgba32> accessor)
+    {
+        for (var y = 0; y < accessor.Height; y++)
+        {
+            var fila = accessor.GetRowSpan(y);
+            for (var x = 0; x < fila.Length; x++)
+            {
+                var color = bitmap.GetPixel(x, y);
+                fila[x] = new Rgba32(color.Red, color.Green, color.Blue, color.Alpha);
+            }
+        }
     }
 }

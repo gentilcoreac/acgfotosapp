@@ -17,4 +17,8 @@ public static class FotoStorageKeys
 
     public static string Thumb(Foto foto) =>
         $"fotos/derived/{foto.EventoId}/{foto.StorageKey:N}_thumb.webp";
+
+    /// <summary>Asset PNG de una capa de marca de agua (ADR-15 §7: sin pérdida, nunca WebP).</summary>
+    public static string CapaMarcaAgua(long perfilMarcaAguaId, Guid storageKey) =>
+        $"fotos/watermarks/{perfilMarcaAguaId}/{storageKey:N}.png";
 }

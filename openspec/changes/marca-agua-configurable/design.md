@@ -184,8 +184,45 @@ el aviso de que un logo en una esquina se recorta fácil, ahí donde se elige la
 Esto es requisito de las specs, no cosmética: una guarda que el fotógrafo no entiende es una guarda
 que va a tratar de saltear.
 
+### D13 — El último escalón de la cascada usa un asset embebido, no texto dinámico (resuelve una contradicción real entre D1 y ADR-15 §4)
+
+Al implementar 3.7 apareció una contradicción real entre dos partes ya acordadas: D1 dice que la API
+**nunca** dibuja texto (regla absoluta, es la base de todo ADR-15), pero ADR-15 §4 dice que sin
+perfiles cargados el pipeline se comporta **exactamente como hoy** — y el comportamiento de hoy ES
+dibujar texto dinámicamente (`AplicarWatermark`/`ResolverFuente`, que la tarea 3.3 borra).
+
+**Decisión**: antes de borrar el código viejo, se lo usó una única vez para renderizar el texto real de
+producción ("COPIA NO AUTORIZADA — ACG Fotos", `appsettings.json` al momento de esta migración) como UN
+SOLO tile sobre fondo transparente — no la grilla completa, la tiling la hace la composición genérica
+(D del pitch, ver 3.4). Ese PNG quedó embebido en el binario
+(`AcgFotos.Fotos.Infrastructure/Imaging/Assets/marca-agua-default.png`) y se lee por el mismo puerto
+que cualquier otro asset de capa (`IFotoStorage.LeerCapaMarcaAguaDefaultAsync`) — no hay una rama
+especial en el processor. Cuando la cascada no encuentra perfil (ni de evento ni default del tenant),
+`FotoProcesadorAppService` arma una `CapaComposicion` sintética con ese asset y los parámetros que
+reproducen el aspecto de hoy (ángulo -26,565°, escala 94,75% — calculada contra la foto de referencia
+de 1600px con la que se renderizó el tile —, opacidad 0,5, `Normal`).
+
+*Consecuencia en `OpcionesFotos`*: `TextoWatermark`/`OpacidadWatermark` quedan sin sentido (la marca ya
+no se configura por texto) y se eliminaron de la clase y de `appsettings.json`. Si el fotógrafo quiere
+otra cosa, el mecanismo real es crear un `PerfilMarcaAgua` — `OpcionesFotos` deja de ser el lugar para
+tocar el watermark, sólo sigue siendo el último escalón de resolución/calidad de imagen.
+
+*Alternativa descartada*: mantener `AplicarWatermark`/`ResolverFuente` vivos SOLO para este fallback —
+reintroduce exactamente el problema de fragilidad que D1 y las Consecuencias de ADR-15 querían
+eliminar (`ResolverFuente` pidiendo Arial al SO), y deja dos caminos de dibujo (perfiles vs. fallback)
+en vez de uno.
+
+*Por qué la fidelidad importa poco en la práctica*: como ya nota D11, ningún perfil sembrado se marca
+default — así que en un deploy real este fallback deja de usarse en cuanto el fotógrafo asigna
+cualquier perfil (o el default del tenant). Este asset embebido es el piso de seguridad para el
+instante entre "la migración corrió" y "hay un perfil configurado", no un mecanismo pensado para durar.
+
 ## Risks / Trade-offs
 
+- **"Sin perfiles equivale a hoy" (ADR-15 §4) no tiene test de integración que lo verifique** → la
+  fidelidad la sostiene el PROCESO (D13: el asset embebido se generó con el código viejo real antes de
+  borrarlo), no una aserción automatizada. Hueco de cobertura anotado, no bloqueante — si algún día se
+  regenera el asset, conviene agregar el test de comparación en ese momento.
 - **La fusión de canvas y la de la librería de composición no coinciden pixel a pixel** → el test de
   D7 va primero, antes de construir la UI. Ocurrió en la práctica: ImageSharp no tenía `Difference`
   en absoluto (no una diferencia de fórmula) → resuelto con SkiaSharp para esa parte (ADR-16), decidido

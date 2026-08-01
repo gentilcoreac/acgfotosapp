@@ -7,9 +7,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Pipeline de derivados (ADR-01): resize + watermark. Drawing arrastra ImageSharp y Fonts. -->
+    <!-- Pipeline de derivados (ADR-01): decode/resize/encode. -->
     <PackageReference Include="QRCoder" Version="1.8.0" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.6" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
+    <!-- Composición de capas de marca de agua (ADR-16): ImageSharp no tiene todos los modos de
+         fusión (falta Difference); SkiaSharp sí, mismo paquete/versión que el código base. -->
+    <PackageReference Include="SkiaSharp" Version="4.150.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Asset por defecto del último escalón de la cascada (sin perfiles cargados): reproduce el
+         watermark de texto que dibujaba el pipeline pre-ADR-15, congelado a PNG una sola vez — la API
+         no vuelve a dibujar texto nunca (ADR-15 §1). -->
+    <EmbeddedResource Include="Imaging\Assets\marca-agua-default.png" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -2,16 +2,17 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using SixLabors.ImageSharp.PixelFormats;
 using AcgFotos.Fotos.Application.Imaging;
+using AcgFotos.Fotos.Domain.Entities;
 using AcgFotos.Fotos.Infrastructure.Imaging;
 using Xunit;
 
 namespace AcgFotos.Api.IntegrationTests.Fotos
 {
     /// <summary>
-    /// Humo del pipeline de derivados (ADR-01 capa 1). Tests puros: sin host ni DB.
-    /// La imagen de prueba se genera en memoria (un rectángulo de color plano) para que la
-    /// verificación del watermark sea determinística: cualquier variación de píxeles en el
-    /// derivado solo puede venir de la marca de agua.
+    /// Humo del pipeline de derivados (ADR-01 capa 1) tras ADR-15/ADR-16. Tests puros: sin host ni
+    /// DB — la cascada de resolución (evento → tenant → OpcionesFotos) es responsabilidad de
+    /// <c>FotoProcesadorAppService</c>, no de este processor; acá se le pasan capas ya resueltas.
+    /// Las imágenes de prueba se generan en memoria para que la verificación sea determinística.
     /// </summary>
     public class ImageProcessorTests
     {
@@ -26,7 +27,33 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             return ms;
         }
 
-        private static OpcionesDerivados Opciones() => new() { TextoWatermark = "ACG Fotos" };
+        /// <summary>Capa de prueba: un cuadrado blanco opaco — la opacidad la aplica la composición, no el asset.</summary>
+        private static byte[] CrearCapaBlanca(int lado = 100)
+        {
+            using var img = new Image<Rgba32>(lado, lado, new Rgba32(255, 255, 255, 255));
+            using var ms = new MemoryStream();
+            img.SaveAsPng(ms);
+            return ms.ToArray();
+        }
+
+        private static OpcionesDerivados Opciones(IReadOnlyList<CapaComposicion>? capas = null) => new()
+        {
+            Capas = capas ?? [],
+        };
+
+        /// <summary>
+        /// WebP es lossy (ADR-01): incluso un color plano sin marca puede correrse unos pocos
+        /// niveles por canal al recomprimir. Estas comparaciones verifican intención (marcado vs.
+        /// no marcado), no bytes exactos.
+        /// </summary>
+        private static void AssertColorAprox(Rgb24 esperado, Rgb24 real, int tolerancia = 15)
+        {
+            Assert.True(
+                Math.Abs(esperado.R - real.R) <= tolerancia &&
+                Math.Abs(esperado.G - real.G) <= tolerancia &&
+                Math.Abs(esperado.B - real.B) <= tolerancia,
+                $"esperado ~{esperado}, real {real} (tolerancia {tolerancia})");
+        }
 
         [Fact]
         public async Task Genera_preview_y_thumb_con_los_lados_mayores_pedidos()
@@ -60,14 +87,46 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
         }
 
         [Fact]
-        public async Task El_watermark_altera_pixeles_en_toda_la_imagen()
+        public async Task Sin_capas_no_altera_pixeles()
         {
-            using var original = CrearJpegPlano(2000, 1500);
+            using var original = CrearJpegPlano(400, 300);
 
             var derivados = await Processor.GenerarDerivadosAsync(original, Opciones());
 
-            // Sobre un color plano, los píxeles "más claros que el fondo" solo pueden ser watermark
-            // (blanco al 35%). Se exige presencia en los CUATRO cuadrantes: una marca solo en el
+            using var preview = Image.Load<Rgb24>(derivados.Preview);
+            preview.ProcessPixelRows(accessor =>
+            {
+                for (var y = 0; y < accessor.Height; y++)
+                {
+                    var fila = accessor.GetRowSpan(y);
+                    for (var x = 0; x < fila.Length; x++)
+                    {
+                        AssertColorAprox(new Rgb24(40, 90, 160), fila[x]);
+                    }
+                }
+            });
+        }
+
+        [Fact]
+        public async Task La_capa_repetida_altera_pixeles_en_toda_la_imagen()
+        {
+            using var original = CrearJpegPlano(2000, 1500);
+            var capas = new[]
+            {
+                new CapaComposicion
+                {
+                    Asset = CrearCapaBlanca(),
+                    ModoColocacion = ModoColocacionMarcaAgua.Repetida,
+                    EscalaPorcentaje = 8f,
+                    Opacidad = 0.5f,
+                    ModoFusion = ModoFusionMarcaAgua.Normal,
+                },
+            };
+
+            var derivados = await Processor.GenerarDerivadosAsync(original, Opciones(capas));
+
+            // Sobre un color plano, los píxeles "más claros que el fondo" solo pueden ser la capa
+            // blanca al 50%. Se exige presencia en los CUATRO cuadrantes: una marca solo en el
             // centro o en una esquina se recorta fácil y no cumple ADR-01.
             using var preview = Image.Load<Rgb24>(derivados.Preview);
             var cuadrantesConMarca = new bool[2, 2];
@@ -78,7 +137,7 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
                     var fila = accessor.GetRowSpan(y);
                     for (var x = 0; x < fila.Length; x++)
                     {
-                        // Umbral holgado sobre el canal rojo (fondo=40 + watermark blanco lo sube).
+                        // Umbral holgado sobre el canal rojo (fondo=40 + capa blanca al 50% lo sube).
                         if (fila[x].R > 90)
                         {
                             cuadrantesConMarca[y * 2 / accessor.Height, x * 2 / fila.Length] = true;
@@ -87,10 +146,100 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
                 }
             });
 
-            Assert.True(cuadrantesConMarca[0, 0], "sin watermark en el cuadrante superior izquierdo");
-            Assert.True(cuadrantesConMarca[0, 1], "sin watermark en el cuadrante superior derecho");
-            Assert.True(cuadrantesConMarca[1, 0], "sin watermark en el cuadrante inferior izquierdo");
-            Assert.True(cuadrantesConMarca[1, 1], "sin watermark en el cuadrante inferior derecho");
+            Assert.True(cuadrantesConMarca[0, 0], "sin marca en el cuadrante superior izquierdo");
+            Assert.True(cuadrantesConMarca[0, 1], "sin marca en el cuadrante superior derecho");
+            Assert.True(cuadrantesConMarca[1, 0], "sin marca en el cuadrante inferior izquierdo");
+            Assert.True(cuadrantesConMarca[1, 1], "sin marca en el cuadrante inferior derecho");
+        }
+
+        [Fact]
+        public async Task La_capa_en_posicion_fija_respeta_el_margen()
+        {
+            using var original = CrearJpegPlano(1000, 1000);
+            var capas = new[]
+            {
+                new CapaComposicion
+                {
+                    Asset = CrearCapaBlanca(),
+                    ModoColocacion = ModoColocacionMarcaAgua.PosicionFija,
+                    Posicion = PosicionMarcaAgua.ArribaIzquierda,
+                    EscalaPorcentaje = 10f,
+                    MargenPorcentaje = 5f,
+                    Opacidad = 1f,
+                    ModoFusion = ModoFusionMarcaAgua.Normal,
+                },
+            };
+
+            var derivados = await Processor.GenerarDerivadosAsync(original, Opciones(capas));
+
+            using var preview = Image.Load<Rgb24>(derivados.Preview);
+            // preview.Width=900 (resize de 1000→900), margen=5%=45px, asset 100px al 10%=90px de
+            // ancho ⇒ la marca ocupa aprox. x∈[45,135]. Puntos con margen de seguridad amplio a cada
+            // lado del borde (no a 1-2px, ahí el bloque de WebP puede sangrar) para no depender de
+            // exactitud de compresión: bien afuera (esquina) vs. bien adentro del área marcada.
+            AssertColorAprox(new Rgb24(40, 90, 160), preview[15, 15]);
+            AssertColorAprox(new Rgb24(255, 255, 255), preview[80, 80]);
+        }
+
+        [Fact]
+        public async Task Varias_capas_se_componen_en_orden()
+        {
+            using var original = CrearJpegPlano(500, 500);
+            using var capaChica = new Image<Rgba32>(50, 50, new Rgba32(255, 255, 255, 255));
+            using var msChica = new MemoryStream();
+            capaChica.SaveAsPng(msChica);
+
+            // Dos capas en posición fija superpuestas: la de Orden=1 debe quedar "arriba" de la de Orden=0
+            // (ambas blancas opacas, así que el resultado final es indistinguible del blanco puro donde
+            // se solapan — lo que importa es que no tire una excepción y compone las dos).
+            var capas = new[]
+            {
+                new CapaComposicion
+                {
+                    Asset = msChica.ToArray(), Orden = 1, ModoColocacion = ModoColocacionMarcaAgua.PosicionFija,
+                    Posicion = PosicionMarcaAgua.Centro, EscalaPorcentaje = 20f, Opacidad = 1f,
+                },
+                new CapaComposicion
+                {
+                    Asset = CrearCapaBlanca(), Orden = 0, ModoColocacion = ModoColocacionMarcaAgua.PosicionFija,
+                    Posicion = PosicionMarcaAgua.Centro, EscalaPorcentaje = 30f, Opacidad = 1f,
+                },
+            };
+
+            var derivados = await Processor.GenerarDerivadosAsync(original, Opciones(capas));
+
+            using var preview = Image.Load<Rgb24>(derivados.Preview);
+            var centro = preview.Width / 2;
+            AssertColorAprox(new Rgb24(255, 255, 255), preview[centro, centro]);
+        }
+
+        [Fact]
+        public async Task No_agranda_el_asset_de_una_capa_mas_alla_de_su_tamano_natural()
+        {
+            using var original = CrearJpegPlano(4000, 3000);
+            // La composición corre sobre el DERIVADO ya redimensionado (900px de lado mayor, no los
+            // 4000px del original): 80% de 900px = 720px pedidos contra un asset natural de 50px —
+            // el resultado debe quedar acotado a 50px, no estirado a 720px.
+            var capas = new[]
+            {
+                new CapaComposicion
+                {
+                    Asset = CrearCapaBlanca(50),
+                    ModoColocacion = ModoColocacionMarcaAgua.PosicionFija,
+                    Posicion = PosicionMarcaAgua.ArribaIzquierda,
+                    EscalaPorcentaje = 80f,
+                    Opacidad = 1f,
+                },
+            };
+
+            var derivados = await Processor.GenerarDerivadosAsync(original, Opciones(capas));
+
+            using var preview = Image.Load<Rgb24>(derivados.Preview);
+            // Bien adentro de la franja de 50px (asset natural): marcado. Bien afuera (con margen de
+            // seguridad amplio, no pegado al borde): sin marca. Si el asset se hubiera "agrandado" a
+            // los 720px pedidos, este segundo punto también saldría blanco.
+            AssertColorAprox(new Rgb24(255, 255, 255), preview[20, 20]);
+            AssertColorAprox(new Rgb24(40, 90, 160), preview[200, 20]);
         }
 
         [Fact]

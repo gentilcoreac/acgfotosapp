@@ -58,6 +58,20 @@ namespace AcgFotos.Fotos.Controllers
                 .As<ICodigoAccesoRepository>()
                 .InstancePerLifetimeScope();
 
+            builder.RegisterType<PerfilMarcaAguaRepository>()
+                .As<IPerfilMarcaAguaRepository>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<OpcionesPublicacionRepository>()
+                .As<IOpcionesPublicacionRepository>()
+                .InstancePerLifetimeScope();
+
+            // Cascada de resolución de marca de agua (ADR-15 §4, design.md D3): sin estado propio,
+            // pero sus repos son InstancePerLifetimeScope (ChangeTracker de EF), así que se registra igual.
+            builder.RegisterType<ConfiguracionMarcaAguaResolver>()
+                .As<IConfiguracionMarcaAguaResolver>()
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<FamiliaTokenFactory>()
                 .As<IFamiliaTokenFactory>()
                 .InstancePerLifetimeScope(); // usa IOptions<JwtSecurityTokenConfig>, no sin estado
