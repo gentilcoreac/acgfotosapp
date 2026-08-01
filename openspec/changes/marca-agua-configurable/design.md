@@ -62,6 +62,13 @@ storage es `FotoProcesadorAppService`; el processor no toca la base ni el storag
 *Alternativa descartada*: pasarle el `PerfilMarcaAgua` al processor — acopla Infrastructure de imagen
 al dominio y vuelve intestable la composición pura.
 
+*Actualización (ADR-16, ver D7)*: la composición de las capas puntualmente se implementa con
+SkiaSharp, no con la API de dibujo de ImageSharp — el resize/EXIF/encode que rodea a la composición
+se queda en ImageSharp. `ImageSharpImageProcessor` decodifica y prepara el bitmap como hoy, cede los
+píxeles a SkiaSharp para componer las capas, y retoma ImageSharp para el encode WebP final. El
+contrato de `IImageProcessor`/`OpcionesDerivados` descripto arriba no cambia por esto: sigue siendo
+"una lista de capas ya resueltas", agnóstico de qué librería las compone por dentro.
+
 ### D3 — La cascada se resuelve en un servicio propio, no en el processor ni inline
 
 `ResolverConfiguracionPublicacion(eventoId)` → `(PerfilMarcaAgua?, OpcionesPublicacion?)` con el
@@ -101,14 +108,24 @@ Con el tope actual (lado mayor 1600, escala hasta 70%) el piso es ~1200 px de la
 
 ### D7 — Los modos de fusión se apoyan en la especificación W3C, no en código nuestro
 
-`GraphicsOptions.ColorBlendingMode` de ImageSharp y el `globalCompositeOperation` de canvas
-implementan la misma especificación. Por eso se verifica **una vez**, con un test que compone la
-misma muestra por ambos caminos y compara: nadie edita nunca una fórmula de fusión, así que no
-reintroduce el problema de la lógica duplicada.
+`SKBlendMode` de SkiaSharp y el `globalCompositeOperation` de canvas implementan la misma
+especificación. Por eso se verifica **una vez**, con un test que compone la misma muestra por ambos
+caminos y compara: nadie edita nunca una fórmula de fusión, así que no reintroduce el problema de la
+lógica duplicada.
 
 **Ese test va primero** (tarea 2.1), antes de construir la pantalla: todo el reparto front/API se
 apoya en que las dos fórmulas coincidan. Si no coinciden, hay que saberlo antes de tener una UI
 encima.
+
+**Resultado real (tarea 2.1, ejecutada)**: `PixelColorBlendingMode` de **ImageSharp 3.1.8 no tiene
+`Difference`** (sólo `Normal, Multiply, Add, Subtract, Screen, Darken, Lighten, Overlay, HardLight`)
+— el ADR asumía un mapeo que no existe en la librería instalada, no una discrepancia de fórmula.
+Resuelto en **ADR-16** (`docs/04-decisiones.md`): la composición de capas usa **SkiaSharp**
+(`SKBlendMode`, set completo de 29 modos, incluye `Difference`), transitoriamente sólo para esa parte
+— el resto del pipeline se queda en ImageSharp hasta la migración completa post-feature (ver
+docs/05-notas-abiertas.md). `BlendModeParityTests` (3/3 verde, tolerancia ±2 por canal) compara
+`SKBlendMode` contra fixtures reales de Chromium/Playwright, no contra una fórmula W3C derivada a
+mano — la garantía es empírica, no supuesta.
 
 ### D8 — La vista previa del editor comprime a WebP antes de mostrar
 
@@ -169,10 +186,14 @@ que va a tratar de saltear.
 
 ## Risks / Trade-offs
 
-- **La fusión de canvas y la de ImageSharp no coinciden pixel a pixel** → el test de D7 va primero,
-  antes de construir la UI. Si aparece una diferencia, se decide con el resultado en la mano
-  (tolerancia por canal, o recortar los modos de fusión a los que sí coincidan) en vez de descubrirlo
-  con la pantalla terminada.
+- **La fusión de canvas y la de la librería de composición no coinciden pixel a pixel** → el test de
+  D7 va primero, antes de construir la UI. Ocurrió en la práctica: ImageSharp no tenía `Difference`
+  en absoluto (no una diferencia de fórmula) → resuelto con SkiaSharp para esa parte (ADR-16), decidido
+  con el resultado en la mano en vez de descubrirlo con la pantalla terminada.
+- **Dos librerías de imágenes conviven en el vertical durante la vida de este change** (ImageSharp +
+  SkiaSharp, ADR-16) → transitorio y acotado a propósito; el puente entre ambas vive sólo en la tarea
+  3.2. SkiaSharp suma binarios nativos por plataforma (a considerar en la imagen del contenedor del
+  deploy). Migración completa a un solo motor, anotada como pendiente post-feature.
 - **Un logo subido con dimensiones enormes agota memoria del servidor** → `Image.Identify` antes de
   decodificar (D5), más techo de peso.
 - **El fotógrafo calibra contra una sola foto y arruina el resto del evento** → el editor verifica

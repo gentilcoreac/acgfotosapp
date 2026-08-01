@@ -1,24 +1,30 @@
 ## 1. Modelo y migración
 
-- [ ] 1.1 Entidades `PerfilMarcaAgua` (tenant, nombre, `EsDefault`, `MarcarThumb`) y `CapaMarcaAgua`
+- [x] 1.1 Entidades `PerfilMarcaAgua` (tenant, nombre, `EsDefault`, `MarcarThumb`) y `CapaMarcaAgua`
       (colección hija con orden, modo de colocación, posición, escala %, margen, ángulo, opacidad,
       modo de fusión y key del asset) en `AcgFotos.Fotos.Domain/Entities`, siguiendo el patrón
       `Evento` → `TamanoPrecio`
-- [ ] 1.2 Entidad `OpcionesPublicacion` (tenant, nombre, `EsDefault`, lado mayor preview, lado mayor
+- [x] 1.2 Entidad `OpcionesPublicacion` (tenant, nombre, `EsDefault`, lado mayor preview, lado mayor
       thumb, calidad)
-- [ ] 1.3 FKs nullable `PerfilMarcaAguaId` y `OpcionesPublicacionId` en `Evento` (null = "usar la del
-      estudio")
-- [ ] 1.4 Configuraciones EF (`fot_PerfilesMarcaAgua`, `fot_CapasMarcaAgua`,
+- [x] 1.3 FKs nullable `PerfilMarcaAguaId` y `OpcionesPublicacionId` en `Evento` (null = "usar la del
+      estudio"; `Restrict`, no `Cascade`)
+- [x] 1.4 Configuraciones EF (`fot_PerfilesMarcaAgua`, `fot_CapasMarcaAgua`,
       `fot_OpcionesPublicacion`) con índice por `TenantId` y cascada capa→perfil
-- [ ] 1.5 Migración EF `MarcaAguaConfigurable` + verificar que aplica sobre la base dev
+- [x] 1.5 Migración EF `MarcaAguaConfigurable`, generada limpia sobre `AjustaTimestampsSinZonaHoraria`
+      (drift preexistente aislado aparte) y verificada contra `AcgFotos_Tests` (508/508 tests). **Sin
+      aplicar a la base dev real** (`AcgFotos`) — pendiente de que se revise/pruebe la migración de
+      timestamps con cuidado antes de tocar esos datos
 
 ## 2. Verificación del reparto front/API (va antes de construir la UI)
 
-- [ ] 2.1 Test que compone la misma muestra por canvas y por ImageSharp con cada modo de fusión
-      (`Normal`, `Superponer`, `Diferencia`) y compara las salidas — si no coinciden, frenar y decidir
-      con el resultado en la mano antes de seguir (D7)
-- [ ] 2.2 Fijar la tolerancia de comparación (o recortar los modos soportados) según lo que arroje 2.1,
-      y dejarlo anotado en `design.md` § Decisions
+- [x] 2.1 Test que compone la misma muestra por canvas y por la librería de composición con cada modo
+      de fusión (`Normal`, `Superponer`, `Diferencia`) y compara las salidas — si no coinciden, frenar
+      y decidir con el resultado en la mano antes de seguir (D7). **Resultado**: ImageSharp 3.1.8 no
+      tiene `Difference` — no era una diferencia de fórmula, el modo no existe en la librería. Resuelto
+      con SkiaSharp para la composición de capas (ADR-16, docs/04-decisiones.md); `BlendModeParityTests`
+      3/3 verde contra fixtures reales de Chromium/Playwright, tolerancia ±2 por canal
+- [x] 2.2 Tolerancia de comparación fijada en ±2 por canal (redondeo del pipeline de 8 bits, no
+      discrepancia de fórmula); anotado en `design.md` § D7 y § Risks/Trade-offs
 
 ## 3. Composición en el pipeline
 
@@ -26,7 +32,9 @@
       llevar `IReadOnlyList<CapaComposicion>` (bytes del PNG + colocación) más resolución y calidad
       (**BREAKING**, D2)
 - [ ] 3.2 `ImageSharpImageProcessor`: reemplazar `AplicarWatermark` por la composición de capas
-      (colocar, escalar sólo hacia abajo, rotar, fundir con `GraphicsOptions.ColorBlendingMode`)
+      (colocar, escalar sólo hacia abajo, rotar, fundir) usando **SkiaSharp** (`SKBlendMode`, ADR-16) —
+      decodificar/resize/EXIF/encode siguen en ImageSharp, la composición puntual cede los píxeles a
+      SkiaSharp y retoma ImageSharp para el WebP final
 - [ ] 3.3 Eliminar `ResolverFuente` y la dependencia de `SixLabors.Fonts`
 - [ ] 3.4 Implementar colocación repetida en mosaico y las 9 posiciones fijas con margen
 - [ ] 3.5 Respetar `MarcarThumb` del perfil

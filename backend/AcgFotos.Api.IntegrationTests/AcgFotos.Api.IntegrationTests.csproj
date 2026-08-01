@@ -13,6 +13,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageReference Include="Respawn" Version="6.2.1" />
+    <!-- Composición de capas de marca de agua (ADR-16): ImageSharp 3.1.8 no tiene PixelColorBlendingMode.Difference,
+         SkiaSharp sí (mismo paquete/versión que TechBI.Base.Application en el código base). -->
+    <PackageReference Include="SkiaSharp" Version="4.150.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -27,5 +30,7 @@
   <ItemGroup>
     <!-- Seed canónico de la base de tests (AcgFotos_Tests). Se ejecuta tras cada Respawn reset. -->
     <EmbeddedResource Include="Infrastructure\TestSeed.sql" />
+    <!-- Fixtures de referencia del navegador para BlendModeParityTests (D7, ADR-15 §3). -->
+    <EmbeddedResource Include="Fotos\Fixtures\*.png" />
   </ItemGroup>
 </Project>

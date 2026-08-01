@@ -366,3 +366,52 @@ fotógrafo no entiende es una guarda que va a tratar de saltear.
   falta bajar el storage de verdad, la palanca es la política de retención de originales
   (docs/05-notas-abiertas.md), no la calidad de los derivados.
 - Prototipo navegable del diseño y del circuito: `docs/ClaudeDesign/PropuestaMarcaAgua/`.
+
+## ADR-16 — Composición de capas con SkiaSharp, ImageSharp se mantiene para el resto (transitorio)
+
+**Contexto**: al implementar el test de paridad de ADR-15 §3 (docs/04-decisiones.md línea 306, "los
+modos de fusión se quedan... `GraphicsOptions.ColorBlendingMode`"), se verificó que
+`SixLabors.ImageSharp.PixelFormats.PixelColorBlendingMode` (versión instalada, 3.1.8) sólo tiene
+`Normal, Multiply, Add, Subtract, Screen, Darken, Lighten, Overlay, HardLight` — **no existe
+`Difference`**. El ADR daba por sentado un mapeo 1 a 1 con canvas que no es cierto del lado
+ImageSharp; el hueco es específicamente de la librería, no de la fórmula (canvas sí tiene
+`globalCompositeOperation = 'difference'`, estándar y universal).
+
+Al revisar alternativas se encontró que `TechBI.Base.Application` (código base, `UsuarioAppService`,
+resize+encode de foto de perfil) ya usa **SkiaSharp 4.150.1**, no ImageSharp, con una razón
+documentada en su `.csproj`: licencia MIT sin escalón comercial (a diferencia de Six Labors, la
+licencia de ImageSharp, que pasa a paga por encima de cierto umbral de facturación/empleados) y
+manejo de nativos multiplataforma ya resuelto (paquete `NativeAssets.Linux.NoDependencies` evita el
+requisito de `libfontconfig1`). Se verificó (no se asumió) que `SkiaSharp.SKBlendMode` tiene el set
+completo de 29 modos —incluye `Difference`, `SoftLight`, `Exclusion`— y que `SKEncodedImageFormat`
+soporta `Webp`.
+
+**Decisión**: la composición de capas de marca de agua (ADR-15) se escribe en **SkiaSharp**. El resto
+del pipeline existente (resize, limpieza EXIF, encode WebP en `ImageSharpImageProcessor`) **se queda
+en ImageSharp tal como está** — no se toca código ya estable fuera del alcance de esta feature. Es una
+decisión **transitoria, explícitamente acotada**: al cerrar toda la feature de marca de agua
+(docs/03-fases.md), se evalúa migrar el pipeline completo a SkiaSharp para unificar en un solo motor
+de imágenes en toda la plataforma (docs/05-notas-abiertas.md).
+
+Se descartó implementar `Difference` a mano sobre ImageSharp (fórmula W3C de una línea, ya explorada y
+viable) porque no resuelve la exposición a la licencia comercial de ImageSharp a largo plazo y deja a
+mitad de camino la consolidación con el código base. Se descartó migrar el pipeline completo ahora
+porque reescribiría código ya shippeado (resize/EXIF/encode) sin relación con la marca de agua,
+disparando el alcance de un grupo de tareas pensado como una verificación puntual (D7 del `design.md`
+del change) a un cambio transversal a todo el vertical Fotos.
+
+**Consecuencias**:
+
+- Conviven dos librerías de imágenes en `AcgFotos.Fotos.*` durante la vida de este change: ImageSharp
+  (resize/EXIF/encode) y SkiaSharp (composición de capas). El puente entre ambas (decodificar con una,
+  componer con la otra, re-codificar con la primera) es responsabilidad de la tarea 3.2.
+- SkiaSharp trae binarios nativos por plataforma — mismo tipo de fragilidad de contenedor que ADR-15
+  ya eliminó al sacar `ResolverFuente`/fontconfig del lado de texto; a tener en cuenta al definir la
+  imagen de contenedor del deploy (`SkiaSharp.NativeAssets.Linux.NoDependencies`, mismo paquete que usa
+  el código base).
+- El test de paridad (`BlendModeParityTests`) compara `SKBlendMode` contra fixtures reales de
+  Chromium/Playwright (no fórmulas W3C derivadas a mano): 3/3 en verde con tolerancia ±2 por canal
+  sobre una muestra de 4 cuadrantes (clara/oscura/media/saturada) con una capa blanca al 50%.
+- Pendiente explícito para después de cerrar la feature: migrar `ImageSharpImageProcessor` completo a
+  SkiaSharp (anotado en docs/05-notas-abiertas.md), momento en el que ImageSharp puede salir del todo
+  del vertical Fotos.
