@@ -25,4 +25,12 @@ public class PerfilMarcaAguaRepository : EntityBaseRepository<PerfilMarcaAgua>, 
         this.ReadQuery()
             .Include(p => p.Capas)
             .FirstOrDefaultAsync(p => p.EsDefault);
+
+    public async Task<IReadOnlyList<PerfilMarcaAgua>> GetAllConCapasReadOnlyAsync() =>
+        await this.ReadQuery().Include(p => p.Capas).ToListAsync();
+
+    public Task<PerfilMarcaAgua?> GetByIdConCapasAsync(long id) =>
+        this.DbContext.Set<PerfilMarcaAgua>()
+            .Include(p => p.Capas)
+            .FirstOrDefaultAsync(p => p.Id == id);
 }

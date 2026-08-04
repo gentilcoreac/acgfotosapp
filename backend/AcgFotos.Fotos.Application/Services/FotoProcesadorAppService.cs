@@ -17,15 +17,6 @@ namespace AcgFotos.Fotos.Application.Services;
 /// </summary>
 public class FotoProcesadorAppService : IFotoProcesadorAppService
 {
-    // Réplica congelada del watermark de texto pre-ADR-15 (appsettings "Fotos:TextoWatermark" /
-    // "OpacidadWatermark" reales al momento de la migración) — ver Imaging/Assets/marca-agua-default.png.
-    // Ángulo: -0.4636 rad (diagonal clásica de proofing) en grados. Escala: el asset se rasterizó
-    // contra una foto de referencia de 1600px de ancho (SixLabors.Fonts, tamaño = ancho/20 = 80px);
-    // 1516 es el ancho real del tile resultante.
-    private const float AnguloDefaultGrados = -26.565f;
-    private const float EscalaDefaultPorcentaje = 1516f / 1600f * 100f;
-    private const float OpacidadDefault = 0.5f;
-
     private readonly IUnitOfWork _unitOfWork;
     private readonly IFotoRepository _fotoRepository;
     private readonly IFotoStorage _fotoStorage;
@@ -121,9 +112,9 @@ public class FotoProcesadorAppService : IFotoProcesadorAppService
                     Asset = assetDefault,
                     Orden = 0,
                     ModoColocacion = ModoColocacionMarcaAgua.Repetida,
-                    EscalaPorcentaje = EscalaDefaultPorcentaje,
-                    AnguloGrados = AnguloDefaultGrados,
-                    Opacidad = OpacidadDefault,
+                    EscalaPorcentaje = MarcaAguaLegadoConstantes.EscalaPorcentaje,
+                    AnguloGrados = MarcaAguaLegadoConstantes.AnguloGrados,
+                    Opacidad = MarcaAguaLegadoConstantes.Opacidad,
                     ModoFusion = ModoFusionMarcaAgua.Normal,
                 },
             ];

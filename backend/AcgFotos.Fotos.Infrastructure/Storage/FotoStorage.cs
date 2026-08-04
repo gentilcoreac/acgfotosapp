@@ -75,6 +75,9 @@ public class FotoStorage : IFotoStorage
     public Task<byte[]> LeerCapaMarcaAguaAsync(long perfilMarcaAguaId, Guid storageKey) =>
         _storageProvider.ReadAsync(PrefijoPrivado + FotoStorageKeys.CapaMarcaAgua(perfilMarcaAguaId, storageKey));
 
+    public Task EliminarCapaMarcaAguaAsync(long perfilMarcaAguaId, Guid storageKey) =>
+        _storageProvider.DeleteAsync(PrefijoPrivado + FotoStorageKeys.CapaMarcaAgua(perfilMarcaAguaId, storageKey));
+
     public async Task<byte[]> LeerCapaMarcaAguaDefaultAsync()
     {
         var assembly = typeof(FotoStorage).Assembly;

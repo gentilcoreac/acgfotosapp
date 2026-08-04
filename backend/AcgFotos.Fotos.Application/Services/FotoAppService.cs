@@ -24,6 +24,7 @@ public class FotoAppService : IFotoAppService
 
     private readonly IUnitOfWork _unitOfWork;
     private readonly IFotoRepository _fotoRepository;
+    private readonly IEventoRepository _eventoRepository;
     private readonly IFotoStorage _fotoStorage;
     private readonly FotoProcesamientoQueue _queue;
     private readonly IAppContext _appContext;
@@ -33,6 +34,7 @@ public class FotoAppService : IFotoAppService
     public FotoAppService(
         IUnitOfWork unitOfWork,
         IFotoRepository fotoRepository,
+        IEventoRepository eventoRepository,
         IFotoStorage fotoStorage,
         FotoProcesamientoQueue queue,
         IAppContext appContext,
@@ -41,6 +43,7 @@ public class FotoAppService : IFotoAppService
     {
         _unitOfWork = unitOfWork;
         _fotoRepository = fotoRepository;
+        _eventoRepository = eventoRepository;
         _fotoStorage = fotoStorage;
         _queue = queue;
         _appContext = appContext;
@@ -169,6 +172,44 @@ public class FotoAppService : IFotoAppService
         }
 
         return true;
+    }
+
+    public async Task<int> ContarParaRegenerarAsync(long eventoId)
+    {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(_appContext);
+        if (!await _eventoRepository.ExistsAsync(eventoId))
+        {
+            throw new BusinessValidationException("El evento indicado no existe.");
+        }
+
+        return await _fotoRepository.ContarParaRegenerarAsync(eventoId);
+    }
+
+    public async Task<int> RegenerarAsync(long eventoId)
+    {
+        FamiliaSessionGuard.EnsureNoFamiliaSession(_appContext);
+        if (!await _eventoRepository.ExistsAsync(eventoId))
+        {
+            throw new BusinessValidationException("El evento indicado no existe.");
+        }
+
+        var fotos = await _fotoRepository.GetParaRegenerarTrackedAsync(eventoId);
+        foreach (var foto in fotos)
+        {
+            foto.EstadoProcesamiento = EstadoProcesamientoFoto.Pendiente;
+            foto.ErrorProcesamiento = null;
+        }
+
+        await _unitOfWork.CommitAsync();
+
+        // Encolar DESPUÉS del commit (mismo criterio que SubirAsync): el worker debe encontrar el
+        // estado Pendiente ya persistido al procesar el ítem.
+        foreach (var foto in fotos)
+        {
+            _queue.Encolar(new FotoAProcesar(foto.Id, foto.TenantId, _appContext.UserId));
+        }
+
+        return fotos.Count;
     }
 
     /// <summary>Solo el nombre (sin path del cliente), acotado al largo de la columna.</summary>

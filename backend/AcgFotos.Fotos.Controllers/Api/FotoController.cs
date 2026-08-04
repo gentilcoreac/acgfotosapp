@@ -97,5 +97,20 @@ namespace AcgFotos.Fotos.Controllers.Api
                 ? this.Ok(new { Success = true })
                 : this.NotFound();
         }
+
+        /// <summary>Conteo para el diálogo de confirmación, ANTES de encolar (spec `regeneracion-derivados`).</summary>
+        [HttpGet]
+        [Route("regenerar/conteo")]
+        public async Task<ActionResult<int>> GetConteoParaRegenerar([FromQuery] long eventoId)
+        {
+            return this.Ok(await _fotoAppService.ContarParaRegenerarAsync(eventoId));
+        }
+
+        [HttpPost]
+        [Route("regenerar")]
+        public async Task<ActionResult<int>> Regenerar([FromQuery] long eventoId)
+        {
+            return this.Ok(await _fotoAppService.RegenerarAsync(eventoId));
+        }
     }
 }
