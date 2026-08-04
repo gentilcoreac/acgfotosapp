@@ -113,6 +113,8 @@ VALUES
     (104, 'Galería',               'FotosGaleria',          true, 'photo_library',         3, 100,  1, 1, true,  true,  '/fotos/galeria'),
     (105, 'Tarjetas',              'FotosTarjetas',         true, 'qr_code_2',             4, 100,  1, 1, true,  true,  '/fotos/tarjetas'),
     (103, 'Pedidos',               'FotosPedidos',          true, 'receipt_long',          5, 100,  1, 1, true,  true,  '/fotos/pedidos'),
+    (106, 'Marca de agua',         'FotosMarcaAgua',        true, 'branding_watermark',    6, 100,  1, 1, true,  false, '/fotos/marca-agua'),
+    (107, 'Publicación',           'FotosPublicacion',      true, 'high_quality',          7, 100,  1, 1, true,  false, '/fotos/publicacion'),
     -- Administracion (usuarios/tenants/roles/licencias: lo que pide el alta real del negocio)
     (110, 'Administración',        'Administracion',        true, 'settings',              2, NULL, 1, 1, true,  false, NULL),
     (111, 'Usuarios',              'Usuarios',              true, 'group',                 1, 110,  1, 1, true,  true,  '/usuarios'),

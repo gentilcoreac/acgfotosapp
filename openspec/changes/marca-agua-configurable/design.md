@@ -217,6 +217,16 @@ default — así que en un deploy real este fallback deja de usarse en cuanto el
 cualquier perfil (o el default del tenant). Este asset embebido es el piso de seguridad para el
 instante entre "la migración corrió" y "hay un perfil configurado", no un mecanismo pensado para durar.
 
+### D14 — La primera capa crea el perfil; el resto del CRUD es JSON puro (resuelve el orden subida-de-asset vs. perfil-todavía-sin-Id)
+
+Al implementar 5.1/5.3 apareció otra dependencia circular real: `IFotoStorage.GuardarCapaMarcaAguaAsync`/`FotoStorageKeys.CapaMarcaAgua` (D4, ya construidos en 4.1) arman la key con `PerfilMarcaAguaId` — pero un perfil nuevo no tiene Id hasta que se persiste, y un perfil no se puede persistir sin al menos una capa (spec `marca-agua`, escenario "Perfil sin capas").
+
+**Decisión**: la subida de un asset (`POST .../capas/upload`, multipart) es la operación que crea el perfil cuando hace falta, no un paso separado. Recibe `PerfilMarcaAguaId` opcional: si viene, agrega una capa a ese perfil ya existente; si no viene, crea el perfil (con el nombre indicado o uno por defecto), agrega la capa con valores de colocación por defecto razonables, hace commit (ahí nace el Id) y **recién entonces** escribe el PNG en storage con ese Id ya real. Devuelve el perfil actualizado. El resto de la edición (nombre, default, `MarcarThumb`, colocación/escala/ángulo/opacidad/fusión de capas ya subidas, alta de perfiles adicionales) es el CRUD JSON estándar (`ExtendedEntityAppServiceBase`, mismo patrón que `Evento`/`TamanoPrecio`): `PerfilMarcaAguaInputDto.Capas` sólo permite filas con `Id` existente (agregar contenido nuevo por esta vía se rechaza con mensaje concreto — D12), reforzando que "una capa nueva" siempre nace con bytes reales, nunca vacía.
+
+*Consecuencia*: no hace falta un endpoint de "borrador" ni mover archivos entre ubicaciones de storage cuando el perfil pasa de nuevo a persistido — un solo lugar de escritura, un solo Id, desde el primer byte.
+
+*Alternativa descartada*: un paso explícito "crear perfil vacío" antes de subir capas — dejaría filas de perfil con 0 capas visibles por `GetAll`/`Search` mientras dura el wizard del front, exactamente el estado que la spec pide rechazar como resultado final; atarlo a la primera subida evita que ese estado intermedio exista siquiera.
+
 ## Risks / Trade-offs
 
 - **"Sin perfiles equivale a hoy" (ADR-15 §4) no tiene test de integración que lo verifique** → la

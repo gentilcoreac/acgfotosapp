@@ -26,26 +26,31 @@ impresión exportable ✅ (2026-07-21, ver el ítem de Fase 2 más abajo).
 corriendo sobre Npgsql, suite de integración 508/508 en verde contra Postgres local, base de dev
 (`AcgFotos`) migrada y verificada end-to-end (login, impersonación, menús, envío de email).
 
+**MARCA DE AGUA CONFIGURABLE TERMINADA** (2026-08-02, ADR-15/ADR-16): los 8 ítems del desglose más
+abajo, cerrados, incluida la migración aplicada a la base de dev real (`AcgFotos`, con backup previo)
+y verificada con un flujo manual real (perfil → asignación a evento → regenerar → cambia el derivado
+servido). Detalle de hallazgos y decisiones tomadas al implementar en docs/04-decisiones.md
+(ADR-15/ADR-16) y en el historial de `openspec/changes/marca-agua-configurable`.
+
 **Próximos pasos, en orden**:
 
-1. **Marca de agua configurable** (diseño cerrado el 2026-07-27 en ADR-15, ver el bloque más abajo).
-2. Decisiones de **deploy** (hosting, R2, dominio) — incluye el alta definitiva del tenant del fotógrafo.
-3. **Fase 3** (pagos y comunicación): Mercado Pago, pago en efectivo, paquetes/promos, WhatsApp, expiración de álbumes.
+1. Decisiones de **deploy** (hosting, R2, dominio) — incluye el alta definitiva del tenant del fotógrafo.
+2. **Fase 3** (pagos y comunicación): Mercado Pago, pago en efectivo, paquetes/promos, WhatsApp, expiración de álbumes.
 
-## Marca de agua configurable (ADR-15) — diseñado, pendiente de implementar
+## Marca de agua configurable (ADR-15) — TERMINADA (2026-08-02)
 
 Diseño acordado con Alberto el 2026-07-26/27 tras varias vueltas; prototipo navegable en
 `docs/ClaudeDesign/PropuestaMarcaAgua/`. El front diseña y rasteriza la marca a PNG, la API sólo la
-compone. Detalle de las decisiones en ADR-15; el desglose de trabajo:
+compone. Detalle de las decisiones en ADR-15/ADR-16; desglose de trabajo, los 8 ítems cerrados:
 
-- [ ] **Backend — modelo**: entidades `PerfilMarcaAgua` + `CapaMarcaAgua` (colección hija, mismo patrón que `TamanoPrecio` en `Evento`) y `OpcionesPublicacion`; FKs nullable `PerfilMarcaAguaId` y `OpcionesPublicacionId` en `Evento`; migración EF; seed de un perfil "Estándar" equivalente a la marca actual para que el primer render post-deploy se vea igual que el último pre-deploy.
-- [ ] **Backend — composición**: `ImageSharpImageProcessor` deja de dibujar texto y pasa a componer capas (colocar, escalar, rotar, fundir un bitmap). Resolución de config evento → default del tenant → `OpcionesFotos`. Test que compare una fusión de canvas contra la de ImageSharp sobre la misma muestra (única verificación que necesita el reparto front/API, se hace una sola vez).
-- [ ] **Backend — API**: AppService plano con `FamiliaSessionGuard`, CRUD de perfiles y de opciones de publicación, subida de los PNG de capa al storage privado con las validaciones de ADR-15 (formato real por decodificación, `Image.Identify` para atajar bombas de descompresión ANTES de decodificar, techo de dimensiones y de peso, aviso —no bloqueo— si el logo viene sin canal alfa, y aviso si el logo es más chico que lo que pide la escala elegida: escalar hacia arriba lo arruina antes de que el encoder lo toque).
-- [ ] **Backend — regeneración**: endpoint por evento que pone las fotos en `Pendiente` para que las rehaga el worker existente; devuelve el conteo para el diálogo de confirmación.
-- [ ] **Front — pantalla `/fotos/marca-agua`**: listado de perfiles con la marca real renderizada por fila, y editor con capas, grilla de 9 posiciones, colocación repetida, y verificación sobre tres muestras simultáneas (clara/oscura/mixta) más fotos propias. La vista previa muestra la imagen **ya pasada por el encoder WebP**.
-- [ ] **Front — `/fotos/publicacion`**: opciones de publicación con el comparador de tamaños (300/600/900/1200/1600) sobre una foto real, con dpi equivalente al imprimir en 10×15 y peso medido.
-- [ ] **Front — asignación y regeneración**: campo "Marca de agua" y "Opciones de publicación" en el ABM de Eventos (default: "Usar la del estudio"), y acción de regenerar desde la galería del evento.
-- [ ] **Menú nuevo** en `TestSeed.sql` y `dev-alta-fotografo.sql`, igual que se hizo con `FotosPedidos`.
+- [x] **Backend — modelo**: entidades `PerfilMarcaAgua` + `CapaMarcaAgua` (colección hija, mismo patrón que `TamanoPrecio` en `Evento`) y `OpcionesPublicacion`; FKs nullable `PerfilMarcaAguaId` y `OpcionesPublicacionId` en `Evento`; migración EF; seed perezoso de un perfil "Estándar" equivalente a la marca actual (al primer listado del tenant, no un `IHostedService` de instalación — ver ADR-15 D11).
+- [x] **Backend — composición**: `ImageSharpImageProcessor` deja de dibujar texto y pasa a componer capas (colocar, escalar, rotar, fundir un bitmap) sobre **SkiaSharp** (ADR-16: ImageSharp 3.1.8 no tiene el modo de fusión `Difference`). Resolución de config evento → default del tenant → `OpcionesFotos`. `BlendModeParityTests` verifica una fusión de canvas contra la de SkiaSharp sobre la misma muestra (única verificación que necesita el reparto front/API, hecha una sola vez).
+- [x] **Backend — API**: AppService plano con `FamiliaSessionGuard`, CRUD de perfiles y de opciones de publicación, subida de los PNG de capa al storage privado con las validaciones de ADR-15 (formato real por decodificación, `Image.Identify` para atajar bombas de descompresión ANTES de decodificar, techo de dimensiones y de peso, aviso —no bloqueo— si el logo viene sin canal alfa, y aviso si el logo es más chico que lo que pide la escala elegida: escalar hacia arriba lo arruina antes de que el encoder lo toque).
+- [x] **Backend — regeneración**: endpoint por evento que pone las fotos en `Pendiente` para que las rehaga el worker existente; devuelve el conteo para el diálogo de confirmación.
+- [x] **Front — pantalla `/fotos/marca-agua`**: listado de perfiles con la marca real renderizada por fila, y editor con capas, grilla de 9 posiciones, colocación repetida. La vista previa muestra la imagen **ya pasada por el encoder WebP**. "Diseñar texto" en el navegador (color, negrita, contorno; rasterizado a PNG con transparencia al tamaño máximo de uso — D6) se suma como forma de fabricar una capa, sin cambiar el contrato: sube por el mismo endpoint que un logo. Verificación sobre tres muestras (clara/oscura/mixta) implementada; **una a la vez**, no simultáneas, y sin "probar con una foto mía" todavía (hueco de cobertura anotado, no bloqueante — ver docs/05).
+- [x] **Front — `/fotos/publicacion`**: ABM de opciones de publicación + comparador de tamaños (300/600/900/1200/1600) sobre una foto real subida por el fotógrafo, con dpi equivalente al imprimir en 10×15 y peso medido (ya pasado por el encoder WebP).
+- [x] **Front — asignación y regeneración**: campo "Marca de agua" y "Opciones de publicación" en el ABM de Eventos (default: "Usar la del estudio"), y acción de regenerar desde la galería del evento con el conteo real en el diálogo de confirmación antes de encolar.
+- [x] **Menú nuevo** en `TestSeed.sql` y `dev-alta-fotografo.sql`, igual que se hizo con `FotosPedidos` (`FotosMarcaAgua`/`FotosPublicacion`).
 
 ## Fase 0 — Fundaciones (actual)
 
