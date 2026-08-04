@@ -1,0 +1,72 @@
+.comparador__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.comparador__archivo {
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.comparador__calidad {
+  flex: 1 1 220px;
+  max-width: 320px;
+}
+
+.comparador__error {
+  color: var(--mat-sys-error);
+  margin: 0.75rem 0 0;
+}
+
+.comparador__grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+  align-items: start;
+}
+
+.comparador__grilla--procesando {
+  opacity: 0.6;
+}
+
+.tamano-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+}
+
+.tamano-card__preview {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background:
+    linear-gradient(45deg, rgba(128, 128, 128, 0.12) 25%, transparent 25%, transparent 75%, rgba(128, 128, 128, 0.12) 75%),
+    linear-gradient(45deg, rgba(128, 128, 128, 0.12) 25%, transparent 25%, transparent 75%, rgba(128, 128, 128, 0.12) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
+  border-radius: 4px;
+  margin-bottom: 0.3rem;
+}
+
+.tamano-card__titulo {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.tamano-card__dato {
+  font-size: 0.78rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.tamano-card__aviso {
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--mat-sys-error);
+}

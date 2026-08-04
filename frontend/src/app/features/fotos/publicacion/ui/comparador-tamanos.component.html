@@ -1,0 +1,47 @@
+<div class="comparador">
+  <div class="comparador__toolbar">
+    <button matButton="outlined" type="button" (click)="archivoInput.click()">
+      <mat-icon>add_photo_alternate</mat-icon>
+      {{ tieneFoto() ? 'Cambiar foto' : 'Elegir una foto' }}
+    </button>
+    @if (archivoNombre()) {
+      <span class="comparador__archivo">{{ archivoNombre() }}</span>
+    }
+    <input #archivoInput type="file" hidden accept="image/*" (change)="elegirArchivo($event)" />
+
+    @if (tieneFoto()) {
+      <div class="comparador__calidad">
+        <tbi-slider label="Calidad (WebP)" unidad="%" [minimo]="1" [maximo]="100" [(value)]="calidad" />
+      </div>
+    }
+  </div>
+
+  @if (error()) {
+    <p class="comparador__error">{{ error() }}</p>
+  }
+
+  @if (!tieneFoto()) {
+    <p class="hint">
+      Elegí una foto propia para ver, con datos reales, cómo queda cada tamaño: dimensiones, dpi
+      equivalente al imprimir en 10×15 y el peso ya comprimido en WebP.
+    </p>
+  } @else {
+    <div class="comparador__grilla" [class.comparador__grilla--procesando]="procesando()">
+      @for (r of resultados(); track r.ladoMayorPedido) {
+        <div class="tamano-card">
+          <img class="tamano-card__preview" [src]="r.previewUrl" alt="" />
+          <span class="tamano-card__titulo">Lado mayor {{ r.ladoMayorPedido }}px</span>
+          <span class="tamano-card__dato">{{ r.ancho }} × {{ r.alto }}px</span>
+          <span class="tamano-card__dato">{{ r.dpi | number: '1.0-0' }} dpi en 10×15</span>
+          <span class="tamano-card__dato">{{ formatearPeso(r.pesoBytes) }}</span>
+          @if (r.dpi < DPI_ACEPTABLE) {
+            <span class="tamano-card__aviso">Se va a ver borroso al imprimir</span>
+          }
+        </div>
+      }
+      @if (procesando()) {
+        <mat-spinner diameter="24" />
+      }
+    </div>
+  }
+</div>

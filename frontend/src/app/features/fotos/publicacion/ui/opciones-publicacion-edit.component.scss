@@ -1,0 +1,33 @@
+.edit {
+  min-width: min(480px, 90vw);
+}
+
+.edit__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.edit__switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  small {
+    display: block;
+    font-weight: 400;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.78rem;
+  }
+}
+
+.edit__errors {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--mat-sys-error);
+  font-size: 0.8125rem;
+}

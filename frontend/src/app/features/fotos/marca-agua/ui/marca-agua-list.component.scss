@@ -1,0 +1,61 @@
+// Usa el scaffold global `.list` (styles/_page.scss) para el encabezado; la grilla de perfiles es
+// propia de esta pantalla (no es una tabla, cada fila renderiza la marca real en canvas).
+
+.perfiles__estado {
+  color: var(--mat-sys-on-surface-variant);
+  padding: 1rem 0;
+}
+
+.perfiles {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.perfil {
+  display: grid;
+  grid-template-columns: 132px 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.85rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+}
+
+.perfil__nombre {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.perfil__desc {
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.perfil__acciones {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.chip {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+
+.chip--accent {
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.chip--warn {
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}

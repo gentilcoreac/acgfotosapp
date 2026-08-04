@@ -1,0 +1,54 @@
+<section class="list">
+  <header class="list__header">
+    <h1>Marca de agua</h1>
+    <div class="list__actions">
+      <button matButton="filled" (click)="nuevo()">
+        <mat-icon>add</mat-icon>
+        Nuevo perfil
+      </button>
+    </div>
+  </header>
+
+  @if (perfilesResource.isLoading()) {
+    <p class="perfiles__estado">Cargando…</p>
+  } @else if ((perfilesResource.value() ?? []).length === 0) {
+    <p class="perfiles__estado">
+      Todavía no hay perfiles. "Nuevo perfil" para diseñar la marca del estudio.
+    </p>
+  } @else {
+    <div class="perfiles">
+      @for (perfil of perfilesResource.value(); track perfil.id) {
+        <div class="perfil">
+          <tbi-perfil-marca-agua-canvas
+            [perfil]="perfil"
+            [ancho]="132"
+            [alto]="88"
+            [ariaLabel]="'Marca del perfil ' + perfil.nombre"
+          />
+          <div class="perfil__info">
+            <div class="perfil__nombre">
+              {{ perfil.nombre }}
+              @if (perfil.esDefault) {
+                <span class="chip chip--accent">Default del estudio</span>
+              }
+              @if ((perfil.avisos ?? []).length > 0) {
+                <span class="chip chip--warn">{{ perfil.avisos![0] }}</span>
+              }
+            </div>
+            <div class="perfil__desc">
+              {{ perfil.capas.length }} {{ perfil.capas.length === 1 ? 'capa' : 'capas' }}
+            </div>
+          </div>
+          <div class="perfil__acciones">
+            <button matIconButton type="button" aria-label="Editar" (click)="editar(perfil)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button matIconButton type="button" aria-label="Eliminar" (click)="eliminar(perfil)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>
