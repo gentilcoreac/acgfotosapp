@@ -43,5 +43,8 @@ export interface Evento extends EditableEntity {
   fecha?: string | null;
   fechaExpiracion?: string | null;
   estado: EstadoEvento;
+  /** Null = usa el perfil/opciones default del estudio (ADR-15 §5). */
+  perfilMarcaAguaId?: number | null;
+  opcionesPublicacionId?: number | null;
   tamanosPrecios?: TamanoPrecio[];
 }
