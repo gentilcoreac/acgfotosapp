@@ -84,7 +84,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("duracion");
 
                     b.Property<DateTime>("FechaHora")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("fechahora");
 
                     b.Property<string>("HttpMethod")
@@ -317,7 +317,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("tenantid");
 
                     b.Property<DateTime>("TimeStamp")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("timestamp");
 
                     b.HasKey("Id")
@@ -580,7 +580,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("createdat");
 
                     b.Property<string>("CreatedByIp")
@@ -594,7 +594,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("createdbyuseragent");
 
                     b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("expiresat");
 
                     b.Property<string>("ReplacedByTokenHash")
@@ -608,7 +608,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("revokereason");
 
                     b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("revokedat");
 
                     b.Property<long>("TenantId")
@@ -834,7 +834,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("contenttype");
 
                     b.Property<DateTime>("CreateDatetime")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("createdatetime");
 
                     b.Property<long?>("CreatedByUserId")
@@ -886,15 +886,15 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("cantidad");
 
                     b.Property<DateTime>("ExpireDatetime")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("expiredatetime");
 
                     b.Property<DateTime>("ModifiedDatetime")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("modifieddatetime");
 
                     b.Property<DateTime>("StartDatetime")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("startdatetime");
 
                     b.Property<long>("TenantId")
@@ -1002,7 +1002,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("concurrencystamp");
 
                     b.Property<DateTime>("DateCreated")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("datecreated");
 
                     b.Property<string>("Email")
@@ -1020,7 +1020,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("emailconfirmed");
 
                     b.Property<DateTime>("FechaCambioClave")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("fechacambioclave");
 
                     b.Property<bool>("LockoutEnabled")
@@ -1075,7 +1075,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("tenantid");
 
                     b.Property<DateTime>("TokenExpirationDate")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("tokenexpirationdate");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -1194,7 +1194,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("FechaLastLogin")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("fechalastlogin");
 
                     b.Property<string>("Periodo")
@@ -1295,7 +1295,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedDatetime")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("createddatetime");
 
                     b.Property<bool>("IsActive")
@@ -1353,6 +1353,83 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     b.ToTable("gen_usuariosactivosmensuales", (string)null);
                 });
 
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.CapaMarcaAgua", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("AltoPx")
+                        .HasColumnType("integer")
+                        .HasColumnName("altopx");
+
+                    b.Property<int>("AnchoPx")
+                        .HasColumnType("integer")
+                        .HasColumnName("anchopx");
+
+                    b.Property<float>("AnguloGrados")
+                        .HasColumnType("real")
+                        .HasColumnName("angulogrados");
+
+                    b.Property<float>("EscalaPorcentaje")
+                        .HasColumnType("real")
+                        .HasColumnName("escalaporcentaje");
+
+                    b.Property<float>("MargenPorcentaje")
+                        .HasColumnType("real")
+                        .HasColumnName("margenporcentaje");
+
+                    b.Property<int>("ModoColocacion")
+                        .HasColumnType("integer")
+                        .HasColumnName("modocolocacion");
+
+                    b.Property<int>("ModoFusion")
+                        .HasColumnType("integer")
+                        .HasColumnName("modofusion");
+
+                    b.Property<float>("Opacidad")
+                        .HasColumnType("real")
+                        .HasColumnName("opacidad");
+
+                    b.Property<int>("Orden")
+                        .HasColumnType("integer")
+                        .HasColumnName("orden");
+
+                    b.Property<long>("PerfilMarcaAguaId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("perfilmarcaaguaid");
+
+                    b.Property<int?>("Posicion")
+                        .HasColumnType("integer")
+                        .HasColumnName("posicion");
+
+                    b.Property<Guid>("StorageKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("storagekey");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("tenantid");
+
+                    b.HasKey("Id")
+                        .HasName("pk_fot_capasmarcaagua");
+
+                    b.HasIndex("PerfilMarcaAguaId")
+                        .HasDatabaseName("ix_fot_capasmarcaagua_perfilmarcaaguaid");
+
+                    b.HasIndex("StorageKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_fot_capasmarcaagua_storagekey");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_fot_capasmarcaagua_tenantid");
+
+                    b.ToTable("fot_capasmarcaagua", (string)null);
+                });
+
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.CodigoAcceso", b =>
                 {
                     b.Property<long>("Id")
@@ -1373,7 +1450,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("codigo");
 
                     b.Property<DateTime>("CreadoEn")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("creadoen");
 
                     b.Property<long>("ParticipanteId")
@@ -1411,11 +1488,11 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("estado");
 
                     b.Property<DateTime?>("Fecha")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("fecha");
 
                     b.Property<DateTime?>("FechaExpiracion")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("fechaexpiracion");
 
                     b.Property<string>("LugarOrganizacion")
@@ -1429,12 +1506,26 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("nombre");
 
+                    b.Property<long?>("OpcionesPublicacionId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("opcionespublicacionid");
+
+                    b.Property<long?>("PerfilMarcaAguaId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("perfilmarcaaguaid");
+
                     b.Property<long>("TenantId")
                         .HasColumnType("bigint")
                         .HasColumnName("tenantid");
 
                     b.HasKey("Id")
                         .HasName("pk_fot_eventos");
+
+                    b.HasIndex("OpcionesPublicacionId")
+                        .HasDatabaseName("ix_fot_eventos_opcionespublicacionid");
+
+                    b.HasIndex("PerfilMarcaAguaId")
+                        .HasDatabaseName("ix_fot_eventos_perfilmarcaaguaid");
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_fot_eventos_tenantid");
@@ -1460,7 +1551,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("ancho");
 
                     b.Property<DateTime>("CreadoEn")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("creadoen");
 
                     b.Property<string>("ErrorProcesamiento")
@@ -1559,6 +1650,50 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     b.ToTable("fot_grupos", (string)null);
                 });
 
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.OpcionesPublicacion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Calidad")
+                        .HasColumnType("integer")
+                        .HasColumnName("calidad");
+
+                    b.Property<bool>("EsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("esdefault");
+
+                    b.Property<int>("LadoMayorPreview")
+                        .HasColumnType("integer")
+                        .HasColumnName("ladomayorpreview");
+
+                    b.Property<int>("LadoMayorThumb")
+                        .HasColumnType("integer")
+                        .HasColumnName("ladomayorthumb");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("nombre");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("tenantid");
+
+                    b.HasKey("Id")
+                        .HasName("pk_fot_opcionespublicacion");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_fot_opcionespublicacion_tenantid");
+
+                    b.ToTable("fot_opcionespublicacion", (string)null);
+                });
+
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Participante", b =>
                 {
                     b.Property<long>("Id")
@@ -1604,7 +1739,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreadoEn")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("creadoen");
 
                     b.Property<int>("Estado")
@@ -1627,7 +1762,7 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnName("nombrecontacto");
 
                     b.Property<DateTime?>("PagadoEn")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("pagadoen");
 
                     b.Property<long>("ParticipanteId")
@@ -1711,6 +1846,42 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasDatabaseName("ix_fot_pedidoitems_tenantid");
 
                     b.ToTable("fot_pedidoitems", (string)null);
+                });
+
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.PerfilMarcaAgua", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("EsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("esdefault");
+
+                    b.Property<bool>("MarcarThumb")
+                        .HasColumnType("boolean")
+                        .HasColumnName("marcarthumb");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("nombre");
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("tenantid");
+
+                    b.HasKey("Id")
+                        .HasName("pk_fot_perfilesmarcaagua");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_fot_perfilesmarcaagua_tenantid");
+
+                    b.ToTable("fot_perfilesmarcaagua", (string)null);
                 });
 
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.TamanoPrecio", b =>
@@ -2242,6 +2413,18 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.CapaMarcaAgua", b =>
+                {
+                    b.HasOne("AcgFotos.Fotos.Domain.Entities.PerfilMarcaAgua", "PerfilMarcaAgua")
+                        .WithMany("Capas")
+                        .HasForeignKey("PerfilMarcaAguaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_fot_capasmarcaagua_fot_perfilesmarcaagua_perfilmarcaaguaid");
+
+                    b.Navigation("PerfilMarcaAgua");
+                });
+
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.CodigoAcceso", b =>
                 {
                     b.HasOne("AcgFotos.Fotos.Domain.Entities.Participante", "Participante")
@@ -2252,6 +2435,25 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasConstraintName("fk_fot_codigosacceso_fot_participantes_participanteid");
 
                     b.Navigation("Participante");
+                });
+
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Evento", b =>
+                {
+                    b.HasOne("AcgFotos.Fotos.Domain.Entities.OpcionesPublicacion", "OpcionesPublicacion")
+                        .WithMany()
+                        .HasForeignKey("OpcionesPublicacionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_fot_eventos_fot_opcionespublicacion_opcionespublicacionid");
+
+                    b.HasOne("AcgFotos.Fotos.Domain.Entities.PerfilMarcaAgua", "PerfilMarcaAgua")
+                        .WithMany()
+                        .HasForeignKey("PerfilMarcaAguaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_fot_eventos_fot_perfilesmarcaagua_perfilmarcaaguaid");
+
+                    b.Navigation("OpcionesPublicacion");
+
+                    b.Navigation("PerfilMarcaAgua");
                 });
 
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Foto", b =>
@@ -2498,6 +2700,11 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
             modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.Pedido", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("AcgFotos.Fotos.Domain.Entities.PerfilMarcaAgua", b =>
+                {
+                    b.Navigation("Capas");
                 });
 #pragma warning restore 612, 618
         }

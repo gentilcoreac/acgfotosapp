@@ -39,6 +39,8 @@ describe('GaleriaComponent', () => {
   let subir: Mock;
   let borrar: Mock;
   let descargarOriginal: Mock;
+  let contarParaRegenerar: Mock;
+  let regenerar: Mock;
   let confirm: Mock;
   let dialogOpen: Mock;
   let notify: { success: Mock; error: Mock };
@@ -76,6 +78,8 @@ describe('GaleriaComponent', () => {
       .mockReturnValue(
         of(new HttpResponse({ body: new Blob(['x']), headers: new HttpHeaders() })),
       );
+    contarParaRegenerar = vi.fn().mockName('fotos.contarParaRegenerar').mockReturnValue(of(2));
+    regenerar = vi.fn().mockName('fotos.regenerar').mockReturnValue(of(2));
     confirm = vi.fn().mockName('confirm').mockReturnValue(of(true));
     dialogOpen = vi.fn().mockName('dialog.open');
     notify = { success: vi.fn(), error: vi.fn() };
@@ -122,6 +126,8 @@ describe('GaleriaComponent', () => {
             subir,
             borrar,
             descargarOriginal,
+            contarParaRegenerar,
+            regenerar,
             derivado: vi.fn().mockReturnValue(of(new Blob(['jpg']))),
           },
         },
@@ -263,5 +269,44 @@ describe('GaleriaComponent', () => {
     // el stub de object URLs del setup cubre el saveBlobResponse
     fixture.componentInstance['descargarOriginal'](fotos[0]);
     expect(descargarOriginal).toHaveBeenCalledWith(1);
+  });
+
+  it('regenerar: pide el conteo, confirma con el número real y encola', async () => {
+    await setup();
+    fixture.componentInstance['eventoId'].set(7);
+    fixture.detectChanges();
+
+    fixture.componentInstance['regenerarEvento']();
+
+    expect(contarParaRegenerar).toHaveBeenCalledWith(7);
+    expect(confirm).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining('2 foto(s)') }),
+    );
+    expect(regenerar).toHaveBeenCalledWith(7);
+    expect(notify.success).toHaveBeenCalledWith(expect.stringContaining('2 foto(s) encoladas'));
+  });
+
+  it('regenerar: sin fotos para reprocesar, avisa y no pide confirmación', async () => {
+    await setup();
+    contarParaRegenerar.mockReturnValue(of(0));
+    fixture.componentInstance['eventoId'].set(7);
+    fixture.detectChanges();
+
+    fixture.componentInstance['regenerarEvento']();
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(regenerar).not.toHaveBeenCalled();
+    expect(notify.success).toHaveBeenCalledWith('No hay fotos para regenerar en este evento.');
+  });
+
+  it('regenerar: si se cancela la confirmación, no encola', async () => {
+    await setup();
+    confirm.mockReturnValue(of(false));
+    fixture.componentInstance['eventoId'].set(7);
+    fixture.detectChanges();
+
+    fixture.componentInstance['regenerarEvento']();
+
+    expect(regenerar).not.toHaveBeenCalled();
   });
 });

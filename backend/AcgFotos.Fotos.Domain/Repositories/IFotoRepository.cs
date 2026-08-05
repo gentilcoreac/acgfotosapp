@@ -37,4 +37,14 @@ public interface IFotoRepository : IEntityBaseRepository<Foto>
     /// la sesión — el 404 no distingue "no existe" de "no es tuya" (no dar pistas).
     /// </summary>
     Task<Foto?> GetVisibleParaFamiliaAsync(long fotoId, IReadOnlyCollection<long> participanteIds);
+
+    /// <summary>
+    /// Cuántas fotos del evento se regenerarían (regeneración explícita, spec `regeneracion-derivados`):
+    /// las que ya procesaron al menos una vez (<c>Lista</c> o <c>Error</c>) — una <c>Pendiente</c> ya
+    /// va a pasar por el pipeline normal, no hace falta re-encolarla.
+    /// </summary>
+    Task<int> ContarParaRegenerarAsync(long eventoId);
+
+    /// <summary>Las mismas fotos que <see cref="ContarParaRegenerarAsync"/>, tracked, para marcarlas Pendiente.</summary>
+    Task<List<Foto>> GetParaRegenerarTrackedAsync(long eventoId);
 }

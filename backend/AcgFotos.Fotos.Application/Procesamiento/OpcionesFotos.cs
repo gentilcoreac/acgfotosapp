@@ -1,13 +1,14 @@
 namespace AcgFotos.Fotos.Application.Procesamiento;
 
 /// <summary>
-/// Config del vertical (sección <c>Fotos</c> del appsettings). El texto del watermark queda
-/// pendiente de definir con el fotógrafo (notas abiertas); mientras tanto, un default visible.
+/// Config del vertical (sección <c>Fotos</c> del appsettings). Último escalón de la cascada de
+/// resolución de marca de agua (ADR-15 §4): resolución/calidad de los derivados cuando el evento y
+/// el tenant no tienen opciones de publicación propias. El watermark en sí (qué se dibuja) YA NO se
+/// configura acá — sin un <c>PerfilMarcaAgua</c> cargado, se usa la capa por defecto embebida
+/// (<c>IFotoStorage.LeerCapaMarcaAguaDefaultAsync</c>, ver <c>FotoProcesadorAppService</c>).
 /// </summary>
 public class OpcionesFotos
 {
-    public string TextoWatermark { get; set; } = "ACG Fotos";
-
     /// <summary>Lado mayor del preview en px. Muy bajo a propósito (premisa ADR-01 + pedido 2026-07-15).</summary>
     public int LadoMayorPreview { get; set; } = 900;
 
@@ -17,9 +18,6 @@ public class OpcionesFotos
     /// <summary>Calidad WebP (0-100) de ambos derivados. Baja a propósito.</summary>
     public int CalidadDerivados { get; set; } = 55;
 
-    /// <summary>Opacidad del texto del watermark (0-1). Pedido del negocio: mitad transparente.</summary>
-    public float OpacidadWatermark { get; set; } = 0.5f;
-
     /// <summary>
     /// Molde de la URL que codifican los QR de las tarjetas ({codigo} se reemplaza por el código
     /// del participante). La ruta de canje se implementa en Fase 2; el dominio real se define al deploy.
@@ -28,4 +26,13 @@ public class OpcionesFotos
 
     /// <summary>Duración del token de sesión de familia (pedido de Alberto 2026-07-16: 30 minutos).</summary>
     public int DuracionSesionFamiliaMinutos { get; set; } = 30;
+
+    /// <summary>Techo de ancho del asset de una capa de marca de agua, en px (ADR-15 §7, design D5).</summary>
+    public int AnchoMaximoAssetMarcaAguaPx { get; set; } = 4000;
+
+    /// <summary>Techo de alto del asset de una capa de marca de agua, en px.</summary>
+    public int AltoMaximoAssetMarcaAguaPx { get; set; } = 4000;
+
+    /// <summary>Techo de peso del asset de una capa de marca de agua, en bytes.</summary>
+    public int PesoMaximoAssetMarcaAguaBytes { get; set; } = 5 * 1024 * 1024;
 }

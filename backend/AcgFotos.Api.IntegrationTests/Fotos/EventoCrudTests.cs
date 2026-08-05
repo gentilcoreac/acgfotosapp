@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using AcgFotos.Api.IntegrationTests.Infrastructure;
 using AcgFotos.Fotos.Application.Dtos;
 using AcgFotos.Fotos.Domain.Entities;
@@ -26,14 +28,50 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
         }
 
         private static object Input(string nombre, long id = 0, string? lugarOrganizacion = null,
-            EstadoEvento estado = EstadoEvento.Borrador, object[]? tamanos = null) => new
+            EstadoEvento estado = EstadoEvento.Borrador, object[]? tamanos = null,
+            long? perfilMarcaAguaId = null, long? opcionesPublicacionId = null) => new
         {
             id,
             nombre,
             lugarOrganizacion,
             estado = (int)estado,
+            perfilMarcaAguaId,
+            opcionesPublicacionId,
             tamanosPrecios = tamanos ?? Array.Empty<object>(),
         };
+
+        /// <summary>Perfil de marca de agua real del tenant del cliente (el alta de la primera capa
+        /// crea el perfil, design.md D14 — no hay endpoint de "crear perfil vacío").</summary>
+        private static async Task<long> CreatePerfilMarcaAguaAsync(HttpClient client)
+        {
+            using var img = new Image<Rgba32>(80, 60, new Rgba32(255, 255, 255, 128));
+            using var ms = new MemoryStream();
+            img.SaveAsPng(ms);
+            using var multipart = new MultipartFormDataContent
+            {
+                { new StringContent("Perfil de prueba"), "nombrePerfilSiNuevo" },
+                { new ByteArrayContent(ms.ToArray()), "archivo", "capa.png" },
+            };
+            var resp = await client.PostAsync("/api/fotos/marca-agua/perfiles/capas/upload", multipart);
+            await resp.ShouldBeOk();
+            return (await resp.Content.ReadFromJsonAsync<CapaMarcaAguaSubidaDto>())!.Perfil.Id;
+        }
+
+        /// <summary>Opciones de publicación reales del tenant del cliente.</summary>
+        private static async Task<long> CreateOpcionesPublicacionAsync(HttpClient client)
+        {
+            var resp = await client.PostAsJsonAsync("/api/fotos/marca-agua/opciones-publicacion/update", new
+            {
+                id = 0L,
+                nombre = "Opciones de prueba",
+                esDefault = false,
+                ladoMayorPreview = 1600,
+                ladoMayorThumb = 600,
+                calidad = 80,
+            });
+            await resp.ShouldBeOk();
+            return (await resp.Content.ReadFromJsonAsync<OpcionesPublicacionDto>())!.Id;
+        }
 
         private static object Tamano(string nombre, decimal precio, long id = 0, int orden = 0, bool activo = true) =>
             new { id, nombre, precioUnitario = precio, orden, activo };
@@ -182,6 +220,42 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             var page = await (await tenant3.GetAsync("/api/fotos/eventos"))
                 .Content.ReadFromJsonAsync<Page<EventoHeaderDto>>();
             Assert.Empty(page!.Items);
+        }
+
+        [Fact] // EVT-11 — asignar un perfil/opciones propios del tenant persiste los ids (spec 9.0/9.1)
+        public async Task Asigna_perfil_y_opciones_propias_del_tenant()
+        {
+            using var client = await CreateTenantClientAsync();
+            var perfilId = await CreatePerfilMarcaAguaAsync(client);
+            var opcionesId = await CreateOpcionesPublicacionAsync(client);
+
+            var resp = await client.PostAsJsonAsync("/api/fotos/eventos/update",
+                Input("Con override", perfilMarcaAguaId: perfilId, opcionesPublicacionId: opcionesId));
+            await resp.ShouldBeOk();
+
+            var dto = await resp.Content.ReadFromJsonAsync<EventoDto>();
+            Assert.Equal(perfilId, dto!.PerfilMarcaAguaId);
+            Assert.Equal(opcionesId, dto.OpcionesPublicacionId);
+        }
+
+        [Fact] // EVT-12 — guard multi-tenant: un perfil/opciones de OTRO tenant no se puede asignar
+        public async Task Perfil_o_opciones_de_otro_tenant_da_400()
+        {
+            using var tenant3 = await CreateTenantClientAsync(3);
+            var perfilDeOtroTenant = await CreatePerfilMarcaAguaAsync(tenant3);
+            var opcionesDeOtroTenant = await CreateOpcionesPublicacionAsync(tenant3);
+
+            using var client = await CreateTenantClientAsync(); // tenant 2
+
+            var respPerfil = await client.PostAsJsonAsync("/api/fotos/eventos/update",
+                Input("Con perfil ajeno", perfilMarcaAguaId: perfilDeOtroTenant));
+            await respPerfil.ShouldBeStatus(HttpStatusCode.BadRequest);
+
+            var respOpciones = await client.PostAsJsonAsync("/api/fotos/eventos/update",
+                Input("Con opciones ajenas", opcionesPublicacionId: opcionesDeOtroTenant));
+            await respOpciones.ShouldBeStatus(HttpStatusCode.BadRequest);
+
+            Assert.Equal(0, await CountAsync("SELECT COUNT(*) FROM fot_Eventos WHERE TenantId = 2"));
         }
 
         [Fact] // EVT-10 — delete: el evento se borra y el catálogo cascadea

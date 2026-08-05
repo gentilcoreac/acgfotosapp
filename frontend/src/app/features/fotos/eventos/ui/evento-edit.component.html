@@ -13,6 +13,18 @@
         <tbi-date-picker [formField]="form.fechaExpiracion" label="Disponible hasta" />
         <tbi-select [formField]="form.estado" label="Estado" [options]="estadoOptions" />
       </div>
+      <div class="edit__row">
+        <tbi-select
+          [formField]="form.perfilMarcaAguaId"
+          label="Marca de agua"
+          [options]="perfilOptions()"
+        />
+        <tbi-select
+          [formField]="form.opcionesPublicacionId"
+          label="Opciones de publicación"
+          [options]="opcionesOptions()"
+        />
+      </div>
     </div>
 
     <section class="edit__tamanos">

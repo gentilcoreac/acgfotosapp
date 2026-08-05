@@ -66,4 +66,14 @@ export class FotosService {
   borrar(fotoId: number): Observable<void> {
     return this.api.delete<void>(`fotos/fotos/${fotoId}`);
   }
+
+  /** Cuántas fotos del evento se van a reprocesar (para el diálogo de confirmación, ANTES de encolar). */
+  contarParaRegenerar(eventoId: number): Observable<number> {
+    return this.api.get<number>('fotos/fotos/regenerar/conteo', { eventoId });
+  }
+
+  /** Marca `Pendiente` y encola esas fotos (D9: nunca se dispara solo — el fotógrafo lo pide con el conteo a la vista). */
+  regenerar(eventoId: number): Observable<number> {
+    return this.api.post<number>(`fotos/fotos/regenerar?eventoId=${eventoId}`);
+  }
 }

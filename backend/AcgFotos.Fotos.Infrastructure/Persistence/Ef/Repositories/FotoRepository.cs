@@ -50,6 +50,22 @@ public class FotoRepository : EntityBaseRepository<Foto>, IFotoRepository
     public Task<Foto?> GetVisibleParaFamiliaAsync(long fotoId, IReadOnlyCollection<long> participanteIds) =>
         this.VisiblesParaFamilia(participanteIds).FirstOrDefaultAsync(f => f.Id == fotoId);
 
+    public Task<int> ContarParaRegenerarAsync(long eventoId) =>
+        this.ParaRegenerar(eventoId).CountAsync();
+
+    public Task<List<Foto>> GetParaRegenerarTrackedAsync(long eventoId) =>
+        this.DbContext.Set<Foto>()
+            .Where(f => f.EventoId == eventoId
+                && (f.EstadoProcesamiento == EstadoProcesamientoFoto.Lista
+                    || f.EstadoProcesamiento == EstadoProcesamientoFoto.Error))
+            .ToListAsync();
+
+    private IQueryable<Foto> ParaRegenerar(long eventoId) =>
+        this.DbContext.Set<Foto>().AsNoTracking()
+            .Where(f => f.EventoId == eventoId
+                && (f.EstadoProcesamiento == EstadoProcesamientoFoto.Lista
+                    || f.EstadoProcesamiento == EstadoProcesamientoFoto.Error));
+
     /// <summary>
     /// Individuales de esos participantes + grupales (<c>ParticipanteId == null</c>) de sus grupos,
     /// Lista únicamente. El filtro global de tenant ya scopea por <c>IAppContext.TenantId</c>.

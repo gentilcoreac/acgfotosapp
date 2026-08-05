@@ -23,4 +23,21 @@ public interface IFotoStorage
 
     /// <summary>Borra original + derivados (los que existan) — el borrado de una foto limpia todo.</summary>
     Task EliminarAsync(Foto foto);
+
+    /// <summary>Guarda el asset PNG de una capa, ya validado (D4: sin pérdida, nunca recodificado).</summary>
+    Task GuardarCapaMarcaAguaAsync(long perfilMarcaAguaId, Guid storageKey, byte[] contenido);
+
+    /// <summary>Bytes del asset PNG de una capa de marca de agua ya subida.</summary>
+    Task<byte[]> LeerCapaMarcaAguaAsync(long perfilMarcaAguaId, Guid storageKey);
+
+    /// <summary>Borra el asset PNG de una capa (borrado de perfil o de capa individual). No falla si no existe.</summary>
+    Task EliminarCapaMarcaAguaAsync(long perfilMarcaAguaId, Guid storageKey);
+
+    /// <summary>
+    /// Capa embebida en el binario para el último escalón de la cascada (sin perfiles cargados):
+    /// reproduce el watermark de texto del pipeline pre-ADR-15, congelado a PNG. No es storage real
+    /// (no hay tenant ni upload de por medio) — vive acá para que <c>IImageProcessor</c> reciba
+    /// siempre bytes de capa por el mismo camino, sin una rama especial.
+    /// </summary>
+    Task<byte[]> LeerCapaMarcaAguaDefaultAsync();
 }

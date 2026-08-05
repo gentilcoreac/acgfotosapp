@@ -21,6 +21,7 @@ public class FotoProcesadorAppService : IFotoProcesadorAppService
     private readonly IFotoRepository _fotoRepository;
     private readonly IFotoStorage _fotoStorage;
     private readonly IImageProcessor _imageProcessor;
+    private readonly IConfiguracionMarcaAguaResolver _configuracionResolver;
     private readonly OpcionesFotos _opciones;
     private readonly ILogger<FotoProcesadorAppService> _logger;
 
@@ -29,6 +30,7 @@ public class FotoProcesadorAppService : IFotoProcesadorAppService
         IFotoRepository fotoRepository,
         IFotoStorage fotoStorage,
         IImageProcessor imageProcessor,
+        IConfiguracionMarcaAguaResolver configuracionResolver,
         OpcionesFotos opciones,
         ILogger<FotoProcesadorAppService> logger)
     {
@@ -36,6 +38,7 @@ public class FotoProcesadorAppService : IFotoProcesadorAppService
         _fotoRepository = fotoRepository;
         _fotoStorage = fotoStorage;
         _imageProcessor = imageProcessor;
+        _configuracionResolver = configuracionResolver;
         _opciones = opciones;
         _logger = logger;
     }
@@ -54,17 +57,8 @@ public class FotoProcesadorAppService : IFotoProcesadorAppService
             var original = await _fotoStorage.LeerOriginalAsync(foto);
             using var stream = new MemoryStream(original);
 
-            var derivados = await _imageProcessor.GenerarDerivadosAsync(
-                stream,
-                new OpcionesDerivados
-                {
-                    TextoWatermark = _opciones.TextoWatermark,
-                    LadoMayorPreview = _opciones.LadoMayorPreview,
-                    LadoMayorThumb = _opciones.LadoMayorThumb,
-                    Calidad = _opciones.CalidadDerivados,
-                    Opacidad = _opciones.OpacidadWatermark,
-                },
-                cancellationToken);
+            var opcionesDerivados = await ResolverOpcionesDerivadosAsync(foto.EventoId);
+            var derivados = await _imageProcessor.GenerarDerivadosAsync(stream, opcionesDerivados, cancellationToken);
 
             await _fotoStorage.GuardarDerivadosAsync(foto, derivados);
 
@@ -86,5 +80,63 @@ public class FotoProcesadorAppService : IFotoProcesadorAppService
         }
 
         await _unitOfWork.CommitAsync();
+    }
+
+    /// <summary>
+    /// Cascada evento → default del tenant → <c>OpcionesFotos</c> (ADR-15 §4, design.md D3). Sin
+    /// perfil ni opciones en ningún escalón, el resultado reproduce el comportamiento pre-ADR-15.
+    /// </summary>
+    private async Task<OpcionesDerivados> ResolverOpcionesDerivadosAsync(long eventoId)
+    {
+        var (perfil, opciones) = await _configuracionResolver.ResolverAsync(eventoId);
+
+        return new OpcionesDerivados
+        {
+            Capas = await ResolverCapasAsync(perfil),
+            MarcarThumb = perfil?.MarcarThumb ?? true,
+            LadoMayorPreview = opciones?.LadoMayorPreview ?? _opciones.LadoMayorPreview,
+            LadoMayorThumb = opciones?.LadoMayorThumb ?? _opciones.LadoMayorThumb,
+            Calidad = opciones?.Calidad ?? _opciones.CalidadDerivados,
+        };
+    }
+
+    private async Task<IReadOnlyList<CapaComposicion>> ResolverCapasAsync(PerfilMarcaAgua? perfil)
+    {
+        if (perfil is null)
+        {
+            var assetDefault = await _fotoStorage.LeerCapaMarcaAguaDefaultAsync();
+            return
+            [
+                new CapaComposicion
+                {
+                    Asset = assetDefault,
+                    Orden = 0,
+                    ModoColocacion = ModoColocacionMarcaAgua.Repetida,
+                    EscalaPorcentaje = MarcaAguaLegadoConstantes.EscalaPorcentaje,
+                    AnguloGrados = MarcaAguaLegadoConstantes.AnguloGrados,
+                    Opacidad = MarcaAguaLegadoConstantes.Opacidad,
+                    ModoFusion = ModoFusionMarcaAgua.Normal,
+                },
+            ];
+        }
+
+        var capas = new List<CapaComposicion>(perfil.Capas.Count);
+        foreach (var capa in perfil.Capas.OrderBy(c => c.Orden))
+        {
+            var asset = await _fotoStorage.LeerCapaMarcaAguaAsync(perfil.Id, capa.StorageKey);
+            capas.Add(new CapaComposicion
+            {
+                Asset = asset,
+                Orden = capa.Orden,
+                ModoColocacion = capa.ModoColocacion,
+                Posicion = capa.Posicion,
+                EscalaPorcentaje = capa.EscalaPorcentaje,
+                MargenPorcentaje = capa.MargenPorcentaje,
+                AnguloGrados = capa.AnguloGrados,
+                Opacidad = capa.Opacidad,
+                ModoFusion = capa.ModoFusion,
+            });
+        }
+        return capas;
     }
 }

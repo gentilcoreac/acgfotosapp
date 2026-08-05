@@ -130,6 +130,23 @@ export const routes: Routes = [
           ),
       },
       {
+        // Perfiles de marca de agua del estudio (ADR-15): listado con la marca real renderizada
+        // por fila + editor de capas.
+        path: 'fotos/marca-agua',
+        loadComponent: () =>
+          import('./features/fotos/marca-agua/ui/marca-agua-list.component').then(
+            (m) => m.MarcaAguaListComponent,
+          ),
+      },
+      {
+        // ABM de opciones de publicación (resolución/calidad, ADR-15 §5) + comparador de tamaños.
+        path: 'fotos/publicacion',
+        loadComponent: () =>
+          import('./features/fotos/publicacion/ui/publicacion.component').then(
+            (m) => m.PublicacionComponent,
+          ),
+      },
+      {
         path: 'tipos-licencias',
         loadComponent: () =>
           import('./features/tipos-licencias/ui/tipos-licencias-list.component').then(

@@ -1,3 +1,4 @@
+using System.Reflection;
 using AcgFotos.Core.Storage;
 using AcgFotos.Fotos.Application.Imaging;
 using AcgFotos.Fotos.Application.Storage;
@@ -15,6 +16,7 @@ public class FotoStorage : IFotoStorage
     private const string PrefijoPrivado = "private/";
     private const string JpegContentType = "image/jpeg";
     private const string WebpContentType = "image/webp";
+    private const string NombreAssetCapaPorDefecto = "marca-agua-default.png";
 
     private readonly IStorageProvider _storageProvider;
 
@@ -61,5 +63,29 @@ public class FotoStorage : IFotoStorage
             derivados.Thumb,
             WebpContentType,
             StorageVisibility.Private);
+    }
+
+    public Task GuardarCapaMarcaAguaAsync(long perfilMarcaAguaId, Guid storageKey, byte[] contenido) =>
+        _storageProvider.SaveAsync(
+            PrefijoPrivado + FotoStorageKeys.CapaMarcaAgua(perfilMarcaAguaId, storageKey),
+            contenido,
+            "image/png",
+            StorageVisibility.Private);
+
+    public Task<byte[]> LeerCapaMarcaAguaAsync(long perfilMarcaAguaId, Guid storageKey) =>
+        _storageProvider.ReadAsync(PrefijoPrivado + FotoStorageKeys.CapaMarcaAgua(perfilMarcaAguaId, storageKey));
+
+    public Task EliminarCapaMarcaAguaAsync(long perfilMarcaAguaId, Guid storageKey) =>
+        _storageProvider.DeleteAsync(PrefijoPrivado + FotoStorageKeys.CapaMarcaAgua(perfilMarcaAguaId, storageKey));
+
+    public async Task<byte[]> LeerCapaMarcaAguaDefaultAsync()
+    {
+        var assembly = typeof(FotoStorage).Assembly;
+        var name = assembly.GetManifestResourceNames()
+            .Single(n => n.EndsWith(NombreAssetCapaPorDefecto, StringComparison.OrdinalIgnoreCase));
+        await using var stream = assembly.GetManifestResourceStream(name)!;
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        return ms.ToArray();
     }
 }

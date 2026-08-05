@@ -59,7 +59,8 @@ BEGIN
 
     UPDATE gen_Menus
     SET PermisoId = permiso_fotos
-    WHERE Codigo IN ('Fotos', 'FotosEventos', 'FotosGrupos', 'FotosGaleria', 'FotosTarjetas', 'FotosPedidos');
+    WHERE Codigo IN ('Fotos', 'FotosEventos', 'FotosGrupos', 'FotosGaleria', 'FotosTarjetas', 'FotosPedidos',
+                      'FotosMarcaAgua', 'FotosPublicacion');
 
     -- Rol default para nuevo tenant (patron seed.sql de CodigoBase: rol "Administrador Cliente"
     -- EsDefaultParaNuevoTenant=true). Sin un rol con este flag, el alta de tenant desde el ABM crea el

@@ -266,6 +266,41 @@ export class GaleriaComponent {
       .subscribe((response) => saveBlobResponse(response, foto.nombreArchivoOriginal));
   }
 
+  // ── Regenerar (spec 9.2, ADR-15 D9/D12): por evento, con el conteo real ANTES de encolar ────────
+
+  protected readonly regenerando = signal(false);
+
+  protected regenerarEvento(): void {
+    const eventoId = this.eventoId();
+    if (eventoId == null) {
+      return;
+    }
+    this.fotosService.contarParaRegenerar(eventoId).subscribe((conteo) => {
+      if (conteo === 0) {
+        this.notify.success('No hay fotos para regenerar en este evento.');
+        return;
+      }
+      this.confirmService
+        .confirm({
+          title: 'Regenerar fotos',
+          message: `Se van a regenerar ${conteo} foto(s) con la marca de agua y las opciones de publicación vigentes del evento. Puede tardar unos minutos.`,
+        })
+        .pipe(
+          filter((confirmado) => confirmado),
+          tap(() => this.regenerando.set(true)),
+          switchMap(() => this.fotosService.regenerar(eventoId)),
+        )
+        .subscribe({
+          next: (encoladas) => {
+            this.regenerando.set(false);
+            this.notify.success(`${encoladas} foto(s) encoladas para regenerar.`);
+            this.fotosResource.reload();
+          },
+          error: () => this.regenerando.set(false),
+        });
+    });
+  }
+
   protected borrar(foto: Foto): void {
     this.confirmService
       .confirm({

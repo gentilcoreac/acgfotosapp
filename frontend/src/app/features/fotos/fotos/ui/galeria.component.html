@@ -1,6 +1,19 @@
 <section class="list">
   <header class="list__header">
     <h1>Fotos</h1>
+    @if (eventoId() !== null) {
+      <div class="list__actions">
+        <button
+          matButton="outlined"
+          type="button"
+          [disabled]="regenerando()"
+          (click)="regenerarEvento()"
+        >
+          <mat-icon>autorenew</mat-icon>
+          Regenerar fotos del evento
+        </button>
+      </div>
+    }
   </header>
 
   <div class="filtros">

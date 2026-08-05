@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
   FormField,
   applyEach,
@@ -7,6 +7,7 @@ import {
   pattern,
   required,
 } from '@angular/forms/signals';
+import { map } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -22,8 +23,16 @@ import {
   TbiSelectOption,
 } from '../../../../shared/ui/tbi-select/tbi-select.component';
 import { TbiTextFieldComponent } from '../../../../shared/ui/tbi-text-field/tbi-text-field.component';
+import { lookupResource } from '../../../../shared/util/lookup-resource';
+import { MarcaAguaService } from '../../marca-agua/data/marca-agua.service';
+import { PerfilMarcaAgua } from '../../marca-agua/domain/marca-agua.model';
+import { OpcionesPublicacionService } from '../../publicacion/data/opciones-publicacion.service';
+import { OpcionesPublicacion } from '../../publicacion/domain/opciones-publicacion.model';
 import { EventosService } from '../data/eventos.service';
 import { ESTADO_EVENTO_LABEL, EstadoEvento, Evento } from '../domain/evento.model';
+
+/** Etiqueta de la opción "sin override" — el evento usa el default del estudio (ADR-15 §5). */
+const USAR_DEL_ESTUDIO = 'Usar la del estudio';
 
 /**
  * Fila del catálogo en el form. El precio se edita como **string** (es lo que maneja
@@ -45,6 +54,9 @@ interface EventoFormModel {
   fecha: string;
   fechaExpiracion: string;
   estado: EstadoEvento;
+  /** Null = usa el default del estudio (ADR-15 §5). */
+  perfilMarcaAguaId: number | null;
+  opcionesPublicacionId: number | null;
   tamanos: TamanoPrecioRow[];
 }
 
@@ -76,6 +88,8 @@ function parsePrecio(value: string): number {
 })
 export class EventoEditComponent extends EditComponentBase<Evento, EventoFormModel> {
   private readonly service = inject(EventosService);
+  private readonly marcaAguaService = inject(MarcaAguaService);
+  private readonly opcionesPublicacionService = inject(OpcionesPublicacionService);
   protected readonly crud = this.service.crud;
   private loaded?: Evento;
 
@@ -83,12 +97,33 @@ export class EventoEditComponent extends EditComponentBase<Evento, EventoFormMod
     ESTADO_EVENTO_LABEL,
   ).map(([value, label]) => ({ value: Number(value) as EstadoEvento, label }));
 
+  // Combos independientes de todo lo demás del form: se piden una sola vez al abrir el diálogo.
+  private readonly perfilesResource = lookupResource(
+    () => this.marcaAguaService.crud.getAll().pipe(map((r) => r.items)),
+    [] as PerfilMarcaAgua[],
+  );
+  private readonly opcionesResource = lookupResource(
+    () => this.opcionesPublicacionService.crud.getAll().pipe(map((r) => r.items)),
+    [] as OpcionesPublicacion[],
+  );
+
+  protected readonly perfilOptions = computed<TbiSelectOption<number | null>[]>(() => [
+    { value: null, label: USAR_DEL_ESTUDIO },
+    ...(this.perfilesResource.value() ?? []).map((p) => ({ value: p.id ?? null, label: p.nombre })),
+  ]);
+  protected readonly opcionesOptions = computed<TbiSelectOption<number | null>[]>(() => [
+    { value: null, label: USAR_DEL_ESTUDIO },
+    ...(this.opcionesResource.value() ?? []).map((o) => ({ value: o.id ?? null, label: o.nombre })),
+  ]);
+
   protected readonly model = signal<EventoFormModel>({
     nombre: '',
     lugarOrganizacion: '',
     fecha: '',
     fechaExpiracion: '',
     estado: 0,
+    perfilMarcaAguaId: null,
+    opcionesPublicacionId: null,
     tamanos: [],
   });
 
@@ -150,6 +185,8 @@ export class EventoEditComponent extends EditComponentBase<Evento, EventoFormMod
       fecha: value.fecha || null,
       fechaExpiracion: value.fechaExpiracion || null,
       estado: value.estado,
+      perfilMarcaAguaId: value.perfilMarcaAguaId,
+      opcionesPublicacionId: value.opcionesPublicacionId,
       tamanosPrecios: value.tamanos.map((t, index) => ({
         id: t.id,
         nombre: t.nombre.trim(),
@@ -168,6 +205,8 @@ export class EventoEditComponent extends EditComponentBase<Evento, EventoFormMod
       fecha: entity.fecha?.split('T')[0] ?? '',
       fechaExpiracion: entity.fechaExpiracion?.split('T')[0] ?? '',
       estado: entity.estado,
+      perfilMarcaAguaId: entity.perfilMarcaAguaId ?? null,
+      opcionesPublicacionId: entity.opcionesPublicacionId ?? null,
       tamanos: [...(entity.tamanosPrecios ?? [])]
         .sort((a, b) => a.orden - b.orden)
         .map((t) => ({

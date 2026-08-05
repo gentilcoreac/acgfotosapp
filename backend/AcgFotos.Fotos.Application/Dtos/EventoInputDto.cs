@@ -16,5 +16,10 @@ public class EventoInputDto : DtoBase
     public DateTime? FechaExpiracion { get; set; }
     public EstadoEvento Estado { get; set; } = EstadoEvento.Borrador;
 
+    /// <summary>Null ⇒ usa el perfil/opciones default del estudio (ADR-15 §5). La pertenencia al
+    /// tenant se valida en <c>EventoAppService.UpdateAsync</c> (la FK sola no lo impide).</summary>
+    public long? PerfilMarcaAguaId { get; set; }
+    public long? OpcionesPublicacionId { get; set; }
+
     public List<TamanoPrecioDto> TamanosPrecios { get; set; } = new();
 }

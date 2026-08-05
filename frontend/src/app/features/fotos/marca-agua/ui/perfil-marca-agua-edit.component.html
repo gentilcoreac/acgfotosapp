@@ -1,0 +1,313 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar perfil' : 'Nuevo perfil' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <div class="edit__cabecera">
+      <tbi-text-field [formField]="form.nombre" label="Nombre del perfil" />
+      <div class="edit__switch">
+        <mat-checkbox [formField]="form.esDefault">
+          Default del estudio
+          <small>Los eventos sin perfil propio usan este.</small>
+        </mat-checkbox>
+      </div>
+      <div class="edit__switch">
+        <mat-checkbox [formField]="form.marcarThumb">
+          Marcar también las miniaturas
+          <small>Apagado, la grilla se ve más limpia — pero son imágenes sin marca.</small>
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <div class="capas-barra">
+      @for (capa of model().capas; track capa.id) {
+        <button
+          type="button"
+          class="capa-tab"
+          [attr.aria-pressed]="capa.id === capaActivaId()"
+          (click)="elegirCapa(capa.id)"
+        >
+          Capa {{ capa.orden + 1 }}
+        </button>
+      }
+      <button
+        type="button"
+        class="capa-add"
+        [disabled]="model().capas.length >= 3 || subiendo() || disenandoTexto()"
+        (click)="archivoInput.click()"
+      >
+        @if (subiendo()) {
+          <mat-spinner diameter="14" />
+        } @else {
+          <mat-icon inline>upload</mat-icon>
+        }
+        Subir logo
+      </button>
+      <input
+        #archivoInput
+        type="file"
+        hidden
+        accept="image/png"
+        (change)="subirArchivo($event)"
+      />
+      <button
+        type="button"
+        class="capa-add"
+        [disabled]="model().capas.length >= 3 || subiendo() || disenandoTexto()"
+        (click)="abrirDisenoTexto()"
+      >
+        <mat-icon inline>title</mat-icon>
+        Diseñar texto
+      </button>
+    </div>
+
+    @if (disenandoTexto()) {
+      <fieldset class="diseno-texto">
+        <legend>Diseñar texto</legend>
+        <tbi-text-field
+          label="Texto de la marca"
+          [value]="disenoTexto().texto"
+          (valueChange)="actualizarDisenoTexto({ texto: $event ?? '' })"
+        />
+        <div class="colocacion-fila">
+          <label>
+            Color
+            <input
+              type="color"
+              [value]="disenoTexto().color"
+              (input)="actualizarDisenoTexto({ color: $any($event.target).value })"
+            />
+          </label>
+          <mat-checkbox
+            [checked]="disenoTexto().negrita"
+            (change)="actualizarDisenoTexto({ negrita: $event.checked })"
+          >
+            Negrita
+          </mat-checkbox>
+          <mat-checkbox
+            [checked]="disenoTexto().contorno"
+            (change)="actualizarDisenoTexto({ contorno: $event.checked })"
+          >
+            Contorno oscuro
+            <small>Sobrevive mejor a la compresión que una sombra difusa.</small>
+          </mat-checkbox>
+        </div>
+
+        <div class="canvas-stage">
+          @if (previewTextoUrl(); as url) {
+            <img [src]="url" width="400" alt="Vista previa del texto diseñado" />
+          } @else {
+            <p class="edit__hint">Escribí un texto para ver la vista previa.</p>
+          }
+        </div>
+
+        <div class="diseno-texto__acciones">
+          <button matButton type="button" (click)="cancelarDisenoTexto()">Cancelar</button>
+          <tbi-button
+            type="button"
+            label="Usar este texto"
+            [disabled]="!disenoTexto().texto.trim()"
+            [loading]="generandoDiseno()"
+            (click)="confirmarDisenoTexto()"
+          />
+        </div>
+      </fieldset>
+    }
+
+    @if (avisosUltimaSubida().length > 0) {
+      <div class="callout callout--warn">
+        @for (aviso of avisosUltimaSubida(); track aviso) {
+          <p>{{ aviso }}</p>
+        }
+      </div>
+    }
+
+    @if (model().capas.length === 0) {
+      <p class="edit__empty">
+        Subí tu logo (PNG con transparencia) o diseñá un texto para arrancar. Un perfil admite hasta
+        3 capas.
+      </p>
+    } @else {
+      <div class="editor">
+        <div class="editor__controles">
+          @if (capaActiva(); as capa) {
+            <fieldset>
+              <legend>Dónde va</legend>
+              <tbi-select
+                label="Colocación"
+                [options]="modoColocacionOptions"
+                [value]="capa.modoColocacion"
+                (valueChange)="actualizarCapaActiva({ modoColocacion: $event ?? MODO_COLOCACION.Repetida })"
+              />
+
+              @if (capa.modoColocacion === MODO_COLOCACION.PosicionFija) {
+                <div class="colocacion-fila">
+                  <div class="field-grilla">
+                    <span class="field-grilla__label">Posición</span>
+                    <div class="grilla9" role="group" aria-label="Posición en la foto">
+                      @for (pos of grillaPosiciones; track pos) {
+                        <button
+                          type="button"
+                          [attr.aria-pressed]="capa.posicion === pos"
+                          [attr.aria-label]="etiquetaPosicion(pos)"
+                          (click)="actualizarCapaActiva({ posicion: pos })"
+                        ></button>
+                      }
+                    </div>
+                  </div>
+                  <tbi-slider
+                    label="Margen"
+                    unidad="%"
+                    [minimo]="0"
+                    [maximo]="50"
+                    [value]="capa.margenPorcentaje"
+                    (valueChange)="actualizarCapaActiva({ margenPorcentaje: $event })"
+                  />
+                </div>
+                @if (capa.posicion === null) {
+                  <p class="edit__hint">Elegí una de las 9 posiciones.</p>
+                }
+                <div class="callout callout--warn">
+                  <p>
+                    Un logo en una esquina se recorta en dos segundos: es branding, no protección.
+                    Para defensa real, sumá otra capa repetida sobre toda la foto.
+                  </p>
+                </div>
+              }
+
+              <tbi-slider
+                label="Tamaño"
+                unidad="%"
+                [minimo]="1"
+                [maximo]="100"
+                [value]="capa.escalaPorcentaje"
+                (valueChange)="actualizarCapaActiva({ escalaPorcentaje: $event })"
+              />
+              <tbi-slider
+                label="Inclinación"
+                unidad="°"
+                [minimo]="-180"
+                [maximo]="180"
+                [value]="capa.anguloGrados"
+                (valueChange)="actualizarCapaActiva({ anguloGrados: $event })"
+              />
+              <tbi-slider
+                label="Opacidad"
+                [minimo]="0"
+                [maximo]="1"
+                [step]="0.05"
+                [value]="capa.opacidad"
+                (valueChange)="actualizarCapaActiva({ opacidad: $event })"
+              />
+              <tbi-select
+                label="Cómo se funde con la foto"
+                [options]="modoFusionOptions"
+                [value]="capa.modoFusion"
+                (valueChange)="actualizarCapaActiva({ modoFusion: $event ?? MODO_FUSION.Normal })"
+              />
+            </fieldset>
+
+            <button type="button" class="edit__quitar-capa" (click)="quitarCapaActiva()">
+              <mat-icon>delete</mat-icon>
+              Quitar esta capa
+            </button>
+          }
+        </div>
+
+        <div class="editor__preview">
+          <div class="preview-toolbar">
+            <span class="preview-toolbar__titulo">Muestras (clara / oscura / mixta a la vez)</span>
+            <div class="edit__switch edit__switch--inline">
+              <mat-checkbox [checked]="verComprimido()" (change)="verComprimido.set($event.checked)">
+                Ver comprimido
+              </mat-checkbox>
+            </div>
+          </div>
+
+          <div class="muestras-grilla">
+            @for (t of muestrasTiles(); track t.clave) {
+              <div class="muestra-tile">
+                <span class="muestra-tile__etiqueta">
+                  {{ t.etiqueta }}
+                  @if (t.fotoPropia) {
+                    <button
+                      type="button"
+                      class="muestra-tile__quitar"
+                      aria-label="Quitar mi foto"
+                      (click)="quitarMiFoto()"
+                    >
+                      <mat-icon inline>close</mat-icon>
+                    </button>
+                  }
+                </span>
+                <tbi-perfil-marca-agua-canvas
+                  [perfil]="perfilVista()"
+                  [variante]="t.variante"
+                  [fotoPropia]="t.fotoPropia"
+                  [comprimir]="verComprimido()"
+                  [ancho]="280"
+                  [alto]="187"
+                  [ariaLabel]="'Vista previa sobre muestra ' + t.etiqueta"
+                />
+              </div>
+            }
+          </div>
+
+          <div class="mi-foto-barra">
+            <button type="button" class="capa-add" (click)="miFotoInput.click()">
+              <mat-icon inline>add_photo_alternate</mat-icon>
+              {{ miFoto() ? 'Cambiar mi foto' : 'Probar con una foto mía' }}
+            </button>
+            <input #miFotoInput type="file" hidden accept="image/*" (change)="elegirMiFoto($event)" />
+            @if (miFotoNombre(); as nombre) {
+              <span class="mi-foto-barra__nombre">{{ nombre }}</span>
+            }
+          </div>
+          @if (errorMiFoto(); as error) {
+            <p class="edit__hint">{{ error }}</p>
+          }
+
+          <p class="mock-note">
+            La compresión ataca primero las transiciones suaves y el bajo contraste: preferí color
+            sólido y opacidad plana antes que degradados.
+          </p>
+
+          <div class="thumb-real">
+            <span class="preview-toolbar__titulo">
+              Al tamaño real de miniatura ({{ thumbAncho() }}px — {{ nombreOpcionesThumb() }})
+            </span>
+            <div class="canvas-stage canvas-stage--thumb">
+              <tbi-perfil-marca-agua-canvas
+                [perfil]="perfilVista()"
+                variante="mixta"
+                [comprimir]="verComprimido()"
+                [ancho]="thumbAncho()"
+                [alto]="thumbAlto()"
+                ariaLabel="Vista previa al tamaño real de la miniatura"
+              />
+            </div>
+            <p class="mock-note">
+              La marca se compone como % del ancho de cada tamaño por separado: a una miniatura
+              chica, el mismo diseño ocupa muchos menos píxeles reales — puede verse ilegible aunque
+              no haya compresión de por medio.
+            </p>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

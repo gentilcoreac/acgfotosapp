@@ -1,0 +1,54 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar opciones de publicación' : 'Nuevas opciones de publicación' }}</h2>
+<form novalidate (submit)="$event.preventDefault(); submit()">
+  <mat-dialog-content class="edit">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <div class="edit__form">
+      <tbi-text-field [formField]="form.nombre" label="Nombre" />
+      <div class="edit__switch">
+        <mat-checkbox [formField]="form.esDefault">
+          Default del estudio
+          <small>Los eventos sin opciones propias usan este.</small>
+        </mat-checkbox>
+      </div>
+
+      <tbi-slider
+        [formField]="form.ladoMayorPreview"
+        label="Lado mayor del preview"
+        unidad="px"
+        [minimo]="100"
+        [maximo]="4000"
+        [step]="50"
+      />
+      <tbi-slider
+        [formField]="form.ladoMayorThumb"
+        label="Lado mayor del thumbnail"
+        unidad="px"
+        [minimo]="50"
+        [maximo]="2000"
+        [step]="25"
+      />
+      <tbi-slider
+        [formField]="form.calidad"
+        label="Calidad (WebP)"
+        unidad="%"
+        [minimo]="1"
+        [maximo]="100"
+      />
+    </div>
+
+    @if (errors().length > 0) {
+      <ul class="edit__errors">
+        @for (msg of errors(); track msg) {
+          <li>{{ msg }}</li>
+        }
+      </ul>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button matButton type="button" (click)="cancel()">Cancelar</button>
+    <tbi-button type="submit" label="Guardar" [loading]="saving()" />
+  </mat-dialog-actions>
+</form>

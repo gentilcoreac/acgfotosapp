@@ -38,6 +38,10 @@ namespace AcgFotos.Fotos.Controllers
                 .As<IImageProcessor>()
                 .SingleInstance(); // sin estado: una instancia alcanza
 
+            builder.RegisterType<ValidadorAssetMarcaAgua>()
+                .As<IValidadorAssetMarcaAgua>()
+                .SingleInstance(); // sin estado propio (sólo lee OpcionesFotos, ya singleton)
+
             builder.RegisterType<EventoRepository>()
                 .As<IEventoRepository>()
                 .InstancePerLifetimeScope();
@@ -56,6 +60,20 @@ namespace AcgFotos.Fotos.Controllers
 
             builder.RegisterType<CodigoAccesoRepository>()
                 .As<ICodigoAccesoRepository>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<PerfilMarcaAguaRepository>()
+                .As<IPerfilMarcaAguaRepository>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<OpcionesPublicacionRepository>()
+                .As<IOpcionesPublicacionRepository>()
+                .InstancePerLifetimeScope();
+
+            // Cascada de resolución de marca de agua (ADR-15 §4, design.md D3): sin estado propio,
+            // pero sus repos son InstancePerLifetimeScope (ChangeTracker de EF), así que se registra igual.
+            builder.RegisterType<ConfiguracionMarcaAguaResolver>()
+                .As<IConfiguracionMarcaAguaResolver>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<FamiliaTokenFactory>()

@@ -151,5 +151,41 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             await (await familia.GetAsync($"/api/fotos/pedidos/lista-impresion?eventoId={eventoId}&estados=1"))
                 .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
         }
+
+        [Fact] // FAMGUARD-06 — tampoco los perfiles de marca de agua ni las opciones de publicación (ADR-15)
+        public async Task Familia_no_puede_usar_marca_de_agua_ni_opciones_de_publicacion()
+        {
+            var (_, _, _, familia) = await ArmarSesionAsync();
+
+            await (await familia.GetAsync("/api/fotos/marca-agua/perfiles"))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+            await (await familia.GetAsync("/api/fotos/marca-agua/perfiles/1"))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+            await (await familia.DeleteAsync("/api/fotos/marca-agua/perfiles/1"))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+
+            var upload = new MultipartFormDataContent { { new ByteArrayContent("x"u8.ToArray()), "archivo", "x.png" } };
+            await (await familia.PostAsync("/api/fotos/marca-agua/perfiles/capas/upload", upload))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+
+            await (await familia.GetAsync($"/api/fotos/marca-agua/perfiles/1/capas/{Guid.NewGuid()}"))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+
+            await (await familia.GetAsync("/api/fotos/marca-agua/opciones-publicacion"))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+            await (await familia.GetAsync("/api/fotos/marca-agua/opciones-publicacion/1"))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+        }
+
+        [Fact] // FAMGUARD-07 — tampoco la regeneración de derivados por evento
+        public async Task Familia_no_puede_regenerar_derivados()
+        {
+            var (eventoId, _, _, familia) = await ArmarSesionAsync();
+
+            await (await familia.GetAsync($"/api/fotos/fotos/regenerar/conteo?eventoId={eventoId}"))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+            await (await familia.PostAsync($"/api/fotos/fotos/regenerar?eventoId={eventoId}", null))
+                .ShouldBeError(HttpStatusCode.Forbidden, MessagesAPI.ErrorUserNotPrivilegesAccess);
+        }
     }
 }
