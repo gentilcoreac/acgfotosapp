@@ -11,7 +11,12 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { MarcaAguaService } from '../data/marca-agua.service';
 import { CapaComposicion, componerMarcaAgua } from '../domain/marca-agua-canvas.util';
-import { MuestraVariante, dibujarFotoMuestra } from '../domain/marca-agua-muestra.util';
+import {
+  ImagenDecodificada,
+  MuestraVariante,
+  dibujarFotoMuestra,
+  dibujarFotoPropia,
+} from '../domain/marca-agua-muestra.util';
 import { PerfilMarcaAgua } from '../domain/marca-agua.model';
 
 /**
@@ -40,6 +45,8 @@ export class PerfilMarcaAguaCanvasComponent {
 
   readonly perfil = input.required<PerfilMarcaAgua>();
   readonly variante = input<MuestraVariante>('mixta');
+  /** Si viene, se dibuja ESTA foto ("probar con una foto mía", spec 7.5/11.4) en vez de la muestra sintética de `variante`. */
+  readonly fotoPropia = input<ImagenDecodificada | null>(null);
   readonly ancho = input(320);
   readonly alto = input(213);
   /** Pasa el render por el encoder WebP antes de mostrarlo (D8: la compresión se come las marcas sutiles). */
@@ -59,17 +66,19 @@ export class PerfilMarcaAguaCanvasComponent {
     effect(() => {
       const composicion = this.composicionResource.hasValue() ? this.composicionResource.value() : [];
       const variante = this.variante();
+      const fotoPropia = this.fotoPropia();
       const ancho = this.ancho();
       const alto = this.alto();
       const comprimir = this.comprimir();
       const calidad = this.calidad();
-      void this.render(composicion, variante, ancho, alto, comprimir, calidad);
+      void this.render(composicion, variante, fotoPropia, ancho, alto, comprimir, calidad);
     });
   }
 
   private async render(
     composicion: CapaComposicion[],
     variante: MuestraVariante,
+    fotoPropia: ImagenDecodificada | null,
     ancho: number,
     alto: number,
     comprimir: boolean,
@@ -82,7 +91,11 @@ export class PerfilMarcaAguaCanvasComponent {
     }
 
     ctx.clearRect(0, 0, ancho, alto);
-    dibujarFotoMuestra(ctx, ancho, alto, variante);
+    if (fotoPropia) {
+      dibujarFotoPropia(ctx, ancho, alto, fotoPropia);
+    } else {
+      dibujarFotoMuestra(ctx, ancho, alto, variante);
+    }
     componerMarcaAgua(ctx, ancho, alto, composicion);
 
     if (!comprimir) {

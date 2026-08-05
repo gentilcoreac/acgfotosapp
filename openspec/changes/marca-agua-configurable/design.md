@@ -227,6 +227,14 @@ Al implementar 5.1/5.3 apareció otra dependencia circular real: `IFotoStorage.G
 
 *Alternativa descartada*: un paso explícito "crear perfil vacío" antes de subir capas — dejaría filas de perfil con 0 capas visibles por `GetAll`/`Search` mientras dura el wizard del front, exactamente el estado que la spec pide rechazar como resultado final; atarlo a la primera subida evita que ese estado intermedio exista siquiera.
 
+### D15 — Visualizador/carrusel reusable en `shared/ui`, sin migrar el diálogo de familias todavía (grupo 11, feedback 2026-08-04)
+
+El comparador de tamaños de `/fotos/publicacion` (grupo 8) mostraba 5 tarjetas chicas en grilla — Alberto marcó que así no se distinguen las diferencias entre tamaños, y pidió algo con la calidad de visualización que ya tienen las familias en `mi-album` (preview ampliado + carrusel). Ese carrusel (`FotoFamiliaPreviewDialogComponent`) existe pero está armado enteramente sobre el dominio de familia: `FotoFamilia`/`CarritoStore`/`FamiliaSessionStore` de `core/familia`, `tbi-foto-familia-img` (imagen autenticada de familia), overlay legal "Familia de {nombre}" y el selector de carrito, todo cableado directo en la plantilla — no se puede reusar tal cual para un caso sin sesión de familia, sin carrito y con imágenes generadas en canvas (el comparador no pide nada a la API, compone en memoria).
+
+**Decisión**: extraer el *shell* de navegación (anterior/siguiente, flechas de teclado, contador, cerrar) a un componente nuevo en `shared/ui` (mismo lugar que el resto de los `tbi-*`), genérico sobre `T` y con content projection para el render de cada item — cada caller decide qué se muestra (imagen de familia + carrito, o una imagen de canvas simple) sin que el componente base sepa nada de eso. `/fotos/publicacion` lo adopta en el grupo 11. **El diálogo de `mi-album` NO se migra en este grupo** (decisión explícita con Alberto): es una pantalla ya en producción con familias reales navegándola; migrarla ahora sin necesidad agrega riesgo a algo que funciona, por una ganancia que hoy es sólo de mantenimiento. Queda anotado para evaluar aparte más adelante, no descartado.
+
+*Alternativa descartada*: duplicar el carrusel dentro de `/fotos/publicacion` sin extraer nada — más rápido en el momento, pero es exactamente el tipo de duplicación que el pedido de Alberto busca evitar ("debería ser parte del código base así se pueden llamar y customizar desde el componente que deseemos").
+
 ## Risks / Trade-offs
 
 - **"Sin perfiles equivale a hoy" (ADR-15 §4) no tiene test de integración que lo verifique** → la

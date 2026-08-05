@@ -20,28 +20,22 @@
   margin: 0.75rem 0 0;
 }
 
-.comparador__grilla {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 1rem;
+.comparador__visor {
   margin-top: 1.25rem;
-  align-items: start;
+  max-width: 640px;
 }
 
-.comparador__grilla--procesando {
+.comparador__visor--procesando {
   opacity: 0.6;
 }
 
-.tamano-card {
+.tamano-grande {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.6rem;
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: 8px;
+  gap: 0.5rem;
 }
 
-.tamano-card__preview {
+.tamano-grande__preview {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: contain;
@@ -50,23 +44,29 @@
     linear-gradient(45deg, rgba(128, 128, 128, 0.12) 25%, transparent 25%, transparent 75%, rgba(128, 128, 128, 0.12) 75%);
   background-size: 16px 16px;
   background-position: 0 0, 8px 8px;
-  border-radius: 4px;
-  margin-bottom: 0.3rem;
+  border-radius: 8px;
 }
 
-.tamano-card__titulo {
+.tamano-grande__datos {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  padding: 0 0.5rem;
+}
+
+.tamano-grande__titulo {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 1rem;
 }
 
-.tamano-card__dato {
-  font-size: 0.78rem;
+.tamano-grande__dato {
+  font-size: 0.85rem;
   color: var(--mat-sys-on-surface-variant);
 }
 
-.tamano-card__aviso {
-  margin-top: 0.2rem;
-  font-size: 0.78rem;
+.tamano-grande__aviso {
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--mat-sys-error);
 }

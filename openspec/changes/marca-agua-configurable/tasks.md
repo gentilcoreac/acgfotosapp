@@ -291,3 +291,54 @@
       idénticos a los previos al cierre
 - [x] 10.5 Tildar los 8 ítems en `docs/03-fases.md` y cerrar el pendiente del ABM en
       `docs/05-notas-abiertas.md`
+
+## 11. Seguimiento post-cierre (visualización y UX, feedback de Alberto 2026-08-04)
+
+Feedback tras probar el cierre del grupo 10. Dos hallazgos de UX en pantallas ya cerradas
+(no bugs de lógica — el pipeline de composición no cambió, ver la respuesta sobre el orden
+watermark/compresión en el historial de esta conversación) más los dos ítems que ya venían
+anotados como huecos de cobertura desde el grupo 7 (7.5).
+
+- [x] 11.1 Visualizador/carrusel de imágenes reusable en `shared/ui` (`tbi-carousel`):
+      navegación anterior/siguiente + contador + flechas de teclado — mismo patrón de
+      `FotoFamiliaPreviewDialogComponent` (mi-album) pero genérico (`items` + `<ng-template>`
+      proyectado para el render de cada item, vía `contentChild(TemplateRef)`/`NgTemplateOutlet`
+      — cada caller decide qué se muestra). A diferencia del diálogo de familia (que escucha
+      `document:keydown`, apropiado para un modal pantalla completa), acá las flechas sólo
+      navegan con el carrusel enfocado (`tabindex="0"` + keydown en el propio host): pensado
+      también para uso INLINE en una página con otros controles, donde escuchar en `document`
+      interferiría. **Decidido con Alberto**: por ahora sólo se construye y se usa en
+      `/fotos/publicacion`; el diálogo de `mi-album` NO se migra en este grupo (pantalla ya en
+      uso, se evalúa aparte más adelante). **Bug real encontrado al integrarlo** (grupo 11.2):
+      con `items` momentáneamente vacío (mientras el comparador recalcula tras elegir/cambiar de
+      foto) el `<ng-template>` del caller recibía `item` `undefined` y explotaba si accedía a una
+      propiedad — corregido en el propio `tbi-carousel` (no renderiza el template proyectado con
+      0 items), protege a cualquier caller futuro, no sólo a este
+- [x] 11.2 `/fotos/publicacion`: el comparador de tamaños pasa de 5 tarjetas chiquitas en grilla
+      a usar `tbi-carousel` — vista grande de a una imagen con navegación entre los 5 tamaños
+      (mismos datos que ya calcula `comparador-tamanos.util.ts`, sólo cambia la presentación)
+- [x] 11.3 Editor de marca de agua (`/fotos/marca-agua`): las tres muestras sintéticas
+      (clara/oscura/mixta) se muestran **simultáneamente** en una grilla, en vez de un selector
+      que las alternaba de a una (cierra 7.5, primera mitad)
+- [x] 11.4 Editor de marca de agua: opción "probar con una foto mía" — `elegirMiFoto`/`quitarMiFoto`
+      + `dibujarFotoPropia` (nuevo, `marca-agua-muestra.util.ts`: dibuja "cover", llena el
+      lienzo y recorta el sobrante, mismo criterio que un thumbnail real) como 4ª muestra en la
+      grilla junto a las 3 sintéticas (cierra 7.5, segunda mitad)
+- [x] 11.5 Editor de marca de agua: sección aparte "al tamaño real de miniatura" con la vista
+      previa al `LadoMayorThumb` REAL (de la `OpcionesPublicacion` default del tenant, con
+      fallback al default del sistema —300px— si no hay ninguna marcada default; un perfil no
+      está atado a un evento puntual, así que no hay un thumb "correcto" único, se usa el
+      representativo). **Motivo (feedback de Alberto 2026-08-04)**: la marca se compone como %
+      del ancho de CADA derivado por separado — a un thumb chico (el rango permitido baja hasta
+      50px) una marca al 20% de ancho mide unas pocas decenas de píxeles reales; si tiene texto
+      fino o detalle se ve ilegible **aunque no hubiera compresión de por medio** (fenómeno
+      distinto al de D8/la compresión WebP — acá el problema es la cantidad absoluta de píxeles,
+      no la pérdida por encoder). Sin esto, el fotógrafo no tenía forma de detectar "se ve mal en
+      el thumb" antes de publicar
+- [x] 11.6 Unit tests de 11.1/11.4 (`tbi-carousel.component.spec.ts` 6 casos incluido el bug de
+      items vacíos; `marca-agua-muestra.util.spec.ts` 3 casos de `dibujarFotoPropia`) + verificación
+      manual en el navegador real (front+API levantados, Playwright standalone): perfil nuevo con
+      las 3 muestras simultáneas + "probar con mi foto" + preview a 300px de thumb, y el
+      comparador de `/fotos/publicacion` con el carrusel navegando entre los 5 tamaños — 4
+      screenshots, sesión de prueba borrada al terminar. Suite completa 107 archivos / 540 tests
+      + lint + build verdes

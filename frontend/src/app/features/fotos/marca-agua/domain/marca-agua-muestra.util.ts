@@ -81,3 +81,28 @@ export function dibujarFotoMuestra(
   ctx.fillStyle = variante === 'clara' ? 'rgba(0,0,0,.08)' : 'rgba(0,0,0,.22)';
   ctx.fillRect(0, alto * 0.86, ancho, alto * 0.14);
 }
+
+/** Lo mínimo que necesita `dibujarFotoPropia` de una imagen decodificada (recorta el resto del tipo real de `ImageBitmap`/`HTMLImageElement`, para que un fake de test no tenga que implementar la interfaz completa). */
+export type ImagenDecodificada = CanvasImageSource & { readonly width: number; readonly height: number };
+
+/**
+ * Dibuja una foto real "cover" (llena el lienzo, recorta el sobrante) — spec 7.5/11.4: "probar con
+ * una foto mía" además de las 3 muestras sintéticas, mismo canvas y misma composición de marca que
+ * usa `dibujarFotoMuestra`.
+ */
+export function dibujarFotoPropia(
+  ctx: CanvasRenderingContext2D,
+  ancho: number,
+  alto: number,
+  imagen: ImagenDecodificada,
+): void {
+  if (imagen.width <= 0 || imagen.height <= 0) {
+    return;
+  }
+  const escala = Math.max(ancho / imagen.width, alto / imagen.height);
+  const anchoDestino = imagen.width * escala;
+  const altoDestino = imagen.height * escala;
+  const x = (ancho - anchoDestino) / 2;
+  const y = (alto - altoDestino) / 2;
+  ctx.drawImage(imagen, x, y, anchoDestino, altoDestino);
+}

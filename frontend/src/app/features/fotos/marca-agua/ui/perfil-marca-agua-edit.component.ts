@@ -6,12 +6,16 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { map } from 'rxjs';
 import { ApiError, errorMessages } from '../../../../core/models';
 import { EditComponentBase } from '../../../../shared/forms/edit-component-base';
 import { TbiButtonComponent } from '../../../../shared/ui/tbi-button/tbi-button.component';
 import { TbiSelectComponent, TbiSelectOption } from '../../../../shared/ui/tbi-select/tbi-select.component';
 import { TbiSliderComponent } from '../../../../shared/ui/tbi-slider/tbi-slider.component';
 import { TbiTextFieldComponent } from '../../../../shared/ui/tbi-text-field/tbi-text-field.component';
+import { lookupResource } from '../../../../shared/util/lookup-resource';
+import { OpcionesPublicacionService } from '../../publicacion/data/opciones-publicacion.service';
+import { OpcionesPublicacion } from '../../publicacion/domain/opciones-publicacion.model';
 import { MarcaAguaService } from '../data/marca-agua.service';
 import {
   CapaMarcaAgua,
@@ -23,9 +27,22 @@ import {
   PerfilMarcaAgua,
   Posicion,
 } from '../domain/marca-agua.model';
-import { MUESTRAS, MuestraVariante } from '../domain/marca-agua-muestra.util';
+import { ImagenDecodificada, MUESTRAS, MuestraVariante } from '../domain/marca-agua-muestra.util';
 import { DisenoTexto, rasterizarTextoComoPng } from '../domain/marca-agua-texto.util';
 import { PerfilMarcaAguaCanvasComponent } from './perfil-marca-agua-canvas.component';
+
+/** Fallback cuando el tenant no tiene ninguna `OpcionesPublicacion` default (mismo default que `appsettings.json`, `Fotos:LadoMayorThumb`). */
+const LADO_MAYOR_THUMB_FALLBACK = 300;
+/** Relación de aspecto de las muestras (3:2, la misma que ya usan list/editor). */
+const ASPECTO_MUESTRA = 3 / 2;
+
+/** Una muestra a renderizar en la grilla "simultánea" (spec 7.5/11.3): las 3 sintéticas + la foto propia, si hay. */
+interface MuestraTile {
+  clave: string;
+  etiqueta: string;
+  variante: MuestraVariante;
+  fotoPropia: ImagenDecodificada | null;
+}
 
 /** Grilla de 9 posiciones en orden visual (fila por fila). */
 const GRILLA_POSICIONES: readonly Posicion[] = [
@@ -67,8 +84,8 @@ const POSICION_ETIQUETA: Record<Posicion, string> = {
 type PerfilFormModel = Pick<PerfilMarcaAgua, 'nombre' | 'esDefault' | 'marcarThumb' | 'capas'>;
 
 // TODO (Fase 4 - i18n): textos en español por ahora.
-// TODO (pendiente de pulir, ver docs/05): "tus propias fotos" como muestra además de las 3
-// sintéticas, y el aviso específico de recorte por posición (hoy es uno genérico para PosiciónFija).
+// TODO (pendiente de pulir, ver docs/05): el aviso de recorte por posición es uno genérico para
+// PosiciónFija, no específico de qué esquina/borde se recorta.
 @Component({
   selector: 'tbi-perfil-marca-agua-edit',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -91,6 +108,7 @@ type PerfilFormModel = Pick<PerfilMarcaAgua, 'nombre' | 'esDefault' | 'marcarThu
 })
 export class PerfilMarcaAguaEditComponent extends EditComponentBase<PerfilMarcaAgua, PerfilFormModel> {
   private readonly service = inject(MarcaAguaService);
+  private readonly opcionesPublicacionService = inject(OpcionesPublicacionService);
 
   protected readonly crud = this.service.crud;
 
@@ -101,7 +119,6 @@ export class PerfilMarcaAguaEditComponent extends EditComponentBase<PerfilMarcaA
   protected readonly modoColocacionOptions = MODO_COLOCACION_OPTIONS;
   protected readonly modoFusionOptions = MODO_FUSION_OPTIONS;
   protected readonly grillaPosiciones = GRILLA_POSICIONES;
-  protected readonly muestras = MUESTRAS;
   protected readonly POSICION = POSICION;
   protected readonly MODO_COLOCACION = MODO_COLOCACION;
   protected readonly MODO_FUSION = MODO_FUSION;
@@ -158,8 +175,50 @@ export class PerfilMarcaAguaEditComponent extends EditComponentBase<PerfilMarcaA
   protected readonly subiendo = signal(false);
   protected readonly avisosUltimaSubida = signal<string[]>([]);
   protected readonly capaActivaId = signal<number | null>(null);
-  protected readonly muestraActiva = signal<MuestraVariante>('mixta');
   protected readonly verComprimido = signal(true);
+
+  // "Probar con mi foto" (spec 7.5/11.4): además de las 3 muestras sintéticas, una foto real propia.
+  protected readonly miFoto = signal<ImageBitmap | null>(null);
+  protected readonly miFotoNombre = signal<string | null>(null);
+  protected readonly errorMiFoto = signal<string | null>(null);
+
+  /** Las 3 muestras sintéticas se muestran SIMULTÁNEAS (spec 7.5, ya no una por vez con selector) +
+   * la foto propia al final, si se subió una. */
+  protected readonly muestrasTiles = computed<MuestraTile[]>(() => {
+    const tiles: MuestraTile[] = MUESTRAS.map((m) => ({
+      clave: m.clave,
+      etiqueta: m.etiqueta,
+      variante: m.clave,
+      fotoPropia: null,
+    }));
+    const miFoto = this.miFoto();
+    if (miFoto) {
+      tiles.push({ clave: 'mi-foto', etiqueta: 'Mi foto', variante: 'mixta', fotoPropia: miFoto });
+    }
+    return tiles;
+  });
+
+  // Vista previa al tamaño REAL de thumb (spec 11.5): la marca se compone como % del ancho de CADA
+  // derivado por separado — a un thumb chico la misma marca puede quedar ilegible aunque no haya
+  // compresión de por medio (problema de cantidad de píxeles, distinto al de la compresión WebP que
+  // ya cubre "Ver comprimido"). Usa las opciones de publicación default del tenant como referencia
+  // representativa (un perfil no está atado a un evento puntual, puede terminar usado con cualquiera).
+  private readonly opcionesResource = lookupResource(
+    () =>
+      this.opcionesPublicacionService.crud.getAll().pipe(map((r) => r.items)),
+    [] as OpcionesPublicacion[],
+  );
+  private readonly opcionesDefault = computed(() =>
+    (this.opcionesResource.value() ?? []).find((o) => o.esDefault) ?? null,
+  );
+  protected readonly ladoMayorThumbUsado = computed(
+    () => this.opcionesDefault()?.ladoMayorThumb ?? LADO_MAYOR_THUMB_FALLBACK,
+  );
+  protected readonly nombreOpcionesThumb = computed(
+    () => this.opcionesDefault()?.nombre ?? 'default del sistema, sin opciones propias del estudio',
+  );
+  protected readonly thumbAncho = computed(() => this.ladoMayorThumbUsado());
+  protected readonly thumbAlto = computed(() => Math.round(this.thumbAncho() / ASPECTO_MUESTRA));
 
   // "Diseñar texto" (D1/ADR-15 §2): una forma más de fabricar el PNG de una capa, no parte del
   // contrato — el resultado sube por el mismo `subirCapa` que un archivo elegido a mano.
@@ -191,7 +250,10 @@ export class PerfilMarcaAguaEditComponent extends EditComponentBase<PerfilMarcaA
       }
       void this.regenerarPreviewTexto(diseno);
     });
-    inject(DestroyRef).onDestroy(() => this.limpiarPreviewTexto());
+    inject(DestroyRef).onDestroy(() => {
+      this.limpiarPreviewTexto();
+      this.miFoto()?.close();
+    });
   }
 
   protected readonly capaActiva = computed<CapaMarcaAgua | undefined>(() => {
@@ -207,6 +269,30 @@ export class PerfilMarcaAguaEditComponent extends EditComponentBase<PerfilMarcaA
       return;
     }
     this.subirCapaDesdeArchivo(archivo);
+  }
+
+  protected async elegirMiFoto(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    input.value = '';
+    if (!archivo) {
+      return;
+    }
+    this.errorMiFoto.set(null);
+    try {
+      const bitmap = await createImageBitmap(archivo);
+      this.miFoto()?.close();
+      this.miFoto.set(bitmap);
+      this.miFotoNombre.set(archivo.name);
+    } catch {
+      this.errorMiFoto.set('No se pudo leer la imagen. Probá con otro archivo.');
+    }
+  }
+
+  protected quitarMiFoto(): void {
+    this.miFoto()?.close();
+    this.miFoto.set(null);
+    this.miFotoNombre.set(null);
   }
 
   protected abrirDisenoTexto(): void {

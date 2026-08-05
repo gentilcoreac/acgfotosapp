@@ -11,6 +11,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TbiCarouselComponent } from '../../../../shared/ui/tbi-carousel/tbi-carousel.component';
 import { TbiSliderComponent } from '../../../../shared/ui/tbi-slider/tbi-slider.component';
 import {
   ResultadoComparador,
@@ -37,7 +38,14 @@ interface ResultadoVista extends ResultadoComparador {
 @Component({
   selector: 'tbi-comparador-tamanos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TbiSliderComponent],
+  imports: [
+    DecimalPipe,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    TbiCarouselComponent,
+    TbiSliderComponent,
+  ],
   templateUrl: './comparador-tamanos.component.html',
   styleUrl: './comparador-tamanos.component.scss',
 })

@@ -218,17 +218,7 @@
 
         <div class="editor__preview">
           <div class="preview-toolbar">
-            <div class="segmented" role="group" aria-label="Foto de muestra">
-              @for (m of muestras; track m.clave) {
-                <button
-                  type="button"
-                  [attr.aria-pressed]="muestraActiva() === m.clave"
-                  (click)="muestraActiva.set(m.clave)"
-                >
-                  {{ m.etiqueta }}
-                </button>
-              }
-            </div>
+            <span class="preview-toolbar__titulo">Muestras (clara / oscura / mixta a la vez)</span>
             <div class="edit__switch edit__switch--inline">
               <mat-checkbox [checked]="verComprimido()" (change)="verComprimido.set($event.checked)">
                 Ver comprimido
@@ -236,19 +226,74 @@
             </div>
           </div>
 
-          <div class="canvas-stage">
-            <tbi-perfil-marca-agua-canvas
-              [perfil]="perfilVista()"
-              [variante]="muestraActiva()"
-              [comprimir]="verComprimido()"
-              [ancho]="480"
-              [alto]="320"
-            />
+          <div class="muestras-grilla">
+            @for (t of muestrasTiles(); track t.clave) {
+              <div class="muestra-tile">
+                <span class="muestra-tile__etiqueta">
+                  {{ t.etiqueta }}
+                  @if (t.fotoPropia) {
+                    <button
+                      type="button"
+                      class="muestra-tile__quitar"
+                      aria-label="Quitar mi foto"
+                      (click)="quitarMiFoto()"
+                    >
+                      <mat-icon inline>close</mat-icon>
+                    </button>
+                  }
+                </span>
+                <tbi-perfil-marca-agua-canvas
+                  [perfil]="perfilVista()"
+                  [variante]="t.variante"
+                  [fotoPropia]="t.fotoPropia"
+                  [comprimir]="verComprimido()"
+                  [ancho]="280"
+                  [alto]="187"
+                  [ariaLabel]="'Vista previa sobre muestra ' + t.etiqueta"
+                />
+              </div>
+            }
           </div>
+
+          <div class="mi-foto-barra">
+            <button type="button" class="capa-add" (click)="miFotoInput.click()">
+              <mat-icon inline>add_photo_alternate</mat-icon>
+              {{ miFoto() ? 'Cambiar mi foto' : 'Probar con una foto mía' }}
+            </button>
+            <input #miFotoInput type="file" hidden accept="image/*" (change)="elegirMiFoto($event)" />
+            @if (miFotoNombre(); as nombre) {
+              <span class="mi-foto-barra__nombre">{{ nombre }}</span>
+            }
+          </div>
+          @if (errorMiFoto(); as error) {
+            <p class="edit__hint">{{ error }}</p>
+          }
+
           <p class="mock-note">
             La compresión ataca primero las transiciones suaves y el bajo contraste: preferí color
             sólido y opacidad plana antes que degradados.
           </p>
+
+          <div class="thumb-real">
+            <span class="preview-toolbar__titulo">
+              Al tamaño real de miniatura ({{ thumbAncho() }}px — {{ nombreOpcionesThumb() }})
+            </span>
+            <div class="canvas-stage canvas-stage--thumb">
+              <tbi-perfil-marca-agua-canvas
+                [perfil]="perfilVista()"
+                variante="mixta"
+                [comprimir]="verComprimido()"
+                [ancho]="thumbAncho()"
+                [alto]="thumbAlto()"
+                ariaLabel="Vista previa al tamaño real de la miniatura"
+              />
+            </div>
+            <p class="mock-note">
+              La marca se compone como % del ancho de cada tamaño por separado: a una miniatura
+              chica, el mismo diseño ocupa muchos menos píxeles reales — puede verse ilegible aunque
+              no haya compresión de por medio.
+            </p>
+          </div>
         </div>
       </div>
     }
