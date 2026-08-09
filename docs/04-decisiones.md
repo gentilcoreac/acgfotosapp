@@ -415,3 +415,38 @@ del change) a un cambio transversal a todo el vertical Fotos.
 - Pendiente explícito para después de cerrar la feature: migrar `ImageSharpImageProcessor` completo a
   SkiaSharp (anotado en docs/05-notas-abiertas.md), momento en el que ImageSharp puede salir del todo
   del vertical Fotos.
+
+**Addenda (2026-08-06, `openspec/changes/marca-agua-ajustes`)**: se detectó que `ComponerCapa` dejaba
+los bordes de la marca dentados/con moiré al rotar y escalar el asset — regresión de calidad frente al
+watermark de texto anterior (dibujado vectorial directo a la resolución final, sin paso de
+transformación de por medio). La composición por capas SÍ necesita ese paso (rota/escala un PNG ya
+rasterizado), y el `SKPaint` no pedía antialiasing ni un filtro de muestreo de calidad — quedaba en el
+peor caso por defecto de SkiaSharp. Corregido: `IsAntialias = true` en el paint, `SKSamplingOptions`
+con filtro lineal + mipmap lineal en el `DrawImage`, y el asset se envuelve en un `SKImage` una sola vez
+por capa (no por tile del modo Repetida) para que Skia cachee los niveles de mip entre draws.
+Verificado visualmente (recorte 4x sin filtro del mismo watermark legado, antes/después del fix vía
+`git stash` — no se agregó test de píxeles, sería frágil ante cambios de versión de Skia sin que la
+calidad real empeore) y con la suite de integración de Fotos completa en verde (551/551).
+
+**Addenda 2 (2026-08-09, mismo change)**: al mirar por qué la marca seguía ilegible sobre una foto real
+apareció un segundo problema, de modelo y no de calidad: **la densidad de la trama repetida estaba
+atada a la escala**. El paso del mosaico se calculaba como múltiplo fijo del tamaño del tile (1.25×
+ancho, 2.2× alto), así que achicar la marca multiplicaba las repeticiones — lo contrario de lo que se
+busca al bajar la escala, y sin ninguna perilla para compensarlo. El caso que lo destapó (perfil real
+del tenant de dev): una capa al 20% de escala y opacidad 1.0 producía más de 120 repeticiones opacas
+que tapaban la foto entera.
+
+**Decisión**: `CapaMarcaAgua` gana `SeparacionPorcentaje`, **medida sobre el ancho de la foto** y no
+sobre el tile. Es lo que la vuelve realmente independiente de la escala: "una marca cada X% de la foto"
+no cambia porque la marca sea más chica. Se evaluó y descartó medirla contra el tile (era la opción
+inicial): resulta más intuitiva de leer, pero matemáticamente conserva el mismo acoplamiento — si el
+tile se achica, el paso se achica con él. El paso vertical se deriva del horizontal conservando la
+proporción histórica (`FactorPasoVertical`), para que la grilla no cambie de forma al variar la
+separación. Una separación no positiva cae al paso histórico en vez de no dibujar nada: quedarse sin
+watermark en silencio es la falla que ADR-01 no puede permitir.
+
+La migración convierte cada capa existente a `escala × 1.25`, que es exactamente la separación sobre la
+foto equivalente a su paso anterior — ningún perfil cambia de aspecto sin que el fotógrafo lo toque. La
+misma fórmula vive en `marca-agua-canvas.util.ts` (front), porque la vista previa es la garantía de
+"esto es lo que va a salir" (ADR-15 D1). De paso, el default de opacidad de una capa nueva bajó de 1.0
+a 0.5: una marca opaca sobre una trama repetida tapa la foto en vez de protegerla.

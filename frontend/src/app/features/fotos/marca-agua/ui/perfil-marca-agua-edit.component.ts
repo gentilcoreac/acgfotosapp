@@ -151,6 +151,11 @@ export class PerfilMarcaAguaEditComponent extends EditComponentBase<PerfilMarcaA
           ? undefined
           : { kind: 'rango', message: 'El margen debe estar entre 0% y 50%.' },
       );
+      validate(capa.separacionPorcentaje, ({ value, valueOf }) =>
+        valueOf(capa.modoColocacion) === MODO_COLOCACION.Repetida && !(value() >= 1 && value() <= 200)
+          ? { kind: 'rango', message: 'La separación debe estar entre 1% y 200%.' }
+          : undefined,
+      );
       validate(capa.anguloGrados, ({ value }) =>
         value() >= -180 && value() <= 180
           ? undefined

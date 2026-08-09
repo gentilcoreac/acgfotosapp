@@ -35,7 +35,12 @@ public class PerfilMarcaAguaAppService : ExtendedEntityAppServiceBase<PerfilMarc
     // recortar", ver ModoColocacionMarcaAgua.Repetida) discreto — el fotógrafo los ajusta en el editor.
     private const float EscalaPorcentajeDefault = 20f;
     private const float MargenPorcentajeDefault = 5f;
-    private const float OpacidadDefault = 1f;
+    // Semitransparente: una marca opaca sobre una trama repetida tapa la foto en vez de protegerla.
+    private const float OpacidadDefault = 0.5f;
+
+    // Equivale a la densidad que tenía una capa nueva antes de que la separación fuera configurable
+    // (el paso era 1.25× el ancho del tile, y el tile ocupa EscalaPorcentajeDefault de la foto).
+    private const float SeparacionPorcentajeDefault = EscalaPorcentajeDefault * 1.25f;
 
     private readonly IPerfilMarcaAguaRepository _perfilRepository;
     private readonly IValidadorAssetMarcaAgua _validadorAsset;
@@ -171,6 +176,7 @@ public class PerfilMarcaAguaAppService : ExtendedEntityAppServiceBase<PerfilMarc
             existente.Posicion = fila.Posicion;
             existente.EscalaPorcentaje = fila.EscalaPorcentaje;
             existente.MargenPorcentaje = fila.MargenPorcentaje;
+            existente.SeparacionPorcentaje = fila.SeparacionPorcentaje;
             existente.AnguloGrados = fila.AnguloGrados;
             existente.Opacidad = fila.Opacidad;
             existente.ModoFusion = fila.ModoFusion;
@@ -241,6 +247,7 @@ public class PerfilMarcaAguaAppService : ExtendedEntityAppServiceBase<PerfilMarc
             ModoColocacion = ModoColocacionMarcaAgua.Repetida,
             EscalaPorcentaje = EscalaPorcentajeDefault,
             MargenPorcentaje = MargenPorcentajeDefault,
+            SeparacionPorcentaje = SeparacionPorcentajeDefault,
             AnguloGrados = 0f,
             Opacidad = OpacidadDefault,
             ModoFusion = ModoFusionMarcaAgua.Normal,
@@ -323,6 +330,7 @@ public class PerfilMarcaAguaAppService : ExtendedEntityAppServiceBase<PerfilMarc
                         ModoColocacion = ModoColocacionMarcaAgua.Repetida,
                         EscalaPorcentaje = MarcaAguaLegadoConstantes.EscalaPorcentaje,
                         MargenPorcentaje = subida.Capa.MargenPorcentaje,
+                        SeparacionPorcentaje = MarcaAguaLegadoConstantes.SeparacionPorcentaje,
                         AnguloGrados = MarcaAguaLegadoConstantes.AnguloGrados,
                         Opacidad = MarcaAguaLegadoConstantes.Opacidad,
                         ModoFusion = ModoFusionMarcaAgua.Normal,

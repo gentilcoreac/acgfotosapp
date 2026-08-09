@@ -14,8 +14,12 @@ import {
  * (backend) comparando contra fixtures reales de este mismo motor (Chromium/canvas).
  */
 
-const PITCH_X_FACTOR = 1.25;
-const PITCH_Y_FACTOR = 2.2;
+/**
+ * El paso vertical siempre fue proporcionalmente mayor al horizontal (2.2× alto contra 1.25× ancho del
+ * tile): un tile ancho y bajo, rotado, barre mucho más alto que su propia altura. La separación
+ * configurable conserva esa proporción — mismo valor que `CapaMarcaAgua.FactorPasoVertical` (backend).
+ */
+const FACTOR_PASO_VERTICAL = 2.2 / 1.25;
 
 /** Una capa lista para componer: sus parámetros + la imagen ya decodificada. */
 export interface CapaComposicion {
@@ -75,8 +79,14 @@ function componerCapa(
 
   // Repetida: grilla en mosaico con offset alternado por fila (patrón ladrillo), rotada como
   // conjunto — se recorre un área mayor a la foto para que la rotación no deje esquinas limpias.
-  const pitchX = anchoDestino * PITCH_X_FACTOR;
-  const pitchY = altoDestino * PITCH_Y_FACTOR;
+  // El paso horizontal sale de la separación pedida sobre la FOTO, no del tamaño del tile: por eso
+  // achicar la marca ya no multiplica las repeticiones. Sin separación se cae al paso histórico
+  // (1.25× el ancho del tile) en vez de no dibujar nada — la foto nunca puede quedar sin marca.
+  const pitchX =
+    capa.separacionPorcentaje > 0
+      ? anchoFoto * (capa.separacionPorcentaje / 100)
+      : anchoDestino * 1.25;
+  const pitchY = altoDestino * (pitchX / anchoDestino) * FACTOR_PASO_VERTICAL;
   if (pitchX <= 0 || pitchY <= 0) {
     ctx.restore();
     return;

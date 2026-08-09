@@ -26,6 +26,7 @@ function capa(overrides: Partial<CapaMarcaAgua> = {}): CapaMarcaAgua {
     posicion: POSICION.Centro,
     escalaPorcentaje: 50,
     margenPorcentaje: 5,
+    separacionPorcentaje: 25,
     anguloGrados: 0,
     opacidad: 0.8,
     modoFusion: MODO_FUSION.Normal,
@@ -73,6 +74,50 @@ describe('componerMarcaAgua', () => {
     ]);
 
     expect((ctx.drawImage as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThan(4);
+  });
+
+  // La vista previa es la garantía de "esto es lo que va a salir" (ADR-15 D1): estos tres casos son
+  // los mismos que verifica `ImageProcessorTests` del lado del backend.
+  it('repetida: achicar la marca con la misma separación no cambia cuántas se dibujan', () => {
+    const repeticiones = (escalaPorcentaje: number): number => {
+      const ctx = fakeCtx();
+      componerMarcaAgua(ctx, 1000, 800, [
+        {
+          capa: capa({ modoColocacion: MODO_COLOCACION.Repetida, escalaPorcentaje, separacionPorcentaje: 20 }),
+          imagen,
+        },
+      ]);
+      return (ctx.drawImage as ReturnType<typeof vi.fn>).mock.calls.length;
+    };
+
+    expect(repeticiones(10)).toBe(repeticiones(5));
+  });
+
+  it('repetida: más separación, menos repeticiones', () => {
+    const repeticiones = (separacionPorcentaje: number): number => {
+      const ctx = fakeCtx();
+      componerMarcaAgua(ctx, 1000, 800, [
+        {
+          capa: capa({ modoColocacion: MODO_COLOCACION.Repetida, escalaPorcentaje: 10, separacionPorcentaje }),
+          imagen,
+        },
+      ]);
+      return (ctx.drawImage as ReturnType<typeof vi.fn>).mock.calls.length;
+    };
+
+    expect(repeticiones(40)).toBeLessThan(repeticiones(15));
+  });
+
+  it('repetida sin separación: igual dibuja, no deja la foto sin marca', () => {
+    const ctx = fakeCtx();
+    componerMarcaAgua(ctx, 1000, 800, [
+      {
+        capa: capa({ modoColocacion: MODO_COLOCACION.Repetida, escalaPorcentaje: 10, separacionPorcentaje: 0 }),
+        imagen,
+      },
+    ]);
+
+    expect((ctx.drawImage as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThan(0);
   });
 
   it('compone varias capas en el orden declarado (no el orden del array de entrada)', () => {

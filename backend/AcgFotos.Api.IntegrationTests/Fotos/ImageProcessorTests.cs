@@ -269,5 +269,95 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
             await Assert.ThrowsAsync<ImagenInvalidaException>(
                 () => Processor.GenerarDerivadosAsync(noImagen, Opciones()));
         }
+
+        /// <summary>
+        /// Cuenta las repeticiones de una capa blanca sobre un fondo plano contando "islas": el pixel
+        /// marcado cuyo vecino izquierdo y superior no lo están abre una marca nueva. Alcanza para
+        /// comparar densidades entre configuraciones, que es lo que verifican los tests de separación.
+        /// </summary>
+        private static int ContarMarcas(byte[] webp)
+        {
+            using var img = Image.Load<Rgb24>(webp);
+            var marcado = new bool[img.Height, img.Width];
+            img.ProcessPixelRows(accessor =>
+            {
+                for (var y = 0; y < accessor.Height; y++)
+                {
+                    var fila = accessor.GetRowSpan(y);
+                    for (var x = 0; x < fila.Length; x++)
+                    {
+                        marcado[y, x] = fila[x].R > 90;
+                    }
+                }
+            });
+
+            var islas = 0;
+            for (var y = 0; y < img.Height; y++)
+            {
+                for (var x = 0; x < img.Width; x++)
+                {
+                    if (marcado[y, x] && (x == 0 || !marcado[y, x - 1]) && (y == 0 || !marcado[y - 1, x]))
+                    {
+                        islas++;
+                    }
+                }
+            }
+            return islas;
+        }
+
+        // Asset holgado: la composición nunca escala hacia arriba (ADR-15 §8), así que un asset chico
+        // recortaría la escala pedida y los tamaños a comparar dejarían de ser distintos de verdad.
+        private static CapaComposicion CapaRepetida(float escala, float separacion) => new()
+        {
+            Asset = CrearCapaBlanca(400),
+            ModoColocacion = ModoColocacionMarcaAgua.Repetida,
+            EscalaPorcentaje = escala,
+            SeparacionPorcentaje = separacion,
+            Opacidad = 0.5f,
+            ModoFusion = ModoFusionMarcaAgua.Normal,
+        };
+
+        [Fact]
+        public async Task Achicar_la_marca_con_la_misma_separacion_no_cambia_cuantas_hay()
+        {
+            using var grande = CrearJpegPlano(2000, 1500);
+            using var chica = CrearJpegPlano(2000, 1500);
+
+            var conMarcaGrande = await Processor.GenerarDerivadosAsync(grande, Opciones([CapaRepetida(20f, 30f)]));
+            var conMarcaChica = await Processor.GenerarDerivadosAsync(chica, Opciones([CapaRepetida(10f, 30f)]));
+
+            // Antes de que la separación fuera propia de la capa, el paso salía del tamaño del tile:
+            // la mitad de escala daba el doble de marcas. Ahora la diferencia sólo puede venir del
+            // borde (una marca al límite entra o no entra según su tamaño), nunca de la densidad.
+            var conGrande = ContarMarcas(conMarcaGrande.Preview);
+            var conChica = ContarMarcas(conMarcaChica.Preview);
+            Assert.True(
+                Math.Abs(conGrande - conChica) <= 1,
+                $"achicar la marca cambió la cantidad de repeticiones: {conGrande} contra {conChica}");
+        }
+
+        [Fact]
+        public async Task Separar_mas_reduce_la_cantidad_de_marcas()
+        {
+            using var junto = CrearJpegPlano(2000, 1500);
+            using var separado = CrearJpegPlano(2000, 1500);
+
+            var conMarcasJuntas = await Processor.GenerarDerivadosAsync(junto, Opciones([CapaRepetida(15f, 20f)]));
+            var conMarcasSeparadas = await Processor.GenerarDerivadosAsync(separado, Opciones([CapaRepetida(15f, 50f)]));
+
+            Assert.True(
+                ContarMarcas(conMarcasSeparadas.Preview) < ContarMarcas(conMarcasJuntas.Preview),
+                "separar más debería dejar menos marcas sobre la foto");
+        }
+
+        [Fact]
+        public async Task Sin_separacion_explicita_la_foto_igual_sale_marcada()
+        {
+            using var original = CrearJpegPlano(2000, 1500);
+
+            var derivados = await Processor.GenerarDerivadosAsync(original, Opciones([CapaRepetida(15f, 0f)]));
+
+            Assert.True(ContarMarcas(derivados.Preview) > 0, "una capa sin separación no puede dejar la foto sin marca");
+        }
     }
 }

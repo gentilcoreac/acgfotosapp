@@ -16,4 +16,11 @@ public static class MarcaAguaLegadoConstantes
     public const float EscalaPorcentaje = 1516f / 1600f * 100f;
 
     public const float Opacidad = 0.5f;
+
+    /// <summary>
+    /// Separación equivalente a la densidad pre-ADR-15, cuando el paso era 1.25× el ancho del tile en
+    /// vez de un % de la foto. Como el tile ocupaba <see cref="EscalaPorcentaje"/> del ancho, la
+    /// separación sobre la foto que reproduce ese paso es 1.25 veces esa escala.
+    /// </summary>
+    public const float SeparacionPorcentaje = EscalaPorcentaje * 1.25f;
 }

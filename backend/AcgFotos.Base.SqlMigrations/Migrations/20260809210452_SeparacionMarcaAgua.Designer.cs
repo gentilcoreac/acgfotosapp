@@ -3,6 +3,7 @@ using System;
 using AcgFotos.Base.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AcgFotos.Base.SqlMigrations.Migrations
 {
     [DbContext(typeof(AcgFotosDbContext))]
-    partial class AcgFotosDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260809210452_SeparacionMarcaAgua")]
+    partial class SeparacionMarcaAgua
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -53,6 +53,8 @@ export interface CapaMarcaAgua {
   posicion: Posicion | null;
   escalaPorcentaje: number;
   margenPorcentaje: number;
+  /** Cada cuánto se repite la marca, en % del ancho de la foto — independiente de `escalaPorcentaje`. Sólo aplica con `MODO_COLOCACION.Repetida`. */
+  separacionPorcentaje: number;
   anguloGrados: number;
   opacidad: number;
   modoFusion: ModoFusion;

@@ -67,6 +67,12 @@ public record CapaComposicion
     /// <summary>Margen respecto al borde, en % del ancho de la foto. Sólo aplica con posición fija.</summary>
     public float MargenPorcentaje { get; init; }
 
+    /// <summary>
+    /// Cada cuánto se repite la marca, en % del ancho de la foto — independiente de
+    /// <see cref="EscalaPorcentaje"/>. Sólo aplica en modo repetido.
+    /// </summary>
+    public float SeparacionPorcentaje { get; init; }
+
     public float AnguloGrados { get; init; }
 
     /// <summary>0-1.</summary>

@@ -185,6 +185,20 @@
                 [value]="capa.escalaPorcentaje"
                 (valueChange)="actualizarCapaActiva({ escalaPorcentaje: $event })"
               />
+              @if (capa.modoColocacion === MODO_COLOCACION.Repetida) {
+                <tbi-slider
+                  label="Separación"
+                  unidad="%"
+                  [minimo]="1"
+                  [maximo]="200"
+                  [value]="capa.separacionPorcentaje"
+                  (valueChange)="actualizarCapaActiva({ separacionPorcentaje: $event })"
+                />
+                <p class="edit__hint">
+                  Cada cuánto se repite la marca, medido sobre el ancho de la foto: más separación,
+                  menos marcas. Cambiar el tamaño no altera cuántas hay.
+                </p>
+              }
               <tbi-slider
                 label="Inclinación"
                 unidad="°"
