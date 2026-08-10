@@ -40,6 +40,12 @@ public class ImageSharpImageProcessor : IImageProcessor
 
         using (imagen)
         {
+            // Una foto vertical suele venir con los píxeles acostados más una marca EXIF que dice cómo
+            // rotarla. Como LimpiarMetadatos borra ese EXIF (GPS y datos del equipo no viajan a las
+            // familias), hay que aplicar la rotación a los píxeles ACÁ: si no, se pierde la única
+            // indicación de orientación y las verticales quedan acostadas para siempre.
+            imagen.Mutate(ctx => ctx.AutoOrient());
+
             var anchoOriginal = imagen.Width;
             var altoOriginal = imagen.Height;
 
@@ -74,16 +80,43 @@ public class ImageSharpImageProcessor : IImageProcessor
 
         LimpiarMetadatos(derivado);
 
-        if (marcar && opciones.Capas.Count > 0)
-        {
-            ComponerCapas(derivado, opciones.Capas);
-        }
-
-        using var ms = new MemoryStream();
         // WebP lossy: ~25-30% menos peso que JPEG a igual calidad percibida (galería mobile con
         // datos móviles). Los derivados se regeneran, así que cambiar de formato es barato.
-        derivado.SaveAsWebp(ms, new WebpEncoder { Quality = opciones.Calidad });
-        return ms.ToArray();
+        if (!marcar || opciones.Capas.Count == 0)
+        {
+            using var sinMarca = new MemoryStream();
+            derivado.SaveAsWebp(sinMarca, new WebpEncoder { Quality = opciones.Calidad });
+            return sinMarca.ToArray();
+        }
+
+        // Dos pasadas, y este es el punto de todo: comprimir la foto ANTES de sellarla. Si se
+        // compusiera la marca y después se comprimiera todo junto, la compresión con pérdida se
+        // comería justo lo que la marca tiene (bordes finos, texto chico) y la autoría del fotógrafo
+        // saldría borrosa. Acá la foto llega al sellado ya degradada de forma irreversible —no
+        // recupera nada— y lo único que la segunda pasada preserva es la marca.
+        return ComponerYCodificar(SoloFotoComprimida(derivado, opciones.Calidad), opciones);
+    }
+
+    /// <summary>Deja la foto con el daño de compresión ya hecho, para que el sellado no lo herede.</summary>
+    private static Image<Rgba32> SoloFotoComprimida(Image<Rgba32> derivado, int calidad)
+    {
+        using var ms = new MemoryStream();
+        derivado.SaveAsWebp(ms, new WebpEncoder { Quality = calidad });
+        ms.Position = 0;
+        return Image.Load<Rgba32>(ms);
+    }
+
+    private static byte[] ComponerYCodificar(Image<Rgba32> fotoYaDegradada, OpcionesDerivados opciones)
+    {
+        using (fotoYaDegradada)
+        {
+            LimpiarMetadatos(fotoYaDegradada);
+            ComponerCapas(fotoYaDegradada, opciones.Capas);
+
+            using var ms = new MemoryStream();
+            fotoYaDegradada.SaveAsWebp(ms, new WebpEncoder { Quality = opciones.CalidadMarcado });
+            return ms.ToArray();
+        }
     }
 
     /// <summary>

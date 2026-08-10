@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, from, map, of, switchMap } from 'rxjs';
+import { Observable, forkJoin, from, map, of, shareReplay, switchMap } from 'rxjs';
 import { ApiClient, injectCrudClient } from '../../../../core/http';
-import { CapaComposicion } from '../domain/marca-agua-canvas.util';
 import { CapaMarcaAguaSubida, PerfilMarcaAgua } from '../domain/marca-agua.model';
 
 /**
@@ -37,19 +36,40 @@ export class MarcaAguaService {
       .pipe(map((response) => response.body!));
   }
 
-  /** Baja y decodifica los assets de todas las capas del perfil, listas para `componerMarcaAgua`. */
-  cargarComposicion(perfil: PerfilMarcaAgua): Observable<CapaComposicion[]> {
+  // El PNG de una capa es inmutable (cambiar el contenido = otra capa con otro storageKey), así que
+  // una vez decodificado se reusa. Sin esto, las cinco vistas previas del editor bajan el mismo
+  // archivo cinco veces y el tope global de pedidos salta a los pocos segundos de uso.
+  private readonly assetsDecodificados = new Map<string, Observable<ImageBitmap>>();
+
+  private assetDecodificado(perfilId: number, storageKey: string): Observable<ImageBitmap> {
+    const clave = `${perfilId}:${storageKey}`;
+    let cacheado = this.assetsDecodificados.get(clave);
+    if (!cacheado) {
+      cacheado = this.asset(perfilId, storageKey).pipe(
+        switchMap((blob) => from(createImageBitmap(blob))),
+        shareReplay({ bufferSize: 1, refCount: false }),
+      );
+      this.assetsDecodificados.set(clave, cacheado);
+    }
+    return cacheado;
+  }
+
+  /**
+   * Imágenes de las capas del perfil, indexadas por `storageKey`. Devuelve sólo las imágenes y no
+   * `CapaComposicion` armada porque la colocación cambia con cada ajuste del editor y las imágenes
+   * no: quien renderiza combina estas imágenes con la colocación del momento.
+   */
+  cargarAssets(perfil: PerfilMarcaAgua): Observable<Map<string, ImageBitmap>> {
     if (perfil.id == null || perfil.capas.length === 0) {
-      return of([]);
+      return of(new Map());
     }
     const perfilId = perfil.id;
     return forkJoin(
       perfil.capas.map((capa) =>
-        this.asset(perfilId, capa.storageKey).pipe(
-          switchMap((blob) => from(createImageBitmap(blob))),
-          map((imagen): CapaComposicion => ({ capa, imagen })),
+        this.assetDecodificado(perfilId, capa.storageKey).pipe(
+          map((imagen) => [capa.storageKey, imagen] as const),
         ),
       ),
-    );
+    ).pipe(map((pares) => new Map(pares)));
   }
 }

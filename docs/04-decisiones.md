@@ -450,3 +450,39 @@ foto equivalente a su paso anterior — ningún perfil cambia de aspecto sin que
 misma fórmula vive en `marca-agua-canvas.util.ts` (front), porque la vista previa es la garantía de
 "esto es lo que va a salir" (ADR-15 D1). De paso, el default de opacidad de una capa nueva bajó de 1.0
 a 0.5: una marca opaca sobre una trama repetida tapa la foto en vez de protegerla.
+
+## ADR-17 — La marca de agua se compone DESPUÉS de comprimir la foto
+
+**Contexto**: el derivado se generaba en una sola pasada — redimensionar, componer la marca, y
+comprimir todo junto a la calidad de publicación (55, deliberadamente baja para que lo capturable no
+sirva). El problema es que una compresión con pérdida no distingue: degrada por igual la foto y la
+marca, y se ensaña justo con lo que la marca tiene —bordes finos, texto chico, trazos de un píxel—
+mientras que a la foto, que es todo degradado suave, casi no se le nota. Resultado: la única parte que
+NO puede perder calidad era la que más perdía. Alberto lo planteó en estos términos: *"si se baja la
+calidad de la foto, la marca de agua no quiero que se le baje calidad, debe ser intacta; el nombre del
+fotógrafo debe ser lo más importante"*.
+
+ADR-15 D8 ya había registrado el síntoma desde el otro lado (la vista previa debe mostrar la imagen ya
+comprimida, porque *"la compresión se come justo las marcas sutiles"*) pero lo tomó como una restricción
+a mostrar, no como algo a resolver.
+
+**Decisión**: cuando hay capas que componer, el derivado se genera en **dos pasadas**. Primero se
+comprime la foto sola a la calidad de publicación y se vuelve a decodificar: el daño queda hecho y es
+irreversible, que es exactamente el objetivo de ADR-01. Recién sobre esa imagen ya degradada se
+componen las capas, y el archivo final se guarda a una calidad alta (`Fotos:CalidadMarcado`, 92) que
+sólo tiene que preservar la marca. La foto no recupera nada; lo único que deja de pasar por el
+triturador es la autoría del fotógrafo. Sin capas, el camino sigue siendo una sola pasada.
+
+Beneficio lateral no buscado pero relevante: una marca nítida sobre una foto con artefactos de
+compresión es **más difícil de quitar automáticamente** que una marca que comparte los mismos
+artefactos que la imagen de abajo.
+
+**Consecuencias**:
+
+- El preview pesa más (medido sobre una muestra: 23 KB → 58 KB; el thumb, 6,5 KB → 13 KB). Es el
+  trade-off que el fotógrafo eligió explícitamente: marca impecable por sobre peso.
+- `CalidadMarcado` viaja como parámetro de `OpcionesDerivados`, no fijo en el processor: hoy sale de la
+  config del vertical (perilla de desarrollo para calibrar), y el día que se quiera elegir por evento
+  entra como campo de `OpcionesPublicacion` sin tocar el pipeline.
+- Se paga una codificación y una decodificación extra por derivado. Ocurre en el worker de
+  procesamiento en background, no en un request.

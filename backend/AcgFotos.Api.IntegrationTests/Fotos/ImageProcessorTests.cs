@@ -359,5 +359,85 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
 
             Assert.True(ContarMarcas(derivados.Preview) > 0, "una capa sin separación no puede dejar la foto sin marca");
         }
+
+        /// <summary>
+        /// Nitidez del borde de la marca: cuántos píxeles del derivado quedan en tonos INTERMEDIOS
+        /// entre el fondo y la marca. Un borde limpio pasa de uno a otro en pocos píxeles; la
+        /// compresión con pérdida lo desparrama en un halo, y ese halo es justo lo que hace ilegible
+        /// el nombre del fotógrafo.
+        /// </summary>
+        private static int ContarPixelesBorrosos(byte[] webp)
+        {
+            using var img = Image.Load<Rgb24>(webp);
+            var borrosos = 0;
+            img.ProcessPixelRows(accessor =>
+            {
+                for (var y = 0; y < accessor.Height; y++)
+                {
+                    var fila = accessor.GetRowSpan(y);
+                    for (var x = 0; x < fila.Length; x++)
+                    {
+                        // Fondo = 40; marca blanca al 50% sobre ese fondo ≈ 147. Lo que cae en el
+                        // medio con margen es transición, no una cosa ni la otra.
+                        if (fila[x].R > 60 && fila[x].R < 125)
+                        {
+                            borrosos++;
+                        }
+                    }
+                }
+            });
+            return borrosos;
+        }
+
+        [Fact]
+        public async Task La_marca_no_se_degrada_con_la_compresion_de_la_foto()
+        {
+            var capa = CapaRepetida(15f, 30f);
+            using var conMarcado = CrearJpegPlano(2000, 1500);
+            using var sinMarcado = CrearJpegPlano(2000, 1500);
+
+            // Calidad de FOTO idéntica y bien baja en ambos; lo único que cambia es si el sellado
+            // vuelve a pasar por esa misma compresión agresiva (35) o se guarda aparte en alta (95).
+            var separado = await Processor.GenerarDerivadosAsync(
+                conMarcado, Opciones([capa]) with { Calidad = 35, CalidadMarcado = 95 });
+            var todoJunto = await Processor.GenerarDerivadosAsync(
+                sinMarcado, Opciones([capa]) with { Calidad = 35, CalidadMarcado = 35 });
+
+            Assert.True(
+                ContarPixelesBorrosos(separado.Preview) < ContarPixelesBorrosos(todoJunto.Preview),
+                "sellar después de comprimir la foto debería dejar los bordes de la marca más limpios");
+        }
+
+        [Fact]
+        public async Task Sin_capas_la_calidad_de_marcado_no_cambia_nada()
+        {
+            using var unaCalidad = CrearJpegPlano(1200, 900);
+            using var otraCalidad = CrearJpegPlano(1200, 900);
+
+            var conMarcadoAlto = await Processor.GenerarDerivadosAsync(unaCalidad, Opciones() with { CalidadMarcado = 95 });
+            var conMarcadoBajo = await Processor.GenerarDerivadosAsync(otraCalidad, Opciones() with { CalidadMarcado = 30 });
+
+            Assert.Equal(conMarcadoAlto.Preview, conMarcadoBajo.Preview);
+        }
+
+        [Fact]
+        public async Task Una_foto_vertical_no_sale_acostada()
+        {
+            // Píxeles apaisados (600x400) + la marca EXIF que dice "rotar 90°": así entrega la cámara
+            // una foto tomada en vertical.
+            using var imagen = new Image<Rgb24>(600, 400, new Rgb24(40, 90, 160));
+            imagen.Metadata.ExifProfile = new ExifProfile();
+            imagen.Metadata.ExifProfile.SetValue(ExifTag.Orientation, (ushort)6);
+            using var original = new MemoryStream();
+            imagen.SaveAsJpeg(original);
+            original.Position = 0;
+
+            var derivados = await Processor.GenerarDerivadosAsync(original, Opciones());
+
+            Assert.Equal(400, derivados.AnchoOriginal);
+            Assert.Equal(600, derivados.AltoOriginal);
+            using var preview = Image.Load(derivados.Preview);
+            Assert.True(preview.Height > preview.Width, "el preview de una foto vertical debe salir vertical");
+        }
     }
 }

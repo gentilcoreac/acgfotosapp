@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  computed,
   effect,
   inject,
   input,
@@ -56,15 +57,35 @@ export class PerfilMarcaAguaCanvasComponent {
 
   private readonly lienzo = viewChild.required<ElementRef<HTMLCanvasElement>>('lienzo');
 
-  private readonly composicionResource = rxResource({
-    params: () => ({ perfilId: this.perfil().id, capas: this.perfil().capas }),
+  // La clave es qué assets hay que bajar, NO el perfil entero: la colocación (escala, separación,
+  // ángulo, opacidad) cambia con cada movimiento de slider y crea objetos nuevos, pero el PNG de una
+  // capa es inmutable — cambiar su contenido significa subir otra capa, con otro storageKey. Comparar
+  // el perfil entero hacía que cada tick de un slider volviera a bajar todos los assets, por cada
+  // vista previa en pantalla.
+  private readonly assetsPedidos = computed(() => {
+    const perfil = this.perfil();
+    return perfil.id == null ? '' : `${perfil.id}:${perfil.capas.map((c) => c.storageKey).join(',')}`;
+  });
+
+  private readonly assetsResource = rxResource({
+    params: () => this.assetsPedidos(),
     stream: ({ params }) =>
-      params.perfilId == null ? of<CapaComposicion[]>([]) : this.service.cargarComposicion(this.perfil()),
+      params === '' ? of(new Map<string, ImageBitmap>()) : this.service.cargarAssets(this.perfil()),
+  });
+
+  /** Colocación del momento + imagen ya bajada: lo primero cambia con cada ajuste, lo segundo no. */
+  private readonly composicion = computed<CapaComposicion[]>(() => {
+    const assets = this.assetsResource.hasValue()
+      ? this.assetsResource.value()
+      : new Map<string, ImageBitmap>();
+    return this.perfil()
+      .capas.map((capa) => ({ capa, imagen: assets.get(capa.storageKey) }))
+      .filter((c): c is CapaComposicion => c.imagen != null);
   });
 
   constructor() {
     effect(() => {
-      const composicion = this.composicionResource.hasValue() ? this.composicionResource.value() : [];
+      const composicion = this.composicion();
       const variante = this.variante();
       const fotoPropia = this.fotoPropia();
       const ancho = this.ancho();
