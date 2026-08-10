@@ -78,9 +78,14 @@ export class PerfilMarcaAguaCanvasComponent {
     const assets = this.assetsResource.hasValue()
       ? this.assetsResource.value()
       : new Map<string, ImageBitmap>();
-    return this.perfil()
-      .capas.map((capa) => ({ capa, imagen: assets.get(capa.storageKey) }))
-      .filter((c): c is CapaComposicion => c.imagen != null);
+    const composicion: CapaComposicion[] = [];
+    for (const capa of this.perfil().capas) {
+      const imagen = assets.get(capa.storageKey);
+      if (imagen) {
+        composicion.push({ capa, imagen });
+      }
+    }
+    return composicion;
   });
 
   constructor() {
