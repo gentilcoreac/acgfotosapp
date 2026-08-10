@@ -73,7 +73,7 @@ rotación antes de borrarla, así que la foto queda acostada para siempre.
 - [x] 4.1 Aplicar la orientación declarada a los píxeles ANTES de limpiar los metadatos.
 - [x] 4.2 Test de regresión con una foto que declare orientación rotada: el derivado sale con el alto
       y el ancho intercambiados respecto de la imagen cruda, y sin EXIF.
-- [ ] 4.3 Verificar con una foto vertical real del fotógrafo (queda en sus manos: subir una vertical
+- [x] 4.3 Verificar con una foto vertical real del fotógrafo (queda en sus manos: subir una vertical
       tomada con celular/cámara y confirmar que se ve derecha en la galería y en el álbum).
 
 ## 5. "Demasiadas solicitudes" al usar el editor de marca de agua

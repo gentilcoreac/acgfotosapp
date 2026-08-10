@@ -88,6 +88,11 @@ export class PerfilMarcaAguaCanvasComponent {
     return composicion;
   });
 
+  // El repintado comprimido termina de forma asincrónica, así que dos ajustes seguidos dejan dos
+  // repintados en vuelo y el último en terminar no es necesariamente el más nuevo: sin este número
+  // de orden, un resultado viejo pisa al actual y la vista previa queda congelada.
+  private ultimoRender = 0;
+
   constructor() {
     effect(() => {
       const composicion = this.composicion();
@@ -97,11 +102,12 @@ export class PerfilMarcaAguaCanvasComponent {
       const alto = this.alto();
       const comprimir = this.comprimir();
       const calidad = this.calidad();
-      void this.render(composicion, variante, fotoPropia, ancho, alto, comprimir, calidad);
+      void this.render(++this.ultimoRender, composicion, variante, fotoPropia, ancho, alto, comprimir, calidad);
     });
   }
 
   private async render(
+    render: number,
     composicion: CapaComposicion[],
     variante: MuestraVariante,
     fotoPropia: ImagenDecodificada | null,
@@ -133,10 +139,13 @@ export class PerfilMarcaAguaCanvasComponent {
     const blob = await new Promise<Blob | null>((resolve) =>
       canvas.toBlob(resolve, 'image/webp', calidad / 100),
     );
-    if (!blob) {
+    if (!blob || render !== this.ultimoRender) {
       return;
     }
     const bitmap = await createImageBitmap(blob);
+    if (render !== this.ultimoRender) {
+      return;
+    }
     ctx.clearRect(0, 0, ancho, alto);
     ctx.drawImage(bitmap, 0, 0, ancho, alto);
   }
