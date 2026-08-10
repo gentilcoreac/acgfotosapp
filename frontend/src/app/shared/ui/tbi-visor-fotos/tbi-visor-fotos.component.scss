@@ -1,0 +1,117 @@
+// Layout de 4 esquinas heredado del preview de familias (que a su vez sigue el prototipo
+// docs/ClaudeDesign/PropuestaDisenioExperienciaCompra): cerrar arriba-derecha, contador
+// arriba-izquierda, y las dos esquinas inferiores a disposición del caller.
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  outline: none;
+}
+
+mat-dialog-content {
+  position: relative;
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  max-height: none;
+  padding: 0;
+  min-height: 0;
+}
+
+.media {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+
+  // La foto se ve ENTERA: el caller pone su propia imagen con fit="contain" y acá se le da todo el
+  // espacio disponible, para que nunca haya scroll lateral.
+  > * {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
+%sobre-la-foto {
+  position: absolute;
+  z-index: 2;
+  background: color-mix(in srgb, var(--mat-sys-scrim) 45%, transparent);
+  color: white;
+}
+
+.contador {
+  @extend %sobre-la-foto;
+  top: 12px;
+  left: 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.bajo-contador {
+  position: absolute;
+  top: 44px;
+  left: 12px;
+  z-index: 2;
+}
+
+.cerrar {
+  @extend %sobre-la-foto;
+  top: 8px;
+  right: 8px;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--mat-sys-scrim) 65%, transparent);
+  }
+}
+
+.esquina {
+  position: absolute;
+  bottom: 12px;
+  z-index: 1;
+
+  &--izq {
+    left: 12px;
+  }
+
+  &--der {
+    right: 12px;
+  }
+}
+
+.nav {
+  @extend %sobre-la-foto;
+  top: 50%;
+  z-index: 1;
+  transform: translateY(-50%);
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--mat-sys-scrim) 65%, transparent);
+  }
+
+  &:active {
+    background: color-mix(in srgb, var(--mat-sys-scrim) 80%, transparent);
+  }
+
+  &--prev {
+    left: 4px;
+  }
+
+  &--next {
+    right: 4px;
+  }
+}
+
+// Sin contenido proyectado la franja no debe ocupar lugar ni dibujar su borde.
+.pie:has(*) {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  flex: none;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}

@@ -250,9 +250,15 @@ export class GaleriaComponent {
     if (foto.estadoProcesamiento !== EstadoProcesamientoFoto.Lista) {
       return;
     }
+    // El recorrido va sobre las fotos ya procesadas de la vista actual (con su filtro aplicado): las
+    // pendientes todavía no tienen derivado que mostrar.
+    const navegables = this.fotos().filter((f) => f.estadoProcesamiento === EstadoProcesamientoFoto.Lista);
     // Casi pantalla completa (pedido 2026-07-16: el preview quedaba chico y con scroll lateral).
     this.dialog.open(FotoPreviewDialogComponent, {
-      data: foto,
+      data: {
+        fotos: navegables,
+        index: Math.max(navegables.findIndex((f) => f.id === foto.id), 0),
+      },
       autoFocus: false,
       maxWidth: '100vw',
       width: '96vw',
