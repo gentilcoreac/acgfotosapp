@@ -17,7 +17,7 @@ interface FotoDePrueba {
         <span class="item">{{ i }}:{{ foto.nombre }}</span>
       </ng-template>
       <span visorEsquinaInferiorDerecha class="archivo">nombre.jpg</span>
-      <button visorFooter class="accion">Acción propia</button>
+      <span visorBajoContador class="marca">✓</span>
     </tbi-visor-fotos>
   `,
 })
@@ -77,9 +77,9 @@ describe('TbiVisorFotosComponent', () => {
     expect(fixture.componentInstance.index()).toBe(1);
   });
 
-  it('proyecta las acciones y las esquinas del caller', () => {
-    expect(texto('.accion')).toBe('Acción propia');
+  it('proyecta los distintivos que aporta cada pantalla sobre la foto', () => {
     expect(texto('.archivo')).toBe('nombre.jpg');
+    expect(texto('.marca')).toBe('✓');
   });
 
   it('con una sola foto no ofrece recorrido ni contador', async () => {
@@ -90,6 +90,37 @@ describe('TbiVisorFotosComponent', () => {
     expect(fixture.nativeElement.querySelector('.nav--next')).toBeNull();
     expect(fixture.nativeElement.querySelector('.contador')).toBeNull();
     expect(texto('.item')).toBe('0:unica');
+  });
+
+  it('el contador y el cerrar se pueden apagar, para pantallas que los ofrecen en otro lado', async () => {
+    TestBed.resetTestingModule();
+    @Component({
+      imports: [TbiVisorFotosComponent, MatDialogModule],
+      template: `
+        <tbi-visor-fotos [items]="fotos" [mostrarContador]="false" [mostrarCerrar]="false">
+          <ng-template let-foto><span class="item">{{ foto.nombre }}</span></ng-template>
+        </tbi-visor-fotos>
+      `,
+    })
+    class SinChrome {
+      readonly fotos = [
+        { id: 1, nombre: 'a' },
+        { id: 2, nombre: 'b' },
+      ];
+    }
+
+    await TestBed.configureTestingModule({
+      imports: [SinChrome],
+      providers: [provideNoopAnimations()],
+    }).compileComponents();
+    const f = TestBed.createComponent(SinChrome);
+    f.detectChanges();
+    await f.whenStable();
+
+    expect(f.nativeElement.querySelector('.contador')).toBeNull();
+    expect(f.nativeElement.querySelector('.cerrar')).toBeNull();
+    // El recorrido sigue disponible: apagar el chrome no apaga la navegación.
+    expect(f.nativeElement.querySelector('.nav--next')).not.toBeNull();
   });
 
   it('sin fotos no rompe ni renderiza el template del caller', async () => {

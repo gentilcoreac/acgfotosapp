@@ -1,36 +1,37 @@
 // Layout de 4 esquinas heredado del preview de familias (que a su vez sigue el prototipo
 // docs/ClaudeDesign/PropuestaDisenioExperienciaCompra): cerrar arriba-derecha, contador
 // arriba-izquierda, y las dos esquinas inferiores a disposición del caller.
+// El visor aporta el marco de la foto y su navegación, NO la estructura del diálogo: dónde va el
+// título, las acciones o si hay una franja al pie lo decide cada pantalla. Así el mismo visor sirve
+// para un diálogo con encabezado clásico y para uno a sangre completa.
 :host {
   display: flex;
-  flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
   outline: none;
 }
 
-mat-dialog-content {
+.marco {
   position: relative;
   flex: 1;
   display: flex;
   overflow: hidden;
-  max-height: none;
-  padding: 0;
   min-height: 0;
+  min-width: 0;
 }
 
+// La caja donde va la foto: ocupa todo el espacio libre y centra lo que el caller ponga adentro.
+// El encapsulado de estilos de Angular impide que este componente le dé tamaño a un elemento que
+// creó otro (`.media > *` no matchea contenido proyectado), así que estirar la imagen es
+// responsabilidad de quien la pone — acá sólo se garantiza el espacio y el centrado.
 .media {
   flex: 1;
   min-width: 0;
   min-height: 0;
   display: flex;
-
-  // La foto se ve ENTERA: el caller pone su propia imagen con fit="contain" y acá se le da todo el
-  // espacio disponible, para que nunca haya scroll lateral.
-  > * {
-    flex: 1;
-    min-width: 0;
-    min-height: 0;
-  }
+  align-items: center;
+  justify-content: center;
 }
 
 %sobre-la-foto {
@@ -105,13 +106,3 @@ mat-dialog-content {
   }
 }
 
-// Sin contenido proyectado la franja no debe ocupar lugar ni dibujar su borde.
-.pie:has(*) {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
-  flex: none;
-  padding: 0.75rem 1rem;
-  border-top: 1px solid var(--mat-sys-outline-variant);
-}

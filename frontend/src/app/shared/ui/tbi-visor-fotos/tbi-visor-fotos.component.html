@@ -1,12 +1,14 @@
-<mat-dialog-content [attr.aria-label]="ariaLabel()">
-  @if (hayVarias()) {
+<div class="marco" [attr.aria-label]="ariaLabel()">
+  @if (mostrarContador() && hayVarias()) {
     <span class="contador">{{ indiceActual() + 1 }} / {{ items().length }}</span>
   }
   <span class="bajo-contador"><ng-content select="[visorBajoContador]" /></span>
 
-  <button class="cerrar" matIconButton mat-dialog-close aria-label="Cerrar">
-    <mat-icon>close</mat-icon>
-  </button>
+  @if (mostrarCerrar()) {
+    <button class="cerrar" matIconButton mat-dialog-close aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  }
 
   @if (hayVarias()) {
     <button class="nav nav--prev" matIconButton aria-label="Foto anterior" (click)="anterior()">
@@ -28,8 +30,4 @@
       <mat-icon>chevron_right</mat-icon>
     </button>
   }
-</mat-dialog-content>
-
-<div class="pie">
-  <ng-content select="[visorFooter]" />
 </div>

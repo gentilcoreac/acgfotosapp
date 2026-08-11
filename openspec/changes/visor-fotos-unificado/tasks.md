@@ -21,7 +21,7 @@
       toggle original/vista-cliente y la descarga. Deja de tener chrome y navegación propios (eso pasó
       al visor) y queda sólo con lo que distingue al contexto admin — que es justo lo que el visor
       delega a propósito. Sus specs se adaptaron al contrato nuevo (colección + índice).
-- [ ] 2.4 Verificar que la galería y el detalle de pedidos ahora navegan entre fotos, y que el toggle y
+- [x] 2.4 Verificar que la galería y el detalle de pedidos ahora navegan entre fotos, y que el toggle y
       la descarga siguen funcionando en ambos.
 
 ## 3. Migración del contexto de familias

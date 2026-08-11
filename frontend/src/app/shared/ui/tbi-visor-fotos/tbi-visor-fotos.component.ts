@@ -50,6 +50,11 @@ export class TbiVisorFotosComponent<T> {
   readonly index = model(0);
   readonly ariaLabel = input('Visor de fotos');
 
+  /** Contador sobre la foto. Apagalo si la pantalla ya informa la posición en otro lado (p. ej. el título). */
+  readonly mostrarContador = input(true);
+  /** Cruz de cerrar sobre la foto. Apagala si la pantalla ya ofrece cerrar en su barra de acciones. */
+  readonly mostrarCerrar = input(true);
+
   readonly itemTemplate = contentChild.required(TemplateRef<TbiVisorItemContext<T>>);
 
   protected readonly indiceActual = computed(() => {

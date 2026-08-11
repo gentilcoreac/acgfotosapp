@@ -26,58 +26,82 @@ export interface FotoPreviewDialogData {
 }
 
 /**
- * Preview ampliado del ADMIN, sobre el visor del sistema (`tbi-visor-fotos`, que aporta cerrar,
- * contador, flechas y teclado). Lo propio de este contexto es el toggle entre el derivado CON
- * watermark (lo que ve la familia, ADR-01) y el "Original" limpio, más la descarga: ambos son
- * exclusivos del admin, que ya tiene acceso al original por ADR-06.
+ * Preview ampliado del ADMIN sobre el visor del sistema (`tbi-visor-fotos`, que aporta el marco de la
+ * foto, contador, cerrar, flechas y teclado). Lo propio de este contexto es el toggle entre el
+ * derivado CON watermark (lo que ve la familia, ADR-01) y el "Original" limpio, más la descarga:
+ * ambos exclusivos del admin, que ya tiene acceso al original por ADR-06.
+ *
+ * A sangre completa y con los datos sobre la foto (elegido por Alberto el 2026-08-10 comparando las
+ * dos alternativas en la app real): con el nombre y el toggle fuera del área de imagen, la foto gana
+ * bastante alto — que es lo que el fotógrafo mira.
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatButtonModule, MatDialogModule, MatIconModule, FotoImgComponent, TbiVisorFotosComponent],
   template: `
-    <tbi-visor-fotos [items]="data.fotos" [(index)]="index" ariaLabel="Vista ampliada de la foto">
-      <ng-template let-foto>
-        <tbi-foto-img
-          [fotoId]="foto.id"
-          [variante]="variante()"
-          fit="contain"
-          [alt]="foto.nombreArchivoOriginal"
-        />
-      </ng-template>
+    <mat-dialog-content>
+      <tbi-visor-fotos [items]="data.fotos" [(index)]="index" ariaLabel="Vista ampliada de la foto">
+        <ng-template let-foto>
+          <tbi-foto-img
+            [fotoId]="foto.id"
+            [variante]="variante()"
+            fit="contain"
+            [alt]="foto.nombreArchivoOriginal"
+          />
+        </ng-template>
 
-      <span visorEsquinaInferiorDerecha class="archivo">{{ actual().nombreArchivoOriginal }}</span>
+        <span visorEsquinaInferiorDerecha class="archivo">{{ actual().nombreArchivoOriginal }}</span>
+      </tbi-visor-fotos>
+    </mat-dialog-content>
 
-      <div visorFooter class="acciones">
-        <div class="toggle" role="group" aria-label="Vista">
-          <button
-            matButton
-            type="button"
-            [class.toggle__activo]="variante() === 'preview'"
-            (click)="variante.set('preview')"
-          >
-            Vista del cliente
-          </button>
-          <button
-            matButton
-            type="button"
-            [class.toggle__activo]="variante() === 'original'"
-            (click)="variante.set('original')"
-          >
-            Original
-          </button>
-        </div>
-        <button matButton (click)="descargarOriginal()">
-          <mat-icon>download</mat-icon>
-          Descargar original
+    <div class="pie">
+      <div class="toggle" role="group" aria-label="Vista">
+        <button
+          matButton
+          type="button"
+          [class.toggle__activo]="variante() === 'preview'"
+          (click)="variante.set('preview')"
+        >
+          Vista del cliente
+        </button>
+        <button
+          matButton
+          type="button"
+          [class.toggle__activo]="variante() === 'original'"
+          (click)="variante.set('original')"
+        >
+          Original
         </button>
       </div>
-    </tbi-visor-fotos>
+      <button matButton (click)="descargarOriginal()">
+        <mat-icon>download</mat-icon>
+        Descargar original
+      </button>
+    </div>
   `,
   styles: `
     :host {
       display: flex;
       flex-direction: column;
       height: 100%;
+    }
+
+    mat-dialog-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      max-height: none;
+      min-height: 0;
+      padding: 0;
+    }
+
+    /* El visor da la caja; estirar la foto dentro es de quien la pone (el encapsulado de estilos no
+       deja que un componente le dé tamaño al contenido que proyecta otro). */
+    tbi-foto-img {
+      flex: 1;
+      align-self: stretch;
+      min-width: 0;
+      min-height: 0;
     }
 
     .archivo {
@@ -89,12 +113,14 @@ export interface FotoPreviewDialogData {
       font-size: 0.75rem;
     }
 
-    .acciones {
+    .pie {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      width: 100%;
       justify-content: space-between;
+      gap: 1rem;
+      flex: none;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--mat-sys-outline-variant);
     }
 
     .toggle {
