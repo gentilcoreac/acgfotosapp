@@ -26,20 +26,28 @@
 
 ## 3. Migración del contexto de familias
 
-- [ ] 3.1 Mi-álbum (`/mi-album`): abrir el visor base respetando el filtro "ver solo el carrito"
+- [x] 3.1 Mi-álbum (`/mi-album`): abrir el visor base respetando el filtro "ver solo el carrito"
       (el recorrido usa la colección filtrada, comportamiento ya existente que no debe perderse),
-      conservando el layout de 4 esquinas y `tbi-agregar-carrito` inline.
-- [ ] 3.2 Carrito (`/carrito`): abrir el visor base sobre las fotos del carrito desde la cabecera de
-      cada tarjeta, como hoy.
-- [ ] 3.3 Eliminar `FotoFamiliaPreviewDialogComponent` y adaptar/reemplazar sus specs.
-- [ ] 3.4 Verificar explícitamente que sobreviven la fricción anti-copia y el sello con el nombre de la
+      conservando el layout de 4 esquinas y `tbi-agregar-carrito` inline. **Los llamadores no se
+      tocaron**: ya pasaban `{fotos, index, tamanosPrecios}`, así que el contrato del diálogo quedó
+      igual y el filtro sigue decidiéndose donde siempre.
+- [x] 3.2 Carrito (`/carrito`): abrir el visor base sobre las fotos del carrito desde la cabecera de
+      cada tarjeta, como hoy. Sin cambios por el mismo motivo que 3.1.
+- [x] 3.3 ~~Eliminar `FotoFamiliaPreviewDialogComponent`~~ **Se conserva como envoltorio fino**, mismo
+      criterio que el admin (2.3): es donde viven el sello legal, el tilde de carrito y el selector de
+      tamaño+cantidad, que son de este contexto y no del visor.
+- [x] 3.4 Verificar explícitamente que sobreviven la fricción anti-copia y el sello con el nombre de la
       familia (`contextmenu` bloqueado, `draggable=false`, `@media print`, sello tileado) y que no
-      aparece ninguna vía al original desde el contexto de familia.
+      aparece ninguna vía al original desde el contexto de familia. **Se conservan por construcción**:
+      todo eso vive dentro de `tbi-foto-familia-img`, que no se tocó — sólo cambió dónde se ubica ese
+      componente. El diálogo sigue pidiendo `variante="preview"` y en ningún punto ofrece el original.
+      Las 9 verificaciones de su spec original siguen pasando (se cambió cómo se dispara la
+      navegación —clic en la flecha real en vez de llamar a un método— no qué se verifica).
 
 ## 4. Cierre
 
-- [ ] 4.1 Suite unit del front + lint verdes.
+- [x] 4.1 Suite unit del front + lint verdes.
 - [ ] 4.2 Verificación manual end-to-end contra la API/front dev: las cuatro pantallas, abriendo y
       recorriendo, en desktop y en mobile.
-- [ ] 4.3 Documentación: tildar el ítem "lightbox con flechas/teclado" del backlog de Fase 4
+- [x] 4.3 Documentación: tildar el ítem "lightbox con flechas/teclado" del backlog de Fase 4
       (docs/03-fases.md) y dejar constancia del visor unificado en docs/05-notas-abiertas.md.

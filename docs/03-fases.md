@@ -148,7 +148,7 @@ Objetivo: una familia real puede hacer un pedido de punta a punta. **Con esto ya
   - Selección múltiple de fotos (borrar/mover en lote)
   - Drag & drop de archivos al cargar (además del botón)
   - Filtrar eventos por fecha con un calendario que resalte los días con eventos
-  - Ver una foto en pantalla completa y pasar a la anterior/siguiente sin salir (lightbox con flechas/teclado). *Avance 2026-07-16: el diálogo de preview ya abre casi a pantalla completa (96vw×94vh, foto entera sin scroll); faltan las flechas anterior/siguiente*
+  - ~~Ver una foto en pantalla completa y pasar a la anterior/siguiente sin salir (lightbox con flechas/teclado)~~ **HECHO (2026-08-10)**: `tbi-visor-fotos` (`shared/ui`) es el visor del sistema — aporta el marco de la foto, contador, cerrar, flechas y teclado, y delega en cada pantalla qué se dibuja y qué acciones ofrece. Lo adoptaron la galería admin, el detalle de pedidos, mi-álbum y el carrito; las dos primeras GANARON la navegación, que no tenían. Diseño a sangre completa con los datos sobre la foto (elegido comparando alternativas en la app real).
 - Foto en varios álbumes (etiquetar una misma foto en más de un participante — ej. la foto donde salen dos chicos juntos — sin duplicar el archivo; hoy se resuelve subiéndola a grupales o duplicándola)
 - Copiar el catálogo de tamaños/precios del evento anterior al crear un evento nuevo (los tamaños se repiten entre eventos; hoy se recargan a mano)
 - ~~Paquetes/promos~~ → adelantado a Fase 3 (2026-07-15)
