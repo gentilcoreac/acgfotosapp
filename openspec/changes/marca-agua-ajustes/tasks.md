@@ -88,7 +88,7 @@ la vista previa se refrescaba comparando el perfil ENTERO, y ajustar un slider c
       inmutable, cambiar su contenido significa subir otra capa con otra clave.
 - [x] 5.3 La colocación del momento se combina con la imagen cacheada al renderizar, para que ajustar
       un slider siga actualizando la vista previa sin volver a pedir nada.
-- [ ] 5.4 Verificar en la pantalla real que se puede trabajar sin toparse con el tope.
+- [x] 5.4 Verificar en la pantalla real que se puede trabajar sin toparse con el tope.
 
 ---
 

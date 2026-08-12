@@ -47,7 +47,7 @@
 ## 4. Cierre
 
 - [x] 4.1 Suite unit del front + lint verdes.
-- [ ] 4.2 Verificación manual end-to-end contra la API/front dev: las cuatro pantallas, abriendo y
+- [x] 4.2 Verificación manual end-to-end contra la API/front dev: las cuatro pantallas, abriendo y
       recorriendo, en desktop y en mobile.
 - [x] 4.3 Documentación: tildar el ítem "lightbox con flechas/teclado" del backlog de Fase 4
       (docs/03-fases.md) y dejar constancia del visor unificado en docs/05-notas-abiertas.md.
