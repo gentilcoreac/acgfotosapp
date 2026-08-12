@@ -51,3 +51,24 @@
       recorriendo, en desktop y en mobile.
 - [x] 4.3 Documentación: tildar el ítem "lightbox con flechas/teclado" del backlog de Fase 4
       (docs/03-fases.md) y dejar constancia del visor unificado en docs/05-notas-abiertas.md.
+
+---
+
+## Alcance NO cubierto por este change (queda para otro, pedido de Alberto 2026-08-11)
+
+"CUALQUIER imagen de la app, al hacerle click, se abre en grande." Este change llevó el visor a las
+cuatro pantallas que ya tenían un preview ampliado; **falta llevarlo a las que muestran imágenes y no
+lo ofrecen**. Inventario relevado el 2026-08-11:
+
+| Dónde | Qué imagen | Hoy |
+|---|---|---|
+| `/fotos/tarjetas` | QR de cada participante | no se amplía |
+| `/fotos/publicacion` — comparador | los 5 tamaños generados | carrusel propio, sin ampliar |
+| `/fotos/marca-agua` — listado y editor | marca renderizada en canvas | no se amplía |
+| `tbi-agregar-carrito` | miniatura de la foto | no se amplía |
+| `tbi-file-upload` | vista previa del archivo elegido | no se amplía |
+| Layout / login | logo del tenant | **no corresponde** (branding, no contenido) |
+
+Decisiones a tomar en ese change, no acá: si las imágenes que NO son fotos de un evento (QR, marca de
+agua en canvas, vista previa de subida) entran al mismo visor o merecen otro tratamiento — el visor
+recorre una colección, y varias de esas son una imagen suelta.
