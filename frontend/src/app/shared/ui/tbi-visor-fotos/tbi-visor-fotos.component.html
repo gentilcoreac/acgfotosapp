@@ -1,0 +1,33 @@
+<div class="marco" [attr.aria-label]="ariaLabel()">
+  @if (mostrarContador() && hayVarias()) {
+    <span class="contador">{{ indiceActual() + 1 }} / {{ items().length }}</span>
+  }
+  <span class="bajo-contador"><ng-content select="[visorBajoContador]" /></span>
+
+  @if (mostrarCerrar()) {
+    <button class="cerrar" matIconButton mat-dialog-close aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+  }
+
+  @if (hayVarias()) {
+    <button class="nav nav--prev" matIconButton aria-label="Foto anterior" (click)="anterior()">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+  }
+
+  @if (contexto(); as ctx) {
+    <div class="media">
+      <ng-container [ngTemplateOutlet]="itemTemplate()" [ngTemplateOutletContext]="ctx" />
+    </div>
+  }
+
+  <span class="esquina esquina--izq"><ng-content select="[visorEsquinaInferiorIzquierda]" /></span>
+  <span class="esquina esquina--der"><ng-content select="[visorEsquinaInferiorDerecha]" /></span>
+
+  @if (hayVarias()) {
+    <button class="nav nav--next" matIconButton aria-label="Foto siguiente" (click)="siguiente()">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  }
+</div>

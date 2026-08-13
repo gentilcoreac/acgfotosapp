@@ -1406,6 +1406,10 @@ namespace AcgFotos.Base.SqlMigrations.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("posicion");
 
+                    b.Property<float>("SeparacionPorcentaje")
+                        .HasColumnType("real")
+                        .HasColumnName("separacionporcentaje");
+
                     b.Property<Guid>("StorageKey")
                         .HasColumnType("uuid")
                         .HasColumnName("storagekey");

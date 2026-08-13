@@ -19,6 +19,15 @@ public class OpcionesFotos
     public int CalidadDerivados { get; set; } = 55;
 
     /// <summary>
+    /// Calidad WebP con la que se guarda el derivado UNA VEZ compuesta la marca. Alta a propósito y
+    /// separada de <see cref="CalidadDerivados"/>: la foto ya se degradó antes de sellarla, así que
+    /// esta calidad sólo protege la marca — que es la autoría del fotógrafo y no puede salir borrosa.
+    /// Perilla de desarrollo por ahora; el día que se quiera elegir por evento, entra como campo de
+    /// <c>OpcionesPublicacion</c> sin tocar el pipeline.
+    /// </summary>
+    public int CalidadMarcado { get; set; } = 92;
+
+    /// <summary>
     /// Molde de la URL que codifican los QR de las tarjetas ({codigo} se reemplaza por el código
     /// del participante). La ruta de canje se implementa en Fase 2; el dominio real se define al deploy.
     /// </summary>

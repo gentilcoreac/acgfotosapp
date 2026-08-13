@@ -36,6 +36,12 @@ describe('FotoFamiliaPreviewDialogComponent', () => {
     fixture.detectChanges();
   }
 
+  /** La navegación la ofrece el visor del sistema: se ejercita por la flecha real, no por un método. */
+  function navegar(hacia: 'prev' | 'next'): void {
+    (fixture.nativeElement.querySelector(`.nav--${hacia}`) as HTMLButtonElement).click();
+    fixture.detectChanges();
+  }
+
   afterEach(() => {
     vi.unstubAllGlobals();
     sessionStorage.clear();
@@ -47,18 +53,18 @@ describe('FotoFamiliaPreviewDialogComponent', () => {
     expect(fixture.componentInstance['actual']().id).toBe(2);
   });
 
-  it('siguiente() avanza y da la vuelta al llegar al final', async () => {
+  it('avanza y da la vuelta al llegar al final', async () => {
     await create({ fotos: [foto(1), foto(2), foto(3)], index: 2 });
 
-    fixture.componentInstance['siguiente']();
+    navegar('next');
 
     expect(fixture.componentInstance['actual']().id).toBe(1);
   });
 
-  it('anterior() retrocede y da la vuelta al llegar al principio', async () => {
+  it('retrocede y da la vuelta al llegar al principio', async () => {
     await create({ fotos: [foto(1), foto(2), foto(3)], index: 0 });
 
-    fixture.componentInstance['anterior']();
+    navegar('prev');
 
     expect(fixture.componentInstance['actual']().id).toBe(3);
   });
@@ -68,7 +74,7 @@ describe('FotoFamiliaPreviewDialogComponent', () => {
 
     expect(fixture.nativeElement.querySelector('.archivo')?.textContent).toBe('IMG_1.jpg');
 
-    fixture.componentInstance['siguiente']();
+    navegar('next');
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.archivo')?.textContent).toBe('IMG_2.jpg');
@@ -112,7 +118,7 @@ describe('FotoFamiliaPreviewDialogComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.en-carrito')).not.toBeNull();
 
-    fixture.componentInstance['siguiente'](); // foto 2, sin copias en el carrito
+    navegar('next'); // foto 2, sin copias en el carrito
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.en-carrito')).toBeNull();
   });

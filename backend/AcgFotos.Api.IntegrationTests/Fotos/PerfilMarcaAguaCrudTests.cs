@@ -74,6 +74,7 @@ namespace AcgFotos.Api.IntegrationTests.Fotos
                 : capa.Posicion.HasValue ? (int)capa.Posicion.Value : (int?)null,
             escalaPorcentaje = capa.EscalaPorcentaje,
             margenPorcentaje = capa.MargenPorcentaje,
+            separacionPorcentaje = capa.SeparacionPorcentaje,
             anguloGrados = capa.AnguloGrados,
             opacidad = opacidad ?? capa.Opacidad,
             modoFusion = (int)capa.ModoFusion,

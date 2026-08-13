@@ -39,8 +39,16 @@ public record OpcionesDerivados
     /// <summary>Lado mayor del thumbnail de la grilla.</summary>
     public int LadoMayorThumb { get; init; } = 300;
 
-    /// <summary>Calidad WebP de los derivados (0-100). Baja a propósito.</summary>
+    /// <summary>Calidad WebP con la que se comprime la FOTO (0-100). Baja a propósito.</summary>
     public int Calidad { get; init; } = 55;
+
+    /// <summary>
+    /// Calidad WebP del derivado final, ya con la marca compuesta. La foto se comprime primero a
+    /// <see cref="Calidad"/> y la marca se dibuja sobre ese resultado ya degradado: así el sellado no
+    /// vuelve a pasar por una compresión agresiva y el nombre del fotógrafo queda nítido, sin que la
+    /// foto recupere nada (el daño de la primera pasada es irreversible).
+    /// </summary>
+    public int CalidadMarcado { get; init; } = 92;
 }
 
 /// <summary>
@@ -66,6 +74,12 @@ public record CapaComposicion
 
     /// <summary>Margen respecto al borde, en % del ancho de la foto. Sólo aplica con posición fija.</summary>
     public float MargenPorcentaje { get; init; }
+
+    /// <summary>
+    /// Cada cuánto se repite la marca, en % del ancho de la foto — independiente de
+    /// <see cref="EscalaPorcentaje"/>. Sólo aplica en modo repetido.
+    /// </summary>
+    public float SeparacionPorcentaje { get; init; }
 
     public float AnguloGrados { get; init; }
 

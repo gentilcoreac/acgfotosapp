@@ -19,12 +19,19 @@
     <div class="perfiles">
       @for (perfil of perfilesResource.value(); track perfil.id) {
         <div class="perfil">
-          <tbi-perfil-marca-agua-canvas
-            [perfil]="perfil"
-            [ancho]="132"
-            [alto]="88"
-            [ariaLabel]="'Marca del perfil ' + perfil.nombre"
-          />
+          <button
+            type="button"
+            class="perfil__canvas-btn"
+            [attr.aria-label]="'Ampliar marca del perfil ' + perfil.nombre"
+            (click)="ampliar(perfil)"
+          >
+            <tbi-perfil-marca-agua-canvas
+              [perfil]="perfil"
+              [ancho]="132"
+              [alto]="88"
+              [ariaLabel]="'Marca del perfil ' + perfil.nombre"
+            />
+          </button>
           <div class="perfil__info">
             <div class="perfil__nombre">
               {{ perfil.nombre }}

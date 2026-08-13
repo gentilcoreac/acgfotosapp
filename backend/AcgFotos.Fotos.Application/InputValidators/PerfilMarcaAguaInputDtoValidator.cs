@@ -34,6 +34,13 @@ public class PerfilMarcaAguaInputDtoValidator : AbstractValidator<PerfilMarcaAgu
             capa.RuleFor(c => c.MargenPorcentaje)
                 .InclusiveBetween(0f, 50f).WithMessage("El margen debe estar entre 0% y 50% del ancho de la foto.");
 
+            // El piso no es 0: un paso de 0 no avanza la grilla y dejaría el mosaico dibujando para
+            // siempre sobre el mismo punto.
+            capa.RuleFor(c => c.SeparacionPorcentaje)
+                .InclusiveBetween(1f, 200f)
+                .When(c => c.ModoColocacion == ModoColocacionMarcaAgua.Repetida)
+                .WithMessage("La separación debe estar entre 1% y 200% del ancho de la foto.");
+
             capa.RuleFor(c => c.AnguloGrados)
                 .InclusiveBetween(-180f, 180f).WithMessage("El ángulo debe estar entre -180° y 180°.");
 

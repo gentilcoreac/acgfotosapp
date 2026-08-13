@@ -8,6 +8,7 @@ import { ConfirmService } from '../../../../shared/feedback/confirm.service';
 import { NotificationService } from '../../../../shared/feedback/notification.service';
 import { MarcaAguaService } from '../data/marca-agua.service';
 import { PerfilMarcaAgua } from '../domain/marca-agua.model';
+import { MarcaAguaPreviewAmpliadaDialogComponent } from './marca-agua-preview-ampliada-dialog.component';
 import { PerfilMarcaAguaCanvasComponent } from './perfil-marca-agua-canvas.component';
 import { PerfilMarcaAguaEditComponent } from './perfil-marca-agua-edit.component';
 
@@ -39,6 +40,25 @@ export class MarcaAguaListComponent {
 
   protected editar(perfil: PerfilMarcaAgua): void {
     this.abrirEditor(perfil.id);
+  }
+
+  protected ampliar(perfil: PerfilMarcaAgua): void {
+    this.dialog.open(MarcaAguaPreviewAmpliadaDialogComponent, {
+      data: {
+        perfil,
+        variante: 'mixta',
+        fotoPropia: null,
+        comprimir: false,
+        calidad: 55,
+        ancho: 960,
+        alto: 640,
+        ariaLabel: `Marca del perfil ${perfil.nombre}`,
+      },
+      autoFocus: false,
+      maxWidth: '100vw',
+      width: '96vw',
+      height: '94vh',
+    });
   }
 
   protected eliminar(perfil: PerfilMarcaAgua): void {

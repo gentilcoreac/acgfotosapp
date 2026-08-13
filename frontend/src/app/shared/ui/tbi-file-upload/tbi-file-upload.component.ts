@@ -8,8 +8,10 @@ import {
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { NotificationService } from '../../feedback/notification.service';
+import { ImagenAmpliadaDialogComponent } from '../imagen-ampliada-dialog/imagen-ampliada-dialog.component';
 
 /**
  * Recurso de archivo que emite `tbi-file-upload`. `base64` es el contenido **sin** el prefijo
@@ -41,7 +43,14 @@ export interface TbiFileResource {
       <span class="tbi-file__label">{{ label() }}</span>
       <div class="tbi-file__row">
         @if (preview() && previewUrl()) {
-          <img class="tbi-file__preview" [src]="previewUrl()" alt="" />
+          <button
+            type="button"
+            class="tbi-file__preview-btn"
+            aria-label="Ampliar vista previa"
+            (click)="ampliar()"
+          >
+            <img class="tbi-file__preview" [src]="previewUrl()" alt="" />
+          </button>
         }
         <div class="tbi-file__controls">
           <button matButton="outlined" type="button" (click)="fileInput.click()">
@@ -79,7 +88,21 @@ export interface TbiFileResource {
       align-items: center;
       gap: 0.75rem;
     }
+    .tbi-file__preview-btn {
+      flex: none;
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-radius: 4px;
+
+      &:focus-visible {
+        outline: 2px solid var(--mat-sys-primary);
+        outline-offset: 2px;
+      }
+    }
     .tbi-file__preview {
+      display: block;
       width: 56px;
       height: 56px;
       object-fit: contain;
@@ -121,6 +144,7 @@ export class TbiFileUploadComponent {
   readonly removed = output<void>();
 
   private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   /** data-URL del archivo recién elegido (preview inmediato, antes de guardar). */
   protected readonly pickedDataUrl = signal<string | null>(null);
@@ -187,6 +211,22 @@ export class TbiFileUploadComponent {
           ? mime.startsWith(token.slice(0, -1))
           : token === mime,
     );
+  }
+
+  /** La vista previa es una imagen suelta (el archivo recién elegido, o el recurso actual en modo
+   * edición), sin colección — se amplía sola, sin recorrido (openspec/changes/visor-fotos-cobertura-total). */
+  protected ampliar(): void {
+    const src = this.previewUrl();
+    if (!src) {
+      return;
+    }
+    this.dialog.open(ImagenAmpliadaDialogComponent, {
+      data: { src, alt: this.pickedName() ?? this.label() },
+      autoFocus: false,
+      maxWidth: '100vw',
+      width: '96vw',
+      height: '94vh',
+    });
   }
 
   protected clear(): void {

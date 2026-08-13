@@ -1,0 +1,108 @@
+// Layout de 4 esquinas heredado del preview de familias (que a su vez sigue el prototipo
+// docs/ClaudeDesign/PropuestaDisenioExperienciaCompra): cerrar arriba-derecha, contador
+// arriba-izquierda, y las dos esquinas inferiores a disposición del caller.
+// El visor aporta el marco de la foto y su navegación, NO la estructura del diálogo: dónde va el
+// título, las acciones o si hay una franja al pie lo decide cada pantalla. Así el mismo visor sirve
+// para un diálogo con encabezado clásico y para uno a sangre completa.
+:host {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  outline: none;
+}
+
+.marco {
+  position: relative;
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+  min-width: 0;
+}
+
+// La caja donde va la foto: ocupa todo el espacio libre y centra lo que el caller ponga adentro.
+// El encapsulado de estilos de Angular impide que este componente le dé tamaño a un elemento que
+// creó otro (`.media > *` no matchea contenido proyectado), así que estirar la imagen es
+// responsabilidad de quien la pone — acá sólo se garantiza el espacio y el centrado.
+.media {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+%sobre-la-foto {
+  position: absolute;
+  z-index: 2;
+  background: color-mix(in srgb, var(--mat-sys-scrim) 45%, transparent);
+  color: white;
+}
+
+.contador {
+  @extend %sobre-la-foto;
+  top: 12px;
+  left: 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.bajo-contador {
+  position: absolute;
+  top: 44px;
+  left: 12px;
+  z-index: 2;
+}
+
+.cerrar {
+  @extend %sobre-la-foto;
+  top: 8px;
+  right: 8px;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--mat-sys-scrim) 65%, transparent);
+  }
+}
+
+.esquina {
+  position: absolute;
+  bottom: 12px;
+  z-index: 1;
+
+  &--izq {
+    left: 12px;
+  }
+
+  &--der {
+    right: 12px;
+  }
+}
+
+.nav {
+  @extend %sobre-la-foto;
+  top: 50%;
+  z-index: 1;
+  transform: translateY(-50%);
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--mat-sys-scrim) 65%, transparent);
+  }
+
+  &:active {
+    background: color-mix(in srgb, var(--mat-sys-scrim) 80%, transparent);
+  }
+
+  &--prev {
+    left: 4px;
+  }
+
+  &--next {
+    right: 4px;
+  }
+}
+

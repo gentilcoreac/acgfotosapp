@@ -97,6 +97,9 @@ public class FotoProcesadorAppService : IFotoProcesadorAppService
             LadoMayorPreview = opciones?.LadoMayorPreview ?? _opciones.LadoMayorPreview,
             LadoMayorThumb = opciones?.LadoMayorThumb ?? _opciones.LadoMayorThumb,
             Calidad = opciones?.Calidad ?? _opciones.CalidadDerivados,
+            // Todavía no se elige por evento (no hay campo en OpcionesPublicacion): sale de la config
+            // del vertical. El día que se quiera por evento, entra en la cascada como los de arriba.
+            CalidadMarcado = _opciones.CalidadMarcado,
         };
     }
 
@@ -113,6 +116,7 @@ public class FotoProcesadorAppService : IFotoProcesadorAppService
                     Orden = 0,
                     ModoColocacion = ModoColocacionMarcaAgua.Repetida,
                     EscalaPorcentaje = MarcaAguaLegadoConstantes.EscalaPorcentaje,
+                    SeparacionPorcentaje = MarcaAguaLegadoConstantes.SeparacionPorcentaje,
                     AnguloGrados = MarcaAguaLegadoConstantes.AnguloGrados,
                     Opacidad = MarcaAguaLegadoConstantes.Opacidad,
                     ModoFusion = ModoFusionMarcaAgua.Normal,
@@ -132,6 +136,7 @@ public class FotoProcesadorAppService : IFotoProcesadorAppService
                 Posicion = capa.Posicion,
                 EscalaPorcentaje = capa.EscalaPorcentaje,
                 MargenPorcentaje = capa.MargenPorcentaje,
+                SeparacionPorcentaje = capa.SeparacionPorcentaje,
                 AnguloGrados = capa.AnguloGrados,
                 Opacidad = capa.Opacidad,
                 ModoFusion = capa.ModoFusion,

@@ -78,10 +78,25 @@
   margin-top: 0.35rem;
 }
 
+.tarjeta__qr-btn {
+  display: block;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 4px;
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+  }
+}
+
 .tarjeta__qr {
+  display: block;
   width: 96px;
   height: 96px;
-  flex-shrink: 0;
   border-radius: 4px;
   // El QR generado es negro sobre blanco: en dark mode necesita fondo propio.
   background: #fff;

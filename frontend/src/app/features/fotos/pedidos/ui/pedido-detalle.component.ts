@@ -114,8 +114,17 @@ export class PedidoDetalleComponent {
     // Acá el fotógrafo quiere ver la ORIGINAL primero (para el laboratorio); "vista del cliente"
     // queda como toggle secundario/opcional — al revés que la galería, donde el default sigue
     // siendo el derivado con watermark (pedido de Alberto 2026-07-21).
+    // Se recorren las fotos DE ESTE pedido: es la colección que el fotógrafo está mirando.
+    const fotos = this.grupos().map((g) => ({
+      id: g.fotoId,
+      nombreArchivoOriginal: g.nombreArchivoOriginal,
+    }));
     this.dialog.open(FotoPreviewDialogComponent, {
-      data: { id: grupo.fotoId, nombreArchivoOriginal: grupo.nombreArchivoOriginal, varianteInicial: 'original' },
+      data: {
+        fotos,
+        index: Math.max(fotos.findIndex((f) => f.id === grupo.fotoId), 0),
+        varianteInicial: 'original',
+      },
       autoFocus: false,
       maxWidth: '100vw',
       width: '96vw',

@@ -1,36 +1,60 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { saveBlobResponse } from '../../../../core/http';
+import { TbiVisorFotosComponent } from '../../../../shared/ui/tbi-visor-fotos/tbi-visor-fotos.component';
 import { FotosService, VarianteDerivado } from '../data/fotos.service';
 import { FotoImgComponent } from './foto-img.component';
 
-/** Data mínima que necesita el diálogo — cualquier objeto con `id`+`nombreArchivoOriginal` sirve
- * (así lo puede abrir tanto la galería, con un `Foto` completo, como el admin de pedidos, con la
- * línea de un pedido). `varianteInicial` decide qué vista se ve primero (default `'preview'`, el
- * derivado con watermark — la galería no la pasa, así que no cambia). */
-export interface FotoPreviewDialogData {
+/** Lo mínimo que el visor admin necesita de una foto: cualquier objeto con id+nombre sirve (la galería
+ * pasa `Foto` completa; el admin de pedidos, la línea de un pedido). */
+export interface FotoPreviewItem {
   id: number;
   nombreArchivoOriginal: string;
+}
+
+/**
+ * Data del diálogo. `fotos`+`index` habilitan el recorrido; `varianteInicial` decide qué se ve
+ * primero (default `'preview'`, el derivado con watermark — el admin de pedidos abre en `'original'`,
+ * que es la que le importa para el laboratorio).
+ */
+export interface FotoPreviewDialogData {
+  fotos: FotoPreviewItem[];
+  index: number;
   varianteInicial?: VarianteDerivado;
 }
 
 /**
- * Preview ampliado de una foto, con un toggle entre el derivado CON watermark (lo que ve la
- * familia, ADR-01) y el "Original" (sin watermark, ADR-06 — el original sigue sin servirse jamás a
- * las familias, esto es solo para el admin que ya lo puede descargar). Cuál se ve primero depende
- * de quién abre el diálogo (`varianteInicial`): la galería por defecto sigue mostrando la vista del
- * cliente primero; el admin de pedidos pidió ver la ORIGINAL primero (es la que le importa para el
- * laboratorio), con la del cliente como toggle secundario. El diálogo se abre casi a pantalla
- * completa y la foto se muestra ENTERA (contain): nunca hay scroll lateral.
+ * Preview ampliado del ADMIN sobre el visor del sistema (`tbi-visor-fotos`, que aporta el marco de la
+ * foto, contador, cerrar, flechas y teclado). Lo propio de este contexto es el toggle entre el
+ * derivado CON watermark (lo que ve la familia, ADR-01) y el "Original" limpio, más la descarga:
+ * ambos exclusivos del admin, que ya tiene acceso al original por ADR-06.
+ *
+ * A sangre completa y con los datos sobre la foto (elegido por Alberto el 2026-08-10 comparando las
+ * dos alternativas en la app real): con el nombre y el toggle fuera del área de imagen, la foto gana
+ * bastante alto — que es lo que el fotógrafo mira.
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatDialogModule, MatIconModule, FotoImgComponent],
+  imports: [MatButtonModule, MatDialogModule, MatIconModule, FotoImgComponent, TbiVisorFotosComponent],
   template: `
-    <h2 mat-dialog-title class="titulo">{{ data.nombreArchivoOriginal }}</h2>
     <mat-dialog-content>
+      <tbi-visor-fotos [items]="data.fotos" [(index)]="index" ariaLabel="Vista ampliada de la foto">
+        <ng-template let-foto>
+          <tbi-foto-img
+            [fotoId]="foto.id"
+            [variante]="variante()"
+            fit="contain"
+            [alt]="foto.nombreArchivoOriginal"
+          />
+        </ng-template>
+
+        <span visorEsquinaInferiorDerecha class="archivo">{{ actual().nombreArchivoOriginal }}</span>
+      </tbi-visor-fotos>
+    </mat-dialog-content>
+
+    <div class="pie">
       <div class="toggle" role="group" aria-label="Vista">
         <button
           matButton
@@ -49,62 +73,64 @@ export interface FotoPreviewDialogData {
           Original
         </button>
       </div>
-      <tbi-foto-img
-        class="preview"
-        [fotoId]="data.id"
-        [variante]="variante()"
-        fit="contain"
-        [alt]="data.nombreArchivoOriginal"
-      />
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
       <button matButton (click)="descargarOriginal()">
         <mat-icon>download</mat-icon>
         Descargar original
       </button>
-      <button matButton mat-dialog-close>Cerrar</button>
-    </mat-dialog-actions>
+    </div>
   `,
   styles: `
-    /* El diálogo se abre con height fijo: el host llena el panel y el contenido flexea,
-       así la imagen toma todo el alto disponible entre título y acciones. */
     :host {
       display: flex;
       flex-direction: column;
       height: 100%;
     }
 
-    .titulo {
-      max-width: 85vw;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
     mat-dialog-content {
       flex: 1;
       display: flex;
-      flex-direction: column;
       overflow: hidden;
       max-height: none;
+      min-height: 0;
+      padding: 0;
+    }
+
+    /* El visor da la caja; estirar la foto dentro es de quien la pone (el encapsulado de estilos no
+       deja que un componente le dé tamaño al contenido que proyecta otro). */
+    tbi-foto-img {
+      flex: 1;
+      align-self: stretch;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .archivo {
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--mat-sys-scrim) 55%, transparent);
+      color: white;
+      font-family: monospace;
+      font-size: 0.75rem;
+    }
+
+    .pie {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex: none;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--mat-sys-outline-variant);
     }
 
     .toggle {
       display: flex;
       gap: 0.5rem;
-      flex: none;
-      margin-bottom: 0.5rem;
     }
 
     .toggle__activo {
       background: var(--mat-sys-secondary-container);
       color: var(--mat-sys-on-secondary-container);
-    }
-
-    .preview {
-      flex: 1;
-      min-width: 0;
-      min-height: 0;
     }
   `,
 })
@@ -112,11 +138,14 @@ export class FotoPreviewDialogComponent {
   private readonly fotosService = inject(FotosService);
   protected readonly data = inject<FotoPreviewDialogData>(MAT_DIALOG_DATA);
 
+  protected readonly index = signal(this.data.index);
+  protected readonly actual = computed(() => this.data.fotos[this.index()] ?? this.data.fotos[0]);
   protected readonly variante = signal<VarianteDerivado>(this.data.varianteInicial ?? 'preview');
 
   protected descargarOriginal(): void {
+    const foto = this.actual();
     this.fotosService
-      .descargarOriginal(this.data.id)
-      .subscribe((response) => saveBlobResponse(response, this.data.nombreArchivoOriginal));
+      .descargarOriginal(foto.id)
+      .subscribe((response) => saveBlobResponse(response, foto.nombreArchivoOriginal));
   }
 }

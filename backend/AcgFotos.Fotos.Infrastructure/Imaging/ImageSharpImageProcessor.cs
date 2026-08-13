@@ -17,11 +17,11 @@ namespace AcgFotos.Fotos.Infrastructure.Imaging;
 /// </summary>
 public class ImageSharpImageProcessor : IImageProcessor
 {
-    // Pitch de la grilla en modo Repetida, relativo al tamaño ya escalado del tile (mismo ratio que
-    // el watermark de texto original: separación un poco mayor al alto/ancho del propio tile para
-    // que el patrón cubra sin amontonarse).
-    private const float PitchXFactor = 1.25f;
-    private const float PitchYFactor = 2.2f;
+    // El código anterior a ADR-15/16 dibujaba el texto vectorial directo a la resolución final del
+    // derivado (sin paso de transformación de por medio). Ahora la capa ya nace rasterizada (front) y
+    // el backend la rota/escala — sin pedir explícitamente filtro+antialiasing, SkiaSharp deja bordes
+    // dentados en la rotación y aliasing en el escalado hacia abajo.
+    private static readonly SKSamplingOptions SamplingCalidad = new(SKFilterMode.Linear, SKMipmapMode.Linear);
 
     public async Task<DerivadosFoto> GenerarDerivadosAsync(
         Stream original,
@@ -40,6 +40,12 @@ public class ImageSharpImageProcessor : IImageProcessor
 
         using (imagen)
         {
+            // Una foto vertical suele venir con los píxeles acostados más una marca EXIF que dice cómo
+            // rotarla. Como LimpiarMetadatos borra ese EXIF (GPS y datos del equipo no viajan a las
+            // familias), hay que aplicar la rotación a los píxeles ACÁ: si no, se pierde la única
+            // indicación de orientación y las verticales quedan acostadas para siempre.
+            imagen.Mutate(ctx => ctx.AutoOrient());
+
             var anchoOriginal = imagen.Width;
             var altoOriginal = imagen.Height;
 
@@ -74,16 +80,43 @@ public class ImageSharpImageProcessor : IImageProcessor
 
         LimpiarMetadatos(derivado);
 
-        if (marcar && opciones.Capas.Count > 0)
-        {
-            ComponerCapas(derivado, opciones.Capas);
-        }
-
-        using var ms = new MemoryStream();
         // WebP lossy: ~25-30% menos peso que JPEG a igual calidad percibida (galería mobile con
         // datos móviles). Los derivados se regeneran, así que cambiar de formato es barato.
-        derivado.SaveAsWebp(ms, new WebpEncoder { Quality = opciones.Calidad });
-        return ms.ToArray();
+        if (!marcar || opciones.Capas.Count == 0)
+        {
+            using var sinMarca = new MemoryStream();
+            derivado.SaveAsWebp(sinMarca, new WebpEncoder { Quality = opciones.Calidad });
+            return sinMarca.ToArray();
+        }
+
+        // Dos pasadas, y este es el punto de todo: comprimir la foto ANTES de sellarla. Si se
+        // compusiera la marca y después se comprimiera todo junto, la compresión con pérdida se
+        // comería justo lo que la marca tiene (bordes finos, texto chico) y la autoría del fotógrafo
+        // saldría borrosa. Acá la foto llega al sellado ya degradada de forma irreversible —no
+        // recupera nada— y lo único que la segunda pasada preserva es la marca.
+        return ComponerYCodificar(SoloFotoComprimida(derivado, opciones.Calidad), opciones);
+    }
+
+    /// <summary>Deja la foto con el daño de compresión ya hecho, para que el sellado no lo herede.</summary>
+    private static Image<Rgba32> SoloFotoComprimida(Image<Rgba32> derivado, int calidad)
+    {
+        using var ms = new MemoryStream();
+        derivado.SaveAsWebp(ms, new WebpEncoder { Quality = calidad });
+        ms.Position = 0;
+        return Image.Load<Rgba32>(ms);
+    }
+
+    private static byte[] ComponerYCodificar(Image<Rgba32> fotoYaDegradada, OpcionesDerivados opciones)
+    {
+        using (fotoYaDegradada)
+        {
+            LimpiarMetadatos(fotoYaDegradada);
+            ComponerCapas(fotoYaDegradada, opciones.Capas);
+
+            using var ms = new MemoryStream();
+            fotoYaDegradada.SaveAsWebp(ms, new WebpEncoder { Quality = opciones.CalidadMarcado });
+            return ms.ToArray();
+        }
     }
 
     /// <summary>
@@ -137,11 +170,16 @@ public class ImageSharpImageProcessor : IImageProcessor
 
     private static void ComponerCapa(SKCanvas canvas, int anchoFoto, int altoFoto, CapaComposicion capa)
     {
-        using var asset = SKBitmap.Decode(capa.Asset);
-        if (asset is null)
+        using var bitmap = SKBitmap.Decode(capa.Asset);
+        if (bitmap is null)
         {
             return; // el asset se valida al subirlo (grupo 4); un fallo acá no debe tumbar el procesamiento.
         }
+
+        // SKImage en vez de dibujar el SKBitmap crudo: Skia cachea los niveles de mipmap contra la
+        // imagen, así que decodificar y envolver una sola vez por capa (no por cada tile del modo
+        // Repetida) evita recalcularlos en cada uno de los N draws.
+        using var asset = SKImage.FromBitmap(bitmap);
 
         // Escala en % del ancho de la foto, pero NUNCA hacia arriba (ADR-15 §8): agrandar un bitmap
         // no tiene arreglo, así que el piso es el tamaño natural del asset.
@@ -152,6 +190,7 @@ public class ImageSharpImageProcessor : IImageProcessor
         {
             BlendMode = MapearModoFusion(capa.ModoFusion),
             Color = new SKColor(255, 255, 255, (byte)Math.Clamp(capa.Opacidad * 255f, 0, 255)),
+            IsAntialias = true,
         };
 
         if (capa.ModoColocacion == ModoColocacionMarcaAgua.PosicionFija)
@@ -162,15 +201,26 @@ public class ImageSharpImageProcessor : IImageProcessor
 
             canvas.Save();
             canvas.RotateDegrees(capa.AnguloGrados, x + anchoDestino / 2f, y + altoDestino / 2f);
-            canvas.DrawBitmap(asset, SKRect.Create(x, y, anchoDestino, altoDestino), paint);
+            canvas.DrawImage(asset, SKRect.Create(x, y, anchoDestino, altoDestino), SamplingCalidad, paint);
             canvas.Restore();
             return;
         }
 
         // Repetida: grilla en mosaico con offset alternado por fila (patrón ladrillo), rotada como
         // conjunto — se recorre un área mayor a la foto para que la rotación no deje esquinas limpias.
-        var pitchX = anchoDestino * PitchXFactor;
-        var pitchY = altoDestino * PitchYFactor;
+        // El paso horizontal sale de la separación pedida sobre la FOTO, no del tamaño del tile: por eso
+        // achicar la marca ya no multiplica las repeticiones. El vertical se deriva del horizontal
+        // conservando la proporción del patrón, para que la grilla no cambie de forma al variar la
+        // separación.
+        // Una separación no positiva dejaría la grilla sin avanzar y la foto SIN MARCA: se cae al paso
+        // histórico (1.25× el ancho del tile) en vez de no dibujar nada — quedarse sin watermark en
+        // silencio es la falla que ADR-01 no puede permitir.
+        var separacion = capa.SeparacionPorcentaje > 0f
+            ? anchoFoto * (capa.SeparacionPorcentaje / 100f)
+            : anchoDestino * 1.25f;
+
+        var pitchX = separacion;
+        var pitchY = altoDestino * (pitchX / anchoDestino) * CapaMarcaAgua.FactorPasoVertical;
         if (pitchX <= 0 || pitchY <= 0)
         {
             return;
@@ -185,7 +235,7 @@ public class ImageSharpImageProcessor : IImageProcessor
             var offsetX = fila % 2 == 0 ? 0f : pitchX / 2f;
             for (var x = -anchoFoto + offsetX; x < anchoFoto * 2f; x += pitchX)
             {
-                canvas.DrawBitmap(asset, SKRect.Create(x, y, anchoDestino, altoDestino), paint);
+                canvas.DrawImage(asset, SKRect.Create(x, y, anchoDestino, altoDestino), SamplingCalidad, paint);
             }
             fila++;
         }

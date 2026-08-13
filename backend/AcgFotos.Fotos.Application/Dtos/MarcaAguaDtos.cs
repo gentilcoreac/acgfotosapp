@@ -19,6 +19,10 @@ public class CapaMarcaAguaDto : DtoBase
     public PosicionMarcaAgua? Posicion { get; set; }
     public float EscalaPorcentaje { get; set; }
     public float MargenPorcentaje { get; set; }
+
+    /// <summary>Cada cuánto se repite la marca, en % del ancho de la foto. Sólo aplica en modo Repetida.</summary>
+    public float SeparacionPorcentaje { get; set; }
+
     public float AnguloGrados { get; set; }
     public float Opacidad { get; set; }
     public ModoFusionMarcaAgua ModoFusion { get; set; }

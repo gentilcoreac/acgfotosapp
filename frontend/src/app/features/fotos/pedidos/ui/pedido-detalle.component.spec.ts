@@ -131,11 +131,10 @@ describe('PedidoDetalleComponent', () => {
 
     expect(dialogOpenSpy).toHaveBeenCalled();
     const [, config] = dialogOpenSpy.mock.calls[0];
-    expect((config as { data: unknown }).data).toEqual({
-      id: 9,
-      nombreArchivoOriginal: 'DSC001.jpg',
-      varianteInicial: 'original',
-    });
+    const data = (config as { data: { fotos: { id: number }[]; index: number; varianteInicial: string } }).data;
+    expect(data.varianteInicial).toBe('original');
+    // Se pasa la colección del pedido para poder recorrerla, abriendo en la foto elegida.
+    expect(data.fotos[data.index]).toEqual({ id: 9, nombreArchivoOriginal: 'DSC001.jpg' });
   });
 
   it('la corrección manual de estado NO ofrece el estado actual como opción', async () => {
