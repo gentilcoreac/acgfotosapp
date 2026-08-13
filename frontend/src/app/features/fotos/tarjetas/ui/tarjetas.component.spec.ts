@@ -1,8 +1,10 @@
 import type { Mock } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { NotificationService } from '../../../../shared/feedback/notification.service';
+import { ImagenAmpliadaDialogComponent } from '../../../../shared/ui/imagen-ampliada-dialog/imagen-ampliada-dialog.component';
 import { GruposService } from '../../grupos/data/grupos.service';
 import { TarjetasGrupo } from '../../grupos/domain/grupo.model';
 import { EventosService } from '../../eventos/data/eventos.service';
@@ -34,16 +36,19 @@ describe('TarjetasComponent', () => {
   let fixture: ComponentFixture<TarjetasComponent>;
   let getTarjetas: Mock;
   let notify: { success: Mock; error: Mock };
+  let dialogOpen: Mock;
 
   async function setup(): Promise<void> {
     getTarjetas = vi.fn().mockName('getTarjetas').mockReturnValue(of(TARJETAS));
     notify = { success: vi.fn(), error: vi.fn() };
+    dialogOpen = vi.fn().mockName('dialogOpen');
 
     await TestBed.configureTestingModule({
       imports: [TarjetasComponent],
       providers: [
         provideNoopAnimations(),
         { provide: NotificationService, useValue: notify },
+        { provide: MatDialog, useValue: { open: dialogOpen } },
         {
           provide: EventosService,
           useValue: {
@@ -126,6 +131,29 @@ describe('TarjetasComponent', () => {
     } finally {
       open.mockRestore();
     }
+  });
+
+  it('al hacer click en el QR lo abre ampliado, sin recorrido (imagen aislada)', async () => {
+    await setup();
+    seleccionarGrupo();
+
+    (fixture.nativeElement.querySelector('.tarjeta__qr-btn') as HTMLButtonElement).click();
+
+    expect(dialogOpen).toHaveBeenCalledWith(
+      ImagenAmpliadaDialogComponent,
+      expect.objectContaining({
+        data: { src: 'data:image/png;base64,aWNvbm8=', alt: 'QR de acceso de Ana Pérez' },
+      }),
+    );
+  });
+
+  it('sin código no hay QR que ampliar (no se ofrece el botón)', async () => {
+    await setup();
+    seleccionarGrupo();
+
+    const tarjetas = fixture.nativeElement.querySelectorAll('.tarjeta');
+    const sinCodigo = tarjetas[1] as HTMLElement;
+    expect(sinCodigo.querySelector('.tarjeta__qr-btn')).toBeNull();
   });
 
   it('si el popup está bloqueado avisa con un error', async () => {

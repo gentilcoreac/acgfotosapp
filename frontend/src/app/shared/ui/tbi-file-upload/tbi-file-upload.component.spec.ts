@@ -1,5 +1,8 @@
+import type { Mock } from 'vitest';
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
+import { ImagenAmpliadaDialogComponent } from '../imagen-ampliada-dialog/imagen-ampliada-dialog.component';
 import { TbiFileResource, TbiFileUploadComponent } from './tbi-file-upload.component';
 
 function changeEventWith(file: File): Event {
@@ -70,5 +73,47 @@ describe('TbiFileUploadComponent', () => {
     upload['onFileChange'](changeEventWith(big));
 
     expect(host.rawFile()).toBeNull();
+  });
+});
+
+@Component({
+  imports: [TbiFileUploadComponent],
+  template: `<tbi-file-upload accept="image/*" />`,
+})
+class HostConPreview {}
+
+describe('TbiFileUploadComponent — preview ampliable', () => {
+  let fixture: ComponentFixture<HostConPreview>;
+  let dialogOpen: Mock;
+
+  beforeEach(async () => {
+    dialogOpen = vi.fn().mockName('dialogOpen');
+    await TestBed.configureTestingModule({
+      imports: [HostConPreview],
+      providers: [{ provide: MatDialog, useValue: { open: dialogOpen } }],
+    }).compileComponents();
+    fixture = TestBed.createComponent(HostConPreview);
+    fixture.detectChanges();
+  });
+
+  it('con un archivo elegido, la vista previa se puede ampliar (imagen aislada, sin recorrido)', () => {
+    const upload = fixture.debugElement.query((de) => de.name === 'tbi-file-upload')
+      .componentInstance as TbiFileUploadComponent;
+    // Setea directo el resultado de `onFileChange` en vez de pasar por `FileReader` real (jsdom no
+    // completa `readAsDataURL` de forma confiable en el entorno de test).
+    upload['pickedDataUrl'].set('data:image/png;base64,eA==');
+    upload['pickedName'].set('foto.png');
+    fixture.detectChanges();
+
+    (fixture.nativeElement.querySelector('.tbi-file__preview-btn') as HTMLButtonElement).click();
+
+    expect(dialogOpen).toHaveBeenCalledWith(
+      ImagenAmpliadaDialogComponent,
+      expect.objectContaining({ data: expect.objectContaining({ alt: 'foto.png' }) }),
+    );
+  });
+
+  it('sin archivo elegido no muestra el botón de ampliar', () => {
+    expect(fixture.nativeElement.querySelector('.tbi-file__preview-btn')).toBeNull();
   });
 });

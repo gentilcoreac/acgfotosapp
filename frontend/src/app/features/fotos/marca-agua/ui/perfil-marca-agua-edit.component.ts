@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { FormField, applyEach, form, maxLength, required, validate } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -29,6 +29,7 @@ import {
 } from '../domain/marca-agua.model';
 import { ImagenDecodificada, MUESTRAS, MuestraVariante } from '../domain/marca-agua-muestra.util';
 import { DisenoTexto, rasterizarTextoComoPng } from '../domain/marca-agua-texto.util';
+import { MarcaAguaPreviewAmpliadaDialogComponent } from './marca-agua-preview-ampliada-dialog.component';
 import { PerfilMarcaAguaCanvasComponent } from './perfil-marca-agua-canvas.component';
 
 /** Fallback cuando el tenant no tiene ninguna `OpcionesPublicacion` default (mismo default que `appsettings.json`, `Fotos:LadoMayorThumb`). */
@@ -109,6 +110,7 @@ type PerfilFormModel = Pick<PerfilMarcaAgua, 'nombre' | 'esDefault' | 'marcarThu
 export class PerfilMarcaAguaEditComponent extends EditComponentBase<PerfilMarcaAgua, PerfilFormModel> {
   private readonly service = inject(MarcaAguaService);
   private readonly opcionesPublicacionService = inject(OpcionesPublicacionService);
+  private readonly dialog = inject(MatDialog);
 
   protected readonly crud = this.service.crud;
 
@@ -202,6 +204,27 @@ export class PerfilMarcaAguaEditComponent extends EditComponentBase<PerfilMarcaA
     }
     return tiles;
   });
+
+  /** Amplía UNA muestra (imagen aislada, no una colección — openspec/changes/visor-fotos-cobertura-total).
+   * Cada muestra se compara por separado, así que no tiene sentido recorrerlas desde el visor. */
+  protected ampliarMuestra(tile: MuestraTile): void {
+    this.dialog.open(MarcaAguaPreviewAmpliadaDialogComponent, {
+      data: {
+        perfil: this.perfilVista(),
+        variante: tile.variante,
+        fotoPropia: tile.fotoPropia,
+        comprimir: this.verComprimido(),
+        calidad: 55,
+        ancho: 960,
+        alto: 640,
+        ariaLabel: `Vista previa sobre muestra ${tile.etiqueta}`,
+      },
+      autoFocus: false,
+      maxWidth: '100vw',
+      width: '96vw',
+      height: '94vh',
+    });
+  }
 
   // Vista previa al tamaño REAL de thumb (spec 11.5): la marca se compone como % del ancho de CADA
   // derivado por separado — a un thumb chico la misma marca puede quedar ilegible aunque no haya

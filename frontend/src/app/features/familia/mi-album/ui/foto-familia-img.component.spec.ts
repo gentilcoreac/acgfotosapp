@@ -8,7 +8,11 @@ describe('FotoFamiliaImgComponent', () => {
   let fixture: ComponentFixture<FotoFamiliaImgComponent>;
   let derivado: Mock;
 
-  async function setup(fotoId = 5, participantes: ParticipanteSesion[] = []): Promise<void> {
+  async function setup(
+    fotoId = 5,
+    participantes: ParticipanteSesion[] = [],
+    inputs: { fit?: 'cover' | 'contain'; ancho?: number; alto?: number } = {},
+  ): Promise<void> {
     vi.stubGlobal('URL', {
       ...URL,
       createObjectURL: vi.fn().mockReturnValue('blob:mock'),
@@ -32,6 +36,9 @@ describe('FotoFamiliaImgComponent', () => {
 
     fixture = TestBed.createComponent(FotoFamiliaImgComponent);
     fixture.componentRef.setInput('fotoId', fotoId);
+    if (inputs.fit) fixture.componentRef.setInput('fit', inputs.fit);
+    if (inputs.ancho) fixture.componentRef.setInput('ancho', inputs.ancho);
+    if (inputs.alto) fixture.componentRef.setInput('alto', inputs.alto);
     fixture.detectChanges();
     fixture.detectChanges();
   }
@@ -89,5 +96,23 @@ describe('FotoFamiliaImgComponent', () => {
     const evento = new MouseEvent('contextmenu', { cancelable: true });
     img.dispatchEvent(evento);
     expect(evento.defaultPrevented).toBe(true);
+  });
+
+  it('con fit="contain" y las dimensiones de la foto, la caja del sello toma la proporción real de la foto (no la del contenedor)', async () => {
+    derivado = vi.fn().mockName('derivado').mockReturnValue(of(new Blob(['jpg'])));
+    await setup(5, [{ id: 100, nombre: 'Ana Pérez' }], { fit: 'contain', ancho: 1200, alto: 800 });
+
+    const foto = fixture.nativeElement.querySelector('.foto') as HTMLElement;
+    expect(foto.classList.contains('foto--contain')).toBe(true);
+    expect(foto.style.aspectRatio).toBe('1200 / 800');
+  });
+
+  it('con fit="cover" (grilla) la caja no toma una proporción propia: ocupa el tile entero', async () => {
+    derivado = vi.fn().mockName('derivado').mockReturnValue(of(new Blob(['jpg'])));
+    await setup(5, [], { ancho: 1200, alto: 800 });
+
+    const foto = fixture.nativeElement.querySelector('.foto') as HTMLElement;
+    expect(foto.classList.contains('foto--contain')).toBe(false);
+    expect(foto.style.aspectRatio).toBe('');
   });
 });

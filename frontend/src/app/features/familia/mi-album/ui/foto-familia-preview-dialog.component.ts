@@ -27,7 +27,13 @@ export interface FotoFamiliaPreviewDialogData {
     <mat-dialog-content>
       <tbi-visor-fotos [items]="data.fotos" [(index)]="index" ariaLabel="Foto ampliada">
         <ng-template let-foto>
-          <tbi-foto-familia-img [fotoId]="foto.id" variante="preview" fit="contain" />
+          <tbi-foto-familia-img
+            [fotoId]="foto.id"
+            variante="preview"
+            fit="contain"
+            [ancho]="foto.ancho"
+            [alto]="foto.alto"
+          />
         </ng-template>
 
         @if (yaEnCarrito()) {

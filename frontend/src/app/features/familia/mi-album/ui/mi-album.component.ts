@@ -17,7 +17,10 @@ import {
 } from '../../../../core/familia';
 import { NotificationService } from '../../../../shared/feedback/notification.service';
 import { TbiSelectComponent, toSelectOptions } from '../../../../shared/ui/tbi-select/tbi-select.component';
-import { AgregarCarritoBottomSheetComponent } from './agregar-carrito-bottom-sheet.component';
+import {
+  AgregarCarritoBottomSheetComponent,
+  AgregarCarritoBottomSheetData,
+} from './agregar-carrito-bottom-sheet.component';
 import { FotoFamiliaImgComponent } from './foto-familia-img.component';
 import {
   FotoFamiliaPreviewDialogComponent,
@@ -189,7 +192,11 @@ export class MiAlbumComponent {
   protected agregarAlCarrito(foto: FotoFamilia, evento: Event): void {
     evento.stopPropagation();
     this.bottomSheet.open(AgregarCarritoBottomSheetComponent, {
-      data: { fotoId: foto.id, tamanosPrecios: this.tamanosPrecios() },
+      data: {
+        fotoId: foto.id,
+        tamanosPrecios: this.tamanosPrecios(),
+        onAmpliar: () => this.verPreview(foto),
+      } satisfies AgregarCarritoBottomSheetData,
     });
   }
 

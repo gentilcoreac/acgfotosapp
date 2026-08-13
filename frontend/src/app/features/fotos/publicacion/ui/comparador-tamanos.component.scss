@@ -20,24 +20,53 @@
   margin: 0.75rem 0 0;
 }
 
+// `tbi-visor-fotos` es flex:1 hacia SU padre (pensado para vivir dentro de un mat-dialog con alto
+// fijo). Acá se usa inline, sin diálogo, así que este contenedor le da el alto explícito que
+// necesita para que ese flex:1 tenga algo concreto que llenar (display:flex + height fijo).
 .comparador__visor {
+  display: flex;
   margin-top: 1.25rem;
   max-width: 640px;
+  height: 480px;
 }
 
 .comparador__visor--procesando {
   opacity: 0.6;
 }
 
+// El visor da la caja; estirar este item dentro es de quien lo proyecta (mismo criterio que
+// `tbi-foto-familia-img`/`tbi-foto-img` en los otros dos usos de `tbi-visor-fotos`).
 .tamano-grande {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
   gap: 0.5rem;
 }
 
+.tamano-grande__preview-btn {
+  flex: 1;
+  align-self: stretch;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 8px;
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+  }
+}
+
 .tamano-grande__preview {
+  display: block;
+  height: 100%;
+  min-height: 0;
   width: 100%;
-  aspect-ratio: 4 / 3;
   object-fit: contain;
   background:
     linear-gradient(45deg, rgba(128, 128, 128, 0.12) 25%, transparent 25%, transparent 75%, rgba(128, 128, 128, 0.12) 75%),

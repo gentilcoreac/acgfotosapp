@@ -8,9 +8,11 @@ import {
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { catchError, map, of } from 'rxjs';
 import { NotificationService } from '../../../../shared/feedback/notification.service';
+import { ImagenAmpliadaDialogComponent } from '../../../../shared/ui/imagen-ampliada-dialog/imagen-ampliada-dialog.component';
 import {
   TbiSelectComponent,
   TbiSelectOption,
@@ -39,6 +41,7 @@ export class TarjetasComponent {
   private readonly gruposService = inject(GruposService);
   private readonly eventosService = inject(EventosService);
   private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
 
   // ── Cascada evento → grupo ───────────────────────────────────────────────────────────────────
 
@@ -83,6 +86,26 @@ export class TarjetasComponent {
   );
   protected readonly tarjetas = computed(() => this.tarjetasGrupo()?.tarjetas ?? []);
   protected readonly sinCodigo = computed(() => this.tarjetas().filter((t) => !t.codigo));
+
+  // ── Ampliar QR ───────────────────────────────────────────────────────────────────────────────
+
+  /** El QR es una imagen suelta (no una foto de un evento): se amplía sola, sin recorrido —
+   * openspec/changes/visor-fotos-cobertura-total. */
+  protected verQrAmpliado(tarjeta: TarjetaParticipante): void {
+    if (!tarjeta.qrPngBase64) {
+      return;
+    }
+    this.dialog.open(ImagenAmpliadaDialogComponent, {
+      data: {
+        src: 'data:image/png;base64,' + tarjeta.qrPngBase64,
+        alt: 'QR de acceso de ' + tarjeta.nombre,
+      },
+      autoFocus: false,
+      maxWidth: '100vw',
+      width: '96vw',
+      height: '94vh',
+    });
+  }
 
   // ── Impresión ────────────────────────────────────────────────────────────────────────────────
 

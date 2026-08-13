@@ -28,7 +28,10 @@ import { PerfilMarcaAgua } from '../domain/marca-agua.model';
 @Component({
   selector: 'tbi-perfil-marca-agua-canvas',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<canvas #lienzo [width]="ancho()" [height]="alto()" [attr.aria-label]="ariaLabel()"></canvas>`,
+  // Sin bindings de [width]/[height]: `render()` fija `canvas.width`/`canvas.height` a mano, en el
+  // mismo lugar y momento donde dibuja (ver el comentario en `render()` — evita la carrera con el
+  // binding del template, que podía limpiar el canvas después de haber dibujado).
+  template: `<canvas #lienzo [attr.aria-label]="ariaLabel()"></canvas>`,
   styles: `
     :host {
       display: block;
@@ -117,6 +120,20 @@ export class PerfilMarcaAguaCanvasComponent {
     calidad: number,
   ): Promise<void> {
     const canvas = this.lienzo().nativeElement;
+    // El tamaño del canvas se fija ACÁ, imperativamente — no como binding de template (bug real
+    // encontrado en vivo, 2026-08-12): con un binding `[width]="ancho()"`, cuando este efecto corre
+    // de forma inmediata en su primera pasada (assets ya en caché — pasa al abrir
+    // `MarcaAguaPreviewAmpliadaDialogComponent` sobre un perfil que el listado ya renderizó), dibuja
+    // ANTES de que Angular aplique el binding sobre el elemento recién creado; cuando lo aplica
+    // después, redimensionar el canvas limpia su bitmap por spec (aunque el valor final sea el
+    // mismo), borrando lo recién pintado. Fijar el tamaño acá, en el mismo lugar donde se dibuja,
+    // saca la carrera de en medio.
+    if (canvas.width !== ancho) {
+      canvas.width = ancho;
+    }
+    if (canvas.height !== alto) {
+      canvas.height = alto;
+    }
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       return;

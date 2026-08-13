@@ -58,11 +58,18 @@
             }
           </div>
           @if (tarjeta.qrPngBase64) {
-            <img
-              class="tarjeta__qr"
-              [src]="'data:image/png;base64,' + tarjeta.qrPngBase64"
-              alt="QR de acceso"
-            />
+            <button
+              type="button"
+              class="tarjeta__qr-btn"
+              [attr.aria-label]="'Ampliar QR de ' + tarjeta.nombre"
+              (click)="verQrAmpliado(tarjeta)"
+            >
+              <img
+                class="tarjeta__qr"
+                [src]="'data:image/png;base64,' + tarjeta.qrPngBase64"
+                alt="QR de acceso"
+              />
+            </button>
           }
         </div>
       }

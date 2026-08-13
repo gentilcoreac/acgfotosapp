@@ -153,6 +153,20 @@ describe('MiAlbumComponent', () => {
     expect(data.tamanosPrecios).toEqual(TAMANOS);
   });
 
+  it('el bottom sheet de agregar al carrito recibe cómo ampliar esa foto (delega en el visor de la grilla, D2)', async () => {
+    const fotos = [foto({ id: 1, participanteId: 100 }), foto({ id: 2, participanteId: null })];
+    const { el } = await create(fotos);
+
+    const botonAgregar = el.querySelectorAll('.grilla__add')[1] as HTMLButtonElement;
+    botonAgregar.click();
+
+    const data = bottomSheetOpen.mock.calls[0][1].data;
+    data.onAmpliar();
+
+    expect(dialogOpen).toHaveBeenCalledTimes(1);
+    expect(dialogOpen.mock.calls[0][1].data.index).toBe(1); // foto id 2, segunda de la colección filtrada
+  });
+
   it('una foto ya agregada al carrito muestra un tilde persistente en la grilla normal (no depende de "Seleccionar varias")', async () => {
     const fotos = [foto({ id: 1, participanteId: 100 }), foto({ id: 2, participanteId: null })];
     const { el } = await create(fotos);

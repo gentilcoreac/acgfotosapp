@@ -42,16 +42,22 @@ const MARCA_TILE_HEIGHT = 70;
   imports: [MatIconModule, MatProgressSpinnerModule],
   template: `
     @if (url(); as u) {
-      <img
-        [src]="u"
-        [alt]="alt()"
-        [style.object-fit]="fit()"
-        draggable="false"
-        (contextmenu)="$event.preventDefault()"
-      />
-      @if (marcaBackground(); as bg) {
-        <div class="marca-familia" aria-hidden="true" [style.background-image]="bg"></div>
-      }
+      <div
+        class="foto"
+        [class.foto--contain]="fit() === 'contain'"
+        [style.aspect-ratio]="fit() === 'contain' ? aspectRatio() : null"
+      >
+        <img
+          [src]="u"
+          [alt]="alt()"
+          [style.object-fit]="fit()"
+          draggable="false"
+          (contextmenu)="$event.preventDefault()"
+        />
+        @if (marcaBackground(); as bg) {
+          <div class="marca-familia" aria-hidden="true" [style.background-image]="bg"></div>
+        }
+      </div>
     } @else if (cargando()) {
       <div class="placeholder"><mat-spinner diameter="28" /></div>
     } @else {
@@ -60,9 +66,28 @@ const MARCA_TILE_HEIGHT = 70;
   `,
   styles: `
     :host {
-      display: block;
-      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
+    }
+
+    /* Sin proporción propia (grilla, fit="cover"): ocupa el tile entero, como siempre — la imagen
+       recorta y nunca deja bandas vacías, así que el sello de abajo no tiene dónde desbordarse. */
+    .foto {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Con proporción propia (visor ampliado, fit="contain"): la caja toma el tamaño real de la foto
+       en vez del tamaño completo del contenedor, para que el sello (position:absolute; inset:0 acá
+       abajo) quede acotado a la imagen y no invada las bandas vacías que deja "contain" a los costados. */
+    .foto--contain {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
     }
 
     img {
@@ -110,9 +135,22 @@ export class FotoFamiliaImgComponent {
   readonly alt = input('');
   /** `cover` para la grilla (recorta), `contain` para el preview ampliado (entero). */
   readonly fit = input<'cover' | 'contain'>('cover');
+  /**
+   * Dimensiones reales de la foto (`FotoFamilia.ancho`/`alto`). Solo hacen falta con `fit="contain"`,
+   * para que la caja tome la proporción real de la foto y el sello no se extienda sobre las bandas
+   * vacías que deja "contain" cuando la foto no llena el contenedor.
+   */
+  readonly ancho = input<number>();
+  readonly alto = input<number>();
 
   /** `null` si por algún motivo no hay sesión activa (no debería pasar: sin sesión no hay fotos). */
   protected readonly marcaTexto = this.sessionStore.nombreFamilia;
+
+  protected readonly aspectRatio = computed<string | null>(() => {
+    const ancho = this.ancho();
+    const alto = this.alto();
+    return ancho && alto ? `${ancho} / ${alto}` : null;
+  });
 
   protected readonly marcaBackground = computed<string | null>(() => {
     const texto = this.marcaTexto();

@@ -27,10 +27,22 @@
     </p>
   } @else {
     <div class="comparador__visor" [class.comparador__visor--procesando]="procesando()">
-      <tbi-carousel [items]="resultados()" ariaLabel="Comparador de tamaños">
-        <ng-template let-r>
+      <tbi-visor-fotos
+        [items]="resultados()"
+        [(index)]="indice"
+        [mostrarCerrar]="false"
+        ariaLabel="Comparador de tamaños"
+      >
+        <ng-template let-r let-i="index">
           <div class="tamano-grande">
-            <img class="tamano-grande__preview" [src]="r.previewUrl" alt="" />
+            <button
+              type="button"
+              class="tamano-grande__preview-btn"
+              aria-label="Ampliar"
+              (click)="ampliar(i)"
+            >
+              <img class="tamano-grande__preview" [src]="r.previewUrl" alt="" />
+            </button>
             <div class="tamano-grande__datos">
               <span class="tamano-grande__titulo">Lado mayor {{ r.ladoMayorPedido }}px</span>
               <span class="tamano-grande__dato">{{ r.ancho }} × {{ r.alto }}px</span>
@@ -42,7 +54,7 @@
             </div>
           </div>
         </ng-template>
-      </tbi-carousel>
+      </tbi-visor-fotos>
       @if (procesando()) {
         <mat-spinner diameter="24" />
       }

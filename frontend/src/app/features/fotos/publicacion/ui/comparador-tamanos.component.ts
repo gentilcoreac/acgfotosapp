@@ -9,10 +9,12 @@ import {
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TbiCarouselComponent } from '../../../../shared/ui/tbi-carousel/tbi-carousel.component';
 import { TbiSliderComponent } from '../../../../shared/ui/tbi-slider/tbi-slider.component';
+import { TbiVisorFotosComponent } from '../../../../shared/ui/tbi-visor-fotos/tbi-visor-fotos.component';
+import { ComparadorAmpliadoDialogComponent } from './comparador-ampliado-dialog.component';
 import {
   ResultadoComparador,
   TAMANOS_COMPARADOR,
@@ -43,18 +45,21 @@ interface ResultadoVista extends ResultadoComparador {
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    TbiCarouselComponent,
     TbiSliderComponent,
+    TbiVisorFotosComponent,
   ],
   templateUrl: './comparador-tamanos.component.html',
   styleUrl: './comparador-tamanos.component.scss',
 })
 export class ComparadorTamanosComponent {
+  private readonly dialog = inject(MatDialog);
+
   protected readonly archivoNombre = signal<string | null>(null);
   protected readonly calidad = signal(80);
   protected readonly procesando = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly resultados = signal<ResultadoVista[]>([]);
+  protected readonly indice = signal(0);
   protected readonly formatearPeso = formatearPeso;
   protected readonly DPI_ACEPTABLE = DPI_ACEPTABLE;
 
@@ -131,6 +136,19 @@ export class ComparadorTamanosComponent {
       pesoBytes: blob?.size ?? 0,
       previewUrl: URL.createObjectURL(blob ?? new Blob()),
     };
+  }
+
+  /** Click sobre la muestra grande: abre el mismo recorrido a pantalla casi completa (la vista
+   * inline queda acotada por `.comparador__visor` para convivir con el resto de la pantalla —
+   * openspec/changes/visor-fotos-cobertura-total). */
+  protected ampliar(index: number): void {
+    this.dialog.open(ComparadorAmpliadoDialogComponent, {
+      data: { resultados: this.resultados(), index },
+      autoFocus: false,
+      maxWidth: '100vw',
+      width: '96vw',
+      height: '94vh',
+    });
   }
 
   private liberarPreviews(): void {

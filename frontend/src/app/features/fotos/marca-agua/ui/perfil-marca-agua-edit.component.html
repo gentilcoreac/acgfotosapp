@@ -256,15 +256,22 @@
                     </button>
                   }
                 </span>
-                <tbi-perfil-marca-agua-canvas
-                  [perfil]="perfilVista()"
-                  [variante]="t.variante"
-                  [fotoPropia]="t.fotoPropia"
-                  [comprimir]="verComprimido()"
-                  [ancho]="280"
-                  [alto]="187"
-                  [ariaLabel]="'Vista previa sobre muestra ' + t.etiqueta"
-                />
+                <button
+                  type="button"
+                  class="muestra-tile__canvas-btn"
+                  [attr.aria-label]="'Ampliar vista previa sobre muestra ' + t.etiqueta"
+                  (click)="ampliarMuestra(t)"
+                >
+                  <tbi-perfil-marca-agua-canvas
+                    [perfil]="perfilVista()"
+                    [variante]="t.variante"
+                    [fotoPropia]="t.fotoPropia"
+                    [comprimir]="verComprimido()"
+                    [ancho]="280"
+                    [alto]="187"
+                    [ariaLabel]="'Vista previa sobre muestra ' + t.etiqueta"
+                  />
+                </button>
               </div>
             }
           </div>
