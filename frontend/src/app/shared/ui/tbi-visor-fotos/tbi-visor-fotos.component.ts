@@ -30,8 +30,7 @@ export interface TbiVisorItemContext<T> {
  * viviría en una pieza compartida y un día se filtraría al flujo de las familias — el mismo criterio
  * por el que "modo fotógrafo" quedó como pantalla aparte (docs/05-notas-abiertas.md).
  *
- * Va dentro de un diálogo: por eso escucha las flechas en `document` (a diferencia de `tbi-carousel`,
- * pensado para uso inline junto a otros controles).
+ * Va dentro de un diálogo: por eso escucha las flechas en `document`.
  */
 @Component({
   selector: 'tbi-visor-fotos',
