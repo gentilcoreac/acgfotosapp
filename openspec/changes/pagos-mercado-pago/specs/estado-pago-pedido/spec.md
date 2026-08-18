@@ -163,8 +163,16 @@ pago que la familia elija después.
 ### Requirement: Cada pedido registra la comisión de la plataforma
 
 Al confirmarse un pedido, el sistema SHALL registrar la comisión que le corresponde a la plataforma,
-calculada sobre el total con la tasa vigente para ese tenant en ese momento. La comisión registrada NO
-SHALL recalcularse si la tasa cambia después.
+calculada sobre el **total congelado del pedido** con la tasa vigente para ese tenant en ese momento,
+en la moneda del pedido y redondeada a dos decimales **hacia abajo**. La comisión registrada NO SHALL
+recalcularse si la tasa cambia después. El importe registrado SHALL quedar acompañado de la tasa con
+la que se calculó.
+
+#### Scenario: Redondeo de la comisión
+
+- **WHEN** el total del pedido y la tasa vigente dan una comisión con más de dos decimales
+- **THEN** la comisión registrada se redondea a dos decimales hacia abajo, y la diferencia queda del
+  lado del fotógrafo
 
 #### Scenario: Confirmación con tasa cero
 

@@ -169,6 +169,75 @@ anterior.
 - **WHEN** dos notificaciones del mismo pago se procesan simultáneamente
 - **THEN** el resultado es el mismo que procesarlas en serie: una sola acreditación
 
+### Requirement: La recepción de notificaciones distingue el fallo definitivo del transitorio
+
+Ante una notificación que no puede procesarse por una causa **definitiva** —firma inválida, instante
+fuera de la ventana de frescura, cabecera de autorización presente, o referencia externa
+desconocida— el sistema SHALL confirmar la recepción al proveedor sin provocar reintentos. Ante un
+fallo **transitorio** —el proveedor no responde, falla la infraestructura, o se agota el tiempo
+disponible para procesar— el sistema NO SHALL confirmar la recepción: SHALL responder con error para
+que el proveedor reintente, y NO SHALL descartar la notificación.
+
+#### Scenario: Fallo transitorio al verificar el pago contra el proveedor
+
+- **WHEN** llega una notificación con firma válida y la consulta del pago al proveedor falla o excede
+  el tiempo disponible
+- **THEN** la notificación no se confirma como recibida, el estado de pago del pedido no cambia, y el
+  reintento posterior del proveedor la procesa
+
+#### Scenario: Notificación no legítima
+
+- **WHEN** llega una notificación con firma inválida o fuera de la ventana de frescura
+- **THEN** la recepción se confirma sin modificar ningún dato, de modo que el proveedor no la
+  reintente indefinidamente
+
+#### Scenario: Notificación ya procesada
+
+- **WHEN** llega una notificación que corresponde a una transición de cobro ya registrada
+- **THEN** la recepción se confirma como exitosa y no se agrega una segunda entrada a la bitácora
+
+### Requirement: Un cobro acreditado se registra aunque la notificación no llegue
+
+El sistema SHALL verificar periódicamente contra el proveedor el estado de los pedidos que lleven
+demasiado tiempo con un pago iniciado o pendiente de acreditación, y SHALL resolverlos con las mismas
+reglas que aplica a una notificación. La acreditación por esta vía NO SHALL producir efectos distintos
+ni duplicados respecto de la acreditación por notificación.
+
+#### Scenario: Notificación que nunca llegó
+
+- **WHEN** un pago se acredita en el proveedor y su notificación no llega por ningún motivo
+- **THEN** la verificación periódica lo detecta y el pedido queda acreditado, con una sola entrada en
+  la bitácora
+
+#### Scenario: Verificación sobre un pedido ya acreditado
+
+- **WHEN** la verificación periódica alcanza un pedido que ya fue acreditado por una notificación
+- **THEN** no se agrega una segunda acreditación ni cambia el estado de pago
+
+#### Scenario: Monto discrepante detectado por la verificación
+
+- **WHEN** la verificación periódica encuentra un pago acreditado por un monto distinto al del pedido
+- **THEN** el pedido queda en `RevisionManual`, igual que si la discrepancia se hubiera detectado por
+  una notificación
+
+### Requirement: Las llamadas de creación al proveedor son idempotentes
+
+Toda operación que cree un recurso de cobro en el proveedor SHALL enviar una clave de idempotencia
+**derivada** del pedido y del intento, de modo que reintentar la misma operación produzca la misma
+clave. La clave NO SHALL generarse al azar en cada llamada. Un pedido que ya tiene un intento de pago
+vigente SHALL reusarlo en lugar de crear uno nuevo.
+
+#### Scenario: Reintento tras una respuesta perdida
+
+- **WHEN** se crea un pago en el proveedor, la respuesta se pierde por corte o timeout, y la operación
+  se reintenta
+- **THEN** el proveedor no crea un segundo cobro para ese pedido
+
+#### Scenario: Solicitud repetida de inicio de pago
+
+- **WHEN** una familia solicita iniciar el pago de un pedido que ya tiene un intento de pago vigente
+- **THEN** recibe el enlace del intento existente y no se crea uno nuevo
+
 ### Requirement: El procesamiento de notificaciones respeta el aislamiento entre tenants
 
 El procesamiento de una notificación SHALL operar únicamente sobre datos del tenant dueño del pedido

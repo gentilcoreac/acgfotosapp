@@ -32,7 +32,10 @@ rechazado, reembolsado) y el enum único deja de alcanzar.
   (costo extra cero para el fotógrafo).
 - Webhook público de Mercado Pago con firma HMAC verificada, anti-replay, idempotente, y —clave— que
   **nunca decide con el cuerpo de la notificación**: siempre reconsulta el pago server-to-server y
-  decide con esa respuesta.
+  decide con esa respuesta. La respuesta al proveedor distingue lo definitivo (200) de lo transitorio
+  (5xx), para que el reintento de Mercado Pago funcione como garantía de entrega en vez de perderse.
+- Idempotencia en las llamadas **salientes** con `X-Idempotency-Key` derivada del pedido y el intento,
+  para que un reintento tras un timeout no genere un segundo cobro.
 - **Aislamiento multi-tenant explícito en el webhook**: el filtro global de tenant se apaga en
   requests anónimos (hallazgo confirmado en código, ver design.md), así que el webhook resuelve el
   tenant por una referencia opaca y establece contexto de sistema antes de tocar cualquier dato.
@@ -73,7 +76,8 @@ Ninguna: las capabilities existentes (`marca-agua`, `opciones-publicacion`, `reg
   `OrigenPago`; nuevo repositorio para la resolución de referencia de pago.
 - `AcgFotos.Fotos.Application`: `FamiliaPedidoAppService` y `PedidoAppService` (cambio de estado y
   cobro manual pasan a ser operaciones distintas); nuevos servicios de pago y de verificación de
-  notificaciones; nuevo cliente HTTP de Mercado Pago en `AcgFotos.Fotos.Infrastructure`.
+  notificaciones; puerto `IPasarelaPagos` en lenguaje de dominio, con su adaptador sobre el SDK
+  oficial en `AcgFotos.Fotos.Infrastructure`.
 - `AcgFotos.Fotos.Controllers`: nuevos endpoints de familia (`[AllowFamiliaSession]`), nuevo endpoint
   admin (`FamiliaSessionGuard`), y el webhook anónimo.
 - `AcgFotos.Core/Security/RateLimitingHelper`: política nueva para el inicio de pago y tratamiento
@@ -90,9 +94,11 @@ Ninguna: las capabilities existentes (`marca-agua`, `opciones-publicacion`, `reg
 
 **Dependencias**
 
-- Cliente HTTP propio contra la API de Mercado Pago (`HttpClient` + `IHttpClientFactory`), sin SDK de
-  terceros: la superficie que usamos es chica (crear preferencia, consultar pago) y un SDK agrega
-  dependencia de terceros en el camino del dinero.
+- Paquete oficial `mercadopago-sdk` (3.5.0, net8.0+), usado **detrás de un puerto propio**
+  `IPasarelaPagos` para que el dominio no vea tipos de terceros (D8). Aporta la validación de firma de
+  webhook, el flujo OAuth que necesita el change siguiente, y credencial por request vía
+  `RequestOptions` —lo que lo vuelve seguro en multi-tenant—. Un test de arquitectura prohíbe asignar
+  el estático `MercadoPagoConfig.AccessToken`.
 - Túnel HTTP público (ngrok/cloudflared) para recibir el webhook en desarrollo.
 
 **Riesgo asumido**

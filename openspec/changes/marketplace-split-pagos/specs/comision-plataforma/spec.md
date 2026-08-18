@@ -27,10 +27,32 @@ devengamiento NO SHALL depender del método con el que se cobre después.
 - **WHEN** la tasa de comisión cambia después de que un pedido se confirmó
 - **THEN** ese pedido conserva la comisión calculada con la tasa vigente al confirmarse
 
-#### Scenario: Pedido cancelado
+#### Scenario: Pedido cancelado sin haberse cobrado
 
 - **WHEN** un pedido se cancela sin haberse cobrado
 - **THEN** su comisión devengada se revierte y deja de integrar el saldo
+
+#### Scenario: Pedido cobrado que después se cancela
+
+- **WHEN** un pedido ya cobrado se cancela y se le devuelve el dinero a la familia
+- **THEN** su comisión devengada se revierte, porque la venta se deshizo
+
+#### Scenario: Pago reembolsado sobre un pedido que sigue vigente
+
+- **WHEN** se reembolsa el pago de un pedido que no se cancela
+- **THEN** la comisión NO se revierte y pasa a integrar el saldo pendiente del fotógrafo, igual que si
+  ese pedido se hubiera cobrado por transferencia
+
+#### Scenario: Contracargo sobre un pedido vigente
+
+- **WHEN** llega un contracargo por un pago acreditado y el pedido no se cancela
+- **THEN** la comisión NO se revierte y pasa a integrar el saldo pendiente del fotógrafo
+
+#### Scenario: El proveedor devuelve la comisión retenida
+
+- **WHEN** el proveedor reintegra por su cuenta la comisión ya retenida de un pedido que sigue vigente
+- **THEN** el devengamiento se conserva y esa comisión vuelve a figurar como pendiente, sin que el
+  total devengado del pedido cambie
 
 ### Requirement: La comisión se retiene en el origen cuando el cobro pasa por Mercado Pago
 
@@ -47,6 +69,53 @@ por la cuenta del fotógrafo ni requerir una transferencia posterior.
 
 - **WHEN** el split reparte un pago acreditado
 - **THEN** la cuenta corriente registra la comisión como retenida y deja de contarla como pendiente
+
+#### Scenario: Comisión declarada como importe
+
+- **WHEN** se declara la comisión de la plataforma en la transacción del proveedor
+- **THEN** viaja como un importe en la moneda de la operación, calculado por el sistema, y el cliente
+  no interviene en ese cálculo por ningún camino
+
+#### Scenario: Comisión que superaría el monto de la operación
+
+- **WHEN** la comisión calculada resultara mayor al monto total de la operación
+- **THEN** el sistema lo rechaza antes de llamar al proveedor, con un error propio que explica el
+  motivo
+
+### Requirement: El cobro se verifica contra la cuenta en la que efectivamente entró
+
+Al procesar un cobro del proveedor, el sistema SHALL verificar que la cuenta receptora informada
+corresponde a la cuenta vinculada del tenant dueño del pedido. Si no corresponde, el pedido NO SHALL
+acreditarse: SHALL quedar señalado para revisión manual, con ambas identificaciones registradas.
+
+#### Scenario: Cobro acreditado en una cuenta que no es la del dueño del pedido
+
+- **WHEN** llega un cobro verificado cuya cuenta receptora no es la vinculada al tenant del pedido
+- **THEN** el pedido queda en revisión manual, no acreditado, y la bitácora registra la cuenta
+  informada y la esperada
+
+#### Scenario: Cobro en la cuenta correcta
+
+- **WHEN** la cuenta receptora informada coincide con la vinculada al tenant del pedido
+- **THEN** el cobro se acredita normalmente
+
+### Requirement: Los cobros se concilian contra los registros del proveedor
+
+La plataforma SHALL poder contrastar sus propios registros de cobro y de comisión contra el reporte
+que emite el proveedor por cada vendedor vinculado, y SHALL señalar las diferencias en ambos
+sentidos: operaciones que el proveedor registró y el sistema no, y operaciones que el sistema
+registró y el proveedor no.
+
+#### Scenario: Cobro que el sistema no registró
+
+- **WHEN** el reporte del proveedor incluye un cobro acreditado que no tiene entrada en la bitácora
+- **THEN** la diferencia queda señalada para revisión, con los datos necesarios para identificar la
+  operación
+
+#### Scenario: Conciliación sin diferencias
+
+- **WHEN** los cobros y comisiones del reporte del proveedor coinciden con los registros del sistema
+- **THEN** la conciliación se cierra sin diferencias y queda constancia del período conciliado
 
 ### Requirement: La cuenta corriente refleja devengado, retenido y pendiente
 

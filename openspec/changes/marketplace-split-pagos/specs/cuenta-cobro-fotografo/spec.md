@@ -71,22 +71,66 @@ respuestas de error, y NO SHALL ser legibles por una consulta directa a la base.
 - **WHEN** el fotógrafo consulta el estado de su cuenta vinculada
 - **THEN** recibe el estado y los datos identificatorios de la cuenta, nunca la credencial
 
+### Requirement: La autorización se solicita de forma que pueda renovarse
+
+El flujo de autorización SHALL solicitar el alcance que habilita la renovación posterior sin
+intervención del fotógrafo, y SHALL protegerse contra el uso de un código de autorización
+interceptado, exigiendo en el canje un verificador que solo conoce quien inició el flujo.
+
+#### Scenario: Autorización sin alcance de renovación
+
+- **WHEN** se construye la URL de autorización que se le presenta al fotógrafo
+- **THEN** incluye el alcance que habilita la renovación, sin el cual la vinculación no podría
+  renovarse y caducaría de forma irreversible al vencer
+
+#### Scenario: Canje de un código interceptado
+
+- **WHEN** alguien obtiene el código de autorización del retorno e intenta canjearlo sin el
+  verificador correspondiente
+- **THEN** el canje se rechaza y no se obtienen credenciales
+
 ### Requirement: Las credenciales se renuevan antes de vencer
 
-La plataforma SHALL renovar las credenciales vinculadas antes de su vencimiento, sin intervención del
-fotógrafo. Si la renovación falla de forma definitiva, la vinculación SHALL marcarse como caída y el
-fotógrafo SHALL ser notificado de que necesita volver a autorizar.
+La plataforma SHALL renovar las credenciales vinculadas con margen antes de su vencimiento, sin
+intervención del fotógrafo. Cada renovación SHALL persistir **todas** las credenciales que devuelva el
+proveedor, incluida la que habilita la renovación siguiente. Si la renovación falla de forma
+definitiva, la vinculación SHALL marcarse como caída y el fotógrafo SHALL ser notificado de que
+necesita volver a autorizar.
 
 #### Scenario: Renovación exitosa
 
 - **WHEN** una credencial vinculada se aproxima a su vencimiento
 - **THEN** se renueva sin que el fotógrafo intervenga y los cobros siguen funcionando
 
+#### Scenario: Renovaciones encadenadas
+
+- **WHEN** una vinculación se renueva y más adelante vuelve a renovarse
+- **THEN** la segunda renovación también tiene éxito, porque la primera persistió la credencial de
+  renovación nueva que devolvió el proveedor
+
 #### Scenario: Renovación fallida de forma definitiva
 
 - **WHEN** la renovación falla porque el fotógrafo revocó la autorización desde el proveedor
 - **THEN** la vinculación queda marcada como caída, se le informa al fotógrafo, y los eventos afectados
   dejan de ofrecer pago online
+
+### Requirement: La revocación se detecta cuando ocurre, no cuando falla un cobro
+
+La plataforma SHALL procesar las notificaciones del proveedor sobre conexiones y desconexiones de
+autorización, y SHALL marcar la vinculación como caída al recibir una desconexión verificada, sin
+esperar a que falle una renovación o un cobro.
+
+#### Scenario: El fotógrafo revoca desde el panel del proveedor
+
+- **WHEN** el fotógrafo revoca la autorización desde su panel y llega la notificación verificada de
+  desconexión
+- **THEN** la vinculación queda marcada como caída de inmediato, se le informa, y sus eventos dejan de
+  ofrecer pago online
+
+#### Scenario: Revocación sin notificación
+
+- **WHEN** una autorización deja de ser válida sin que llegue notificación alguna
+- **THEN** la caída se detecta igual en la siguiente renovación, que falla de forma definitiva
 
 ### Requirement: El fotógrafo puede desvincular su cuenta
 
